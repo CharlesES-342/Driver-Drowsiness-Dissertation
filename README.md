@@ -1,47 +1,52 @@
 # Driver-Drowsiness-Dissertation
+
 This project is my final year dissertation. This will include both used and trial code.
 
-The aim of this project is to improve safety on teh road. This will be done by using an AI model to detect the tiredness of
-the driver of a vehicle and act accordingly. This could be notifying them when they are drowsy and suggest they stop, or
-alternitively create an annoying beep to keep them awake.
+The aim of this project is to improve safety on the road. This will be done by using an AI model to detect the tiredness of  
+the driver of a vehicle and act accordingly. This could be notifying them when they are drowsy and suggest they stop, or  
+alternatively create an annoying beep to keep them awake.
 
-Project Stages:
-    Before starting
-        .Order Components
-            - camera
-            - pi
-            - power cables
-            - speaker
+---
 
-        .Download training data
-        
-        .Sort/group training data
+## Project Stages
 
+### Before Starting
 
+- **Order Components**
+  - Camera  
+  - Raspberry Pi  
+  - Power cables  
+  - Speaker  
 
-    Code Elements
-        .Face detection (image)
-            - can use a single image for this, to get the basics down
-            - extract data (e.g. eye positions, mouth positions...)
+- **Download training data**  
+- **Sort/group training data**
 
-        .Face detection (video)
-            - chewck that you can read each frame
-            - extract resources (e.g. yawning, time eyes are closed, blink rate...)
+---
 
-        .Formulating the AI structure
-            use the collected date elements from teh videos and images to form your node network
+### Code Elements
 
-        .Implement learning algorithms
-            - back propagation
-            - momentum
-            - bold driver / annealing (choose one)
-            - weight decay
+- **Face Detection (Image)**
+  - Can use a single image for this to get the basics down  
+  - Extract data (e.g. eye positions, mouth positions, etc.)
 
-        .network WIFI device (requires hardware)
-            set up and test a connection to run your pi as a server to host a web page
-            ADDITIONAL: try and have it auto open your browser to the webpage on initial conneciton to the network
-        
-        .make use of camera (requires hardware)
-            - ensure that your camera device works and relays information
-            - try running your facial detection (not utilising the AI model yet)
-            - pair this with your AI model
+- **Face Detection (Video)**
+  - Check that you can read each frame  
+  - Extract resources (e.g. yawning, time eyes are closed, blink rate, etc.)
+
+- **Formulating the AI Structure**
+  - Use the collected data elements from the videos and images to form your node network  
+
+- **Implement Learning Algorithms**
+  - Back propagation  
+  - Momentum  
+  - Bold driver / annealing (choose one)  
+  - Weight decay  
+
+- **Network Wi-Fi Device** *(requires hardware)*  
+  - Set up and test a connection to run your Pi as a server hosting a web page  
+  - **Additional:** Try and have it auto open your browser to the webpage on initial connection to the network  
+
+- **Make Use of Camera** *(requires hardware)*  
+  - Ensure that your camera device works and relays information  
+  - Try running your facial detection (not utilising the AI model yet)  
+  - Pair this with your AI model
