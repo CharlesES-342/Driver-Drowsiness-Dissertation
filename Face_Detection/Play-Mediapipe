@@ -1,0 +1,105 @@
+import cv2
+import mediapipe as mp
+import sys
+import math
+
+print("Running Python version:", sys.version)
+
+# --- Mediapipe setup ---
+mp_face_mesh = mp.solutions.face_mesh
+mp_drawing = mp.solutions.drawing_utils
+mp_styles = mp.solutions.drawing_styles
+
+# --- Load image ---
+image_path = r"C:\Users\smelt\OneDrive\Pictures\test_img_me.jpg"
+image = cv2.imread(image_path)
+
+if image is None:
+    raise FileNotFoundError(f"Could not read the image at {image_path}")
+
+rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+# --- Process the image for face landmarks ---
+with mp_face_mesh.FaceMesh(
+    static_image_mode=True,
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5
+) as face_mesh:
+    results = face_mesh.process(rgb_image)
+
+annotated_image = image.copy()
+
+if results.multi_face_landmarks:
+    for face_landmarks in results.multi_face_landmarks:
+        # Draw landmarks
+        mp_drawing.draw_landmarks(
+            image=annotated_image,
+            landmark_list=face_landmarks,
+            connections=mp_face_mesh.FACEMESH_TESSELATION,
+            landmark_drawing_spec=None,
+            connection_drawing_spec=mp_styles.get_default_face_mesh_tesselation_style()
+        )
+        mp_drawing.draw_landmarks(
+            image=annotated_image,
+            landmark_list=face_landmarks,
+            connections=mp_face_mesh.FACEMESH_CONTOURS,
+            landmark_drawing_spec=None,
+            connection_drawing_spec=mp_styles.get_default_face_mesh_contours_style()
+        )
+
+        # --- Extract key landmarks ---
+        h, w, _ = image.shape
+        landmarks = face_landmarks.landmark
+
+        def get_pixel_coords(index):
+            pt = landmarks[index]
+            return int(pt.x * w), int(pt.y * h)
+
+        # Eye height
+        left_eye_top = get_pixel_coords(159)
+        left_eye_bottom = get_pixel_coords(145)
+        right_eye_top = get_pixel_coords(386)
+        right_eye_bottom = get_pixel_coords(374)
+
+        left_eye_height = abs(left_eye_bottom[1] - left_eye_top[1])
+        right_eye_height = abs(right_eye_bottom[1] - right_eye_top[1])
+
+        # Mouth position
+        mouth_center = get_pixel_coords(13)
+
+        # Head angle (basic vertical tilt estimate)
+        nose_tip = get_pixel_coords(1)
+        forehead = get_pixel_coords(10)
+        dx = forehead[0] - nose_tip[0]
+        dy = forehead[1] - nose_tip[1]
+        angle_rad = math.atan2(dy, dx)
+        angle_deg = math.degrees(angle_rad)
+
+        # --- Draw text on the image ---
+        font = cv2.FONT_HERSHEY_SIMPLEX
+        font_scale = 0.6
+        color = (0, 255, 0)
+        thickness = 2
+
+        cv2.putText(annotated_image, f"Left eye height: {left_eye_height}px", (30, 30), font, font_scale, color, thickness)
+        cv2.putText(annotated_image, f"Right eye height: {right_eye_height}px", (30, 60), font, font_scale, color, thickness)
+        cv2.putText(annotated_image, f"Mouth center: {mouth_center}", (30, 90), font, font_scale, color, thickness)
+        cv2.putText(annotated_image, f"Head tilt angle: {angle_deg:.2f} deg", (30, 120), font, font_scale, color, thickness)
+
+        # --- Draw circles on key points ---
+        cv2.circle(annotated_image, mouth_center, 3, (0, 0, 255), -1)
+        cv2.circle(annotated_image, left_eye_top, 3, (255, 0, 0), -1)
+        cv2.circle(annotated_image, left_eye_bottom, 3, (255, 0, 0), -1)
+        cv2.circle(annotated_image, right_eye_top, 3, (255, 0, 0), -1)
+        cv2.circle(annotated_image, right_eye_bottom, 3, (255, 0, 0), -1)
+        cv2.circle(annotated_image, nose_tip, 3, (0, 255, 255), -1)
+        cv2.circle(annotated_image, forehead, 3, (0, 255, 255), -1)
+
+else:
+    print("No face detected.")
+
+# --- Display the result ---
+cv2.imshow("Face Landmarks", annotated_image)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
