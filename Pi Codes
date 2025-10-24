@@ -1,0 +1,11 @@
+check if the pi is on and resonding:
+    ping pi@raspberrypi.local
+
+ssh into the pi
+    ssh pi@raspberrypi.local
+
+    Improved for maintaining contact with ht epie for an extended period:
+        ssh -o ServerAliveInterval=60 -o ServerAliveCountMax=5 pi@raspberrypi.local
+
+view interface addresses:
+    arp -a
