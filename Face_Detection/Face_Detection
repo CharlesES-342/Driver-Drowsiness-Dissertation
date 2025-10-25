@@ -14,11 +14,11 @@ keyLandmarks = {
     "left_mouth_corner": 61,
     "right_mouth_corner": 291,
     "upper_lip": 13,
-    "lower_lip": 14
+    "lower_lip": 14,
+    "nose_tip": 1,
+    "forehead": 10
 }
 
-# --- main function ---
-processImage(getImage(getImage_path)) # TODO - specify your image path here
 
 # get image
 def getImage(image_path):
@@ -26,6 +26,7 @@ def getImage(image_path):
     if image is None:
         raise FileNotFoundError(f"Could not read the image at {image_path}")
     return image
+
 
 # process image
 def processImage(image):
@@ -63,9 +64,17 @@ def processImage(image):
             connection_drawing_spec=mp_styles.get_default_face_mesh_contours_style()
             )   
 
-        # --- store all face landmarks --- TODO: only store the ones I need
+        # --- store all face landmarks --- TODO: only store the ones I need - to save on space
             landmarks = face_landmarks.landmark
 
+        # get the shape of the image
+            h, w, _ = image.shape
+
+        # --- convert from normal coordinates to pixel coordinates ---
+            def get_pixel_coords(index):
+                # determine locaiton of the landmark in pixel coordinates
+                pt = landmarks[index]
+                return int(pt.x * w), int(pt.y * h)
             
         # --- extract key landmarks from the image ---
             # eye openness for blinking and closed eyes detection
@@ -109,8 +118,10 @@ def processImage(image):
     cv2.destroyAllWindows()
 
 
-# --- convert from normal coordinates to pixel coordinates ---
-def get_pixel_coords(index):
-    pt = landmarks[index]
-    return int(pt.x * w), int(pt.y * h)
+
     
+
+
+# --- main function ---
+getImage_path = r"C:\Users\smelt\OneDrive\Pictures\test_img_me.jpg"  # TODO - specify your image path here  
+processImage(getImage(getImage_path))
