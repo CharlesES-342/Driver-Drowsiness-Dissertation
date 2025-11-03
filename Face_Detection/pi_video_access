@@ -1,0 +1,30 @@
+# this file will contain functions to access video
+# e.g., from webcam or from a video file
+
+# access video from webcam
+def access_webcam():
+    import cv2
+
+    # Open a connection to the webcam (0 is usually the default camera)
+    cap = cv2.VideoCapture(0)
+
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return
+
+    while True:
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Could not read frame.")
+            break
+
+        # Display the resulting frame
+        cv2.imshow('Webcam', frame)
+
+        # Break the loop on 'q' key press
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Release the webcam and close windows
+    cap.release()
+    cv2.destroyAllWindows()
