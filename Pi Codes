@@ -19,3 +19,17 @@ pulling the branch
 
 To run the file
     python3 'fileName'
+
+Running in a 3.10 python virtual environment
+    cd 'go to repo destination'
+    python3.10 -m venv venv
+    source venv/bin/activate
+
+    can install libraries needed using pip
+    run like normal, from within the venv environmen
+
+    to exit
+        deactivate
+    to re-enter
+        cd to location
+        source venv/bin/activate
