@@ -138,3 +138,30 @@ def drawImage(window_name, image):
     cv2.imshow(window_name, image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
+
+
+#the main function to run the code
+if __name__ == "__main__":
+    cap = open_webcam()
+    if cap is None:
+        exit()
+
+    print("Press SPACE to capture an image or Q to quit.")
+
+    while True:
+        frame = capture_frame(cap)
+        if frame is None:
+            break
+
+        cv2.imshow("Webcam Feed", frame)
+
+        key = cv2.waitKey(1) & 0xFF
+
+        if key == ord(' '):  # SPACE key
+            image_data = process_frame(frame)
+            drawImage("Processed Frame", image_data['image'])
+
+        elif key == ord('q'):  # Q key
+            break
+
+    close_webcam(cap)
