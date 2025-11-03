@@ -1,35 +1,7 @@
-# detect faces and add markers to key landmarks on the face
 import cv2
 import mediapipe as mp
-import os
 
-# funciton to open the webcam
-def open_webcam():
-    cap = cv2.VideoCapture(0)
-    
-    if not cap.isOpened():
-        print("Error: Could not open webcam.")
-        return None
-
-    return cap
-
-# function to close the webcam
-def close_webcam(cap):
-    cap.release()
-    cv2.destroyAllWindows()
-
-# function to capture a single frame from the webcam
-def capture_frame(cap):
-    ret, frame = cap.read()
-    if not ret:
-        print("Failed to grab frame.")
-        return None
-    return frame
-
-
-
-#for face detection
-# mediapipe face mesh setup
+# Mediapipe setup
 mp_face_mesh = mp.solutions.face_mesh
 mp_drawing = mp.solutions.drawing_utils
 
@@ -38,109 +10,101 @@ keyLandmarks = {
     "left_eye_bottom": 145,
     "right_eye_top": 386,
     "right_eye_bottom": 374,
-    "left_mouth_corner": 61,
-    "right_mouth_corner": 291,
     "upper_lip": 13,
     "lower_lip": 14,
     "nose_tip": 1,
     "forehead": 10
 }
 
-def process_frame(frame):
+# Webcam functions
+def open_webcam():
+    cap = cv2.VideoCapture(0)
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return None
+    return cap
+
+def close_webcam(cap):
+    cap.release()
+    cv2.destroyAllWindows()
+
+def capture_frame(cap):
+    ret, frame = cap.read()
+    if not ret:
+        print("Failed to grab frame.")
+        return None
+    return frame
+
+# Frame processing
+def process_frame(frame, face_mesh):
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    #add face mesh instance
-    with mp_face_mesh.FaceMesh( #TODO - take this outsde the function to improve performance
-        static_image_mode=False, #this may be wrong (TODO - check later)
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.5
-    ) as face_mesh:
-        results = face_mesh.process(rgb_frame)
-
-    #draw on landmarks I am interested in
+    results = face_mesh.process(rgb_frame)
     annotated_frame = frame.copy()
 
-    if results.multi_face_landmarks: #if there is a face in the image
-        for face_landmarks in results.multi_face_landmarks: #loop through all detected faces in the image
-            #draw mesh patterns
+    left_eye_height = right_eye_height = mouth_height = dx = dy = 0
+
+    if results.multi_face_landmarks:
+        for face_landmarks in results.multi_face_landmarks:
             mp_drawing.draw_landmarks(
-            image=annotated_frame,
-            landmark_list=face_landmarks,
-            connections=mp_face_mesh.FACEMESH_TESSELATION,
-            landmark_drawing_spec=None,
-            connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1)
-            )
-            
-            #draw contour features (face outline, eye outline, mouth outline...)
-            mp_drawing.draw_landmarks(
-            image=annotated_frame,
-            landmark_list=face_landmarks,
-            connections=mp_face_mesh.FACEMESH_CONTOURS,
-            landmark_drawing_spec=None,
-            connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=2)
+                image=annotated_frame,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_TESSELATION,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,255,0), thickness=1, circle_radius=1)
             )
 
-            #store key landmark positions
+            mp_drawing.draw_landmarks(
+                image=annotated_frame,
+                landmark_list=face_landmarks,
+                connections=mp_face_mesh.FACEMESH_CONTOURS,
+                landmark_drawing_spec=None,
+                connection_drawing_spec=mp_drawing.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=2)
+            )
+
             landmarks = face_landmarks.landmark
+            h, w, _ = frame.shape
 
-            #get the size of the frame
-            frame_height, frame_width, _ = frame.shape
-
-            #convert normalized landmark positions to pixel coordinates
             def normalized_to_pixel(index):
-                # determine locaiton of the landmark in pixel coordinates
-                return int(pt.x * frame_width), int(pt.y * frame_height)
+                pt = landmarks[index]
+                return int(pt.x * w), int(pt.y * h)
 
-            
-            #extract key landmarks from the image
-            # eye openness for blinking and closed eyes detection
+            # Eyes
             left_eye_height = abs(normalized_to_pixel(keyLandmarks["left_eye_bottom"])[1] - normalized_to_pixel(keyLandmarks["left_eye_top"])[1])
             right_eye_height = abs(normalized_to_pixel(keyLandmarks["right_eye_bottom"])[1] - normalized_to_pixel(keyLandmarks["right_eye_top"])[1])
-            # mouth corners for yawning detection
-            mouth_top_lip = normalized_to_pixel(keyLandmarks["upper_lip"])
-            mouth_bottom_lip = normalized_to_pixel(keyLandmarks["lower_lip"])
-            mouth_height = abs(mouth_bottom_lip[1] - mouth_top_lip[1])
-            # head angle for nodding detection
-            nose_tip = normalized_to_pixel(keyLandmarks["nose_tip"])
-            forehead = normalized_to_pixel(keyLandmarks["forehead"])   
-            dx = forehead[0] - nose_tip[0] #tilting head left or right
-            dy = forehead[1] - nose_tip[1] #nodding head up or down
 
+            # Mouth
+            mouth_height = abs(normalized_to_pixel(keyLandmarks["lower_lip"])[1] - normalized_to_pixel(keyLandmarks["upper_lip"])[1])
+
+            # Head angles
+            dx = normalized_to_pixel(keyLandmarks["forehead"])[0] - normalized_to_pixel(keyLandmarks["nose_tip"])[0]
+            dy = normalized_to_pixel(keyLandmarks["forehead"])[1] - normalized_to_pixel(keyLandmarks["nose_tip"])[1]
 
     return {
         'image': annotated_frame,
-        'left eye height': left_eye_height,
-        'right eye height': right_eye_height,
-        'mouth height': mouth_height,
+        'left_eye_height': left_eye_height,
+        'right_eye_height': right_eye_height,
+        'mouth_height': mouth_height,
         'dx': dx,
         'dy': dy
     }
 
-def drawImage(window_name, image):
-    #font and dispay outline
+# Draw annotations
+def drawImage(window_name, image_data):
+    img = image_data['image']
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 0.6
     color = (0, 255, 0)
     thickness = 2
-    #add the annotations to the image and display it
-    cv2.putText(
-        image,
-        f"Left eye height: {image_data['left eye height']}px",
-        (30, 30),
-        font,
-        font_scale,
-        color,
-        thickness
-    )
 
+    cv2.putText(img, f"Left eye height: {image_data['left_eye_height']}px", (30, 30), font, font_scale, color, thickness)
+    cv2.putText(img, f"Right eye height: {image_data['right_eye_height']}px", (30, 60), font, font_scale, color, thickness)
+    cv2.putText(img, f"Mouth height: {image_data['mouth_height']}px", (30, 90), font, font_scale, color, thickness)
+    cv2.putText(img, f"Rotation dx: {image_data['dx']}px", (30, 120), font, font_scale, color, thickness)
+    cv2.putText(img, f"Pitch dy: {image_data['dy']}px", (30, 150), font, font_scale, color, thickness)
 
-    cv2.imshow(window_name, image)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    cv2.imshow(window_name, img)
 
-
-#the main function to run the code
+# Main loop
 if __name__ == "__main__":
     cap = open_webcam()
     if cap is None:
@@ -148,20 +112,27 @@ if __name__ == "__main__":
 
     print("Press SPACE to capture an image or Q to quit.")
 
-    while True:
-        frame = capture_frame(cap)
-        if frame is None:
-            break
+    with mp_face_mesh.FaceMesh(
+        static_image_mode=False,
+        max_num_faces=1,
+        refine_landmarks=True,
+        min_detection_confidence=0.5
+    ) as face_mesh:
 
-        cv2.imshow("Webcam Feed", frame)
+        while True:
+            frame = capture_frame(cap)
+            if frame is None:
+                break
 
-        key = cv2.waitKey(1) & 0xFF
+            cv2.imshow("Webcam Feed", frame)
+            key = cv2.waitKey(1) & 0xFF
 
-        if key == ord(' '):  # SPACE key
-            image_data = process_frame(frame)
-            drawImage("Processed Frame", image_data['image'])
+            if key == ord(' '):  # SPACE key
+                image_data = process_frame(frame, face_mesh)
+                drawImage("Processed Frame", image_data)
+                cv2.waitKey(0)  # wait to view processed frame
 
-        elif key == ord('q'):  # Q key
-            break
+            elif key == ord('q'):  # Q key
+                break
 
     close_webcam(cap)
