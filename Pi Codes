@@ -9,3 +9,13 @@ ssh into the pi
 
 view interface addresses:
     arp -a
+
+
+
+pulling the branch
+    //navigate to directory
+    git pull origin 'BranchName'
+        //will need Username and Key
+
+To run the file
+    python3 'fileName'
