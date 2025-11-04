@@ -65,7 +65,7 @@ def process_frame(frame, face_mesh):
             h, w, _ = frame.shape
 
             def normalized_to_pixel(index):
-                pt = landmarks[index]
+                pt = landmarks[index] 
                 return int(pt.x * w), int(pt.y * h)
 
             # Eyes
