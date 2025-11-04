@@ -1,0 +1,122 @@
+# The following code is for test and initial setup of Mediapipe Face Mesh on live video feed
+# this was all formed by AI (Copilot and Chat GPT)
+# this is for playing and testing puroses only and is not part of the final project
+
+import cv2
+import mediapipe as mp
+import sys
+import math
+
+print("Running Python version:", sys.version)
+
+# --- Mediapipe setup ---
+mp_face_mesh = mp.solutions.face_mesh
+mp_drawing = mp.solutions.drawing_utils
+mp_styles = mp.solutions.drawing_styles
+
+# --- Start video capture ---
+cap = cv2.VideoCapture(0)  # Use 0 for default webcam
+
+with mp_face_mesh.FaceMesh(
+    static_image_mode=False,
+    max_num_faces=1,
+    refine_landmarks=True,
+    min_detection_confidence=0.5,
+    min_tracking_confidence=0.5
+) as face_mesh:
+    while cap.isOpened():
+        success, frame = cap.read()
+        if not success:
+            print("Ignoring empty frame.")
+            continue
+
+        # Convert to RGB
+        rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+        # Process frame
+        results = face_mesh.process(rgb_frame)
+
+        annotated_frame = frame.copy()
+
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:
+                mp_drawing.draw_landmarks(
+                    image=annotated_frame,
+                    landmark_list=face_landmarks,
+                    connections=mp_face_mesh.FACEMESH_TESSELATION,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_styles.get_default_face_mesh_tesselation_style()
+                )
+                mp_drawing.draw_landmarks(
+                    image=annotated_frame,
+                    landmark_list=face_landmarks,
+                    connections=mp_face_mesh.FACEMESH_CONTOURS,
+                    landmark_drawing_spec=None,
+                    connection_drawing_spec=mp_styles.get_default_face_mesh_contours_style()
+                )
+
+                h, w, _ = frame.shape
+                landmarks = face_landmarks.landmark
+
+                def get_pixel_coords(index):
+                    pt = landmarks[index]
+                    return int(pt.x * w), int(pt.y * h)
+
+                # Eye height
+                left_eye_top = get_pixel_coords(159)
+                left_eye_bottom = get_pixel_coords(145)
+                right_eye_top = get_pixel_coords(386)
+                right_eye_bottom = get_pixel_coords(374)
+
+                left_eye_height = abs(left_eye_bottom[1] - left_eye_top[1])
+                right_eye_height = abs(right_eye_bottom[1] - right_eye_top[1])
+
+                # Mouth position
+                mouth_center = get_pixel_coords(13)
+
+                # Head angle
+                nose_tip = get_pixel_coords(1)
+                forehead = get_pixel_coords(10)
+                dx = forehead[0] - nose_tip[0]
+                dy = forehead[1] - nose_tip[1]
+                angle_rad = math.atan2(dy, dx)
+                angle_deg = math.degrees(angle_rad)
+
+                # Head tilt
+                forehead = get_pixel_coords(10)
+                chin = get_pixel_coords(152)
+
+                dy = chin[1] - forehead[1]  # vertical difference
+                pitch_angle = math.degrees(math.atan2(dy, 1))  # simplified pitch estimate
+
+
+                # Draw text
+                font = cv2.FONT_HERSHEY_SIMPLEX
+                font_scale = 0.6
+                color = (0, 255, 0)
+                thickness = 2
+
+                cv2.putText(annotated_frame, f"Left eye height: {left_eye_height}px", (30, 30), font, font_scale, color, thickness)
+                cv2.putText(annotated_frame, f"Right eye height: {right_eye_height}px", (30, 60), font, font_scale, color, thickness)
+                cv2.putText(annotated_frame, f"Mouth center: {mouth_center}", (30, 90), font, font_scale, color, thickness)
+                cv2.putText(annotated_frame, f"Head tilt angle: {angle_deg:.2f} deg", (30, 120), font, font_scale, color, thickness)
+                cv2.putText(annotated_frame, f"Head Pitch angle: {pitch_angle:.2f} deg", (30, 150), font, font_scale, color, thickness)
+
+
+                # Draw circles
+                cv2.circle(annotated_frame, mouth_center, 3, (0, 0, 255), -1)
+                cv2.circle(annotated_frame, left_eye_top, 3, (255, 0, 0), -1)
+                cv2.circle(annotated_frame, left_eye_bottom, 3, (255, 0, 0), -1)
+                cv2.circle(annotated_frame, right_eye_top, 3, (255, 0, 0), -1)
+                cv2.circle(annotated_frame, right_eye_bottom, 3, (255, 0, 0), -1)
+                cv2.circle(annotated_frame, nose_tip, 3, (0, 255, 255), -1)
+                cv2.circle(annotated_frame, forehead, 3, (0, 255, 255), -1)
+
+        # Show frame
+        cv2.imshow("Live Face Mesh", annotated_frame)
+
+        if cv2.waitKey(5) & 0xFF == 27:  # Press ESC to exit
+            break
+
+cap.release()
+cv2.destroyAllWindows()
