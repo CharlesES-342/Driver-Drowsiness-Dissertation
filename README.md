@@ -16,7 +16,8 @@ alternatively create an annoying beep to keep them awake.
   - Camera  
   - Raspberry Pi  
   - Power cables  
-  - Speaker  
+  - Speaker
+  - Micro HDMI cable (optional - can ssh in)
 
 - **Download training data**  
 - **Sort/group training data**
