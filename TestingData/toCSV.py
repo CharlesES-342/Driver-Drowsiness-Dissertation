@@ -18,6 +18,7 @@ keyLandmarks = {
 
 
 import os
+import time
 
 # copied code for frame processing - in pi_dection
 def process_frame(frame, face_mesh):
@@ -125,11 +126,12 @@ if __name__ == "__main__":
 
     #eventually do for all videos in a folder
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    videoPath = os.path.abspath(os.path.join(base_dir, "..", "..", "TrainingData", "Not-Tired","SUST_Driver_Drowsiness_Dataset", "n_1.mp4"))
-   
-    #for all videos in the folder
-    
-    frames = getSampleFrames(videoPath, numFrames=10)
+
+    # directory that contains all the videos to process (Not-Tired videos) TODO: for all videos later
+    video_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "TrainingData", "Not-Tired", "SUST_Driver_Drowsiness_Dataset"))
+
+    # Get all .mp4 files in the folder
+    video_files = [f for f in os.listdir(video_dir) if f.endswith(".mp4")]
 
     with mp_face_mesh.FaceMesh(
         static_image_mode=False,
@@ -139,8 +141,19 @@ if __name__ == "__main__":
     ) as face_mesh:
 
         with open(csvFilePath, 'a') as f:
-            for i, frame in enumerate(frames):
-                features = process_frame(frame, face_mesh)
-                csvLine = featuresToCSV(f"n_1", features, "not_tired")
-                f.write(csvLine)
+            print(len(video_files))
+            #pause of 10 seconds before processing for testing only
+            time.sleep(10)
+
+            #process each video file
+            for video in video_files:
+                videoPath = os.path.join(video_dir, video)
+                frames = getSampleFrames(videoPath, numFrames=10)
+
+                for i, frame in enumerate(frames):
+                    features = process_frame(frame, face_mesh)
+                    # use filename (without extension) as ID
+                    video_id = os.path.splitext(video)[0]
+                    csvLine = featuresToCSV(video_id, features, "not_tired")
+                    f.write(csvLine)
     
