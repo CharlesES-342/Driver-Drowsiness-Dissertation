@@ -73,8 +73,6 @@ def process_frame(frame, face_mesh):
     }
 
 
-
-
 # get fromes from a specific video file
 def getSampleFrames(videoPath, numFrames=10):
     cap = cv2.VideoCapture(videoPath)
@@ -104,10 +102,19 @@ def featuresToCSV(name, features, classification):
         return ""
     return f"{name}, {features['left_eye_height']},{features['right_eye_height']},{features['mouth_height']},{features['dx']},{features['dy']}, {classification}\n"
 
+
+
 #create CSV file if not exists and add headers
 def createCSVFile(filePath):
     with open(filePath, 'w') as f:
         f.write("name,left_eye_height,right_eye_height,mouth_height,dx,dy,classification\n")
+
+
+
+
+
+
+
 
 #main function to process videos and save to CSV
 if __name__ == "__main__":
