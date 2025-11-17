@@ -62,6 +62,19 @@ def get_head_pose(landmarks):
     yaw = np.degrees(np.arctan2(right_side[0] - left_side[0], right_side[1] - left_side[1]))
     return pitch, yaw
 
+def accRange(data):
+    array = np.array(data)
+    str = np.std(array)
+    accMax = np.median(array) + 2*str
+    accMin = np.median(array) - 2*str
+    xtremes = 0
+    for val in array:
+        if val < accMax:
+            extremes +=1
+        if val > accMin:
+            extremes +=1
+    return extremes
+
 
 def determineEvent(frame, face_mesh):
     frameEvents = {
@@ -102,7 +115,7 @@ def determineEvent(frame, face_mesh):
             frameEvents["head_down"] = pitch > 10
             frameEvents["head_turned"] = abs(yaw) > 15
 
-    return frameEvents
+    return frameEvents, yaw
 
 
 # ------------------ MAIN ------------------
@@ -134,8 +147,9 @@ if __name__ == "__main__":
                 frames = get2fps(videoPath)
                 total_frames += len(frames)
 
-                for frame in frames:
-                    features = determineEvent(frame, face_mesh)
+                tiltArray = []    
+                for frame in frames:                    
+                    features, headTilt = determineEvent(frame, face_mesh)
                     if features["face_detected"]:
                         event_counts["face_detected"] += 1
                         if features["eyes_closed"]:
@@ -146,23 +160,27 @@ if __name__ == "__main__":
                             event_counts["head_down"] += 1
                         if features["head_turned"]:
                             event_counts["head_turned"] += 1
-        return event_counts, total_frames
+                        #add to the array for determining excessive head turning (from calibration)
+                        tiltArray.append(headTilt)
+        return event_counts, total_frames,tiltArray
 
 
     # ---------- Process both datasets ----------
-    not_tired_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "TrainingData", "Not-Tired", "SUST_Driver_Drowsiness_Dataset", "subset")) # TODO:Adjust path as needed
-    tired_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "TrainingData", "Tired", "SUST_Driver_Drowsiness_Dataset", "subset")) # TODO:Adjust path as needed
+    not_tired_dir = os.path.abspath(os.path.join(base_dir, "..", "TrainingData", "Not-Tired")) # TODO:Adjust path as needed
+    tired_dir = os.path.abspath(os.path.join(base_dir, "..", "TrainingData", "Tired")) # TODO:Adjust path as needed
 
     print("Processing Not-Tired videos...")
-    not_tired_counts, not_tired_total = process_videos(not_tired_dir)
+    not_tired_counts, not_tired_total,not_tired_headTilt = process_videos(not_tired_dir)
+    not_tired_headTiltExtreme = accRange(not_tired_headTilt)
 
     print("Processing Tired videos...")
-    tired_counts, tired_total = process_videos(tired_dir)
+    tired_counts, tired_total, tired_headTilt = process_videos(tired_dir)
+    tired_headTiltExtreme = accRange(tired_headTilt)
 
         # ---------- Compare results side-by-side ----------
-    labels = list(not_tired_counts.keys())
-    not_tired_values = [not_tired_counts[k] for k in labels]
-    tired_values = [tired_counts[k] for k in labels]
+    labels = list(not_tired_counts.keys()) + ["head_tilt_extreme"]
+    not_tired_values = [not_tired_counts[k] for k in labels] + [not_tired_headTiltExtreme]
+    tired_values = [tired_counts[k] for k in labels] + [tired_headTiltExtreme]
 
     x = np.arange(len(labels))
     width = 0.35  # bar width
