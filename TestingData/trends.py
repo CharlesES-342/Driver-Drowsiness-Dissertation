@@ -203,3 +203,110 @@ if __name__ == "__main__":
 
     print(f"\nTotal frames (Not-Tired): {not_tired_total}")
     print(f"Total frames (Tired): {tired_total}")
+
+    # readin the data from a csv file and plot it accordingly
+    #for the Bina Nusantara University data
+    BinaUni_overviewFile = os.path.abspath(os.path.join(base_dir, "..", "..", "Bina Nusantara University Data", "modelling", "training", "training")) # TODO:Adjust path as needed
+    
+    #open the file as read
+    import json
+    
+    with open(os.path.join(BinaUni_overviewFile, "info.labels"), "r") as f:
+        data = json.load(f)
+
+    eyes_open_count = 0
+    eyes_closed_count = 0
+    yawning_count = 0
+    not_yawning_count = 0
+    mouthOpen_count = 0
+    mouthClosed_count = 0
+
+    #go through entries
+    for item in data["files"]:
+        sections = item["boundingBoxes"]
+        for part in sections:
+            if part["label"] == "mata_terbuka":
+                eyes_open_count += 1
+            elif part["label"] == "mata_terpejam":
+                eyes_closed_count += 1
+            elif part["label"] == "menguap":
+                yawning_count += 1
+            elif part["label"] == "tidak_menguap":
+                not_yawning_count += 1
+            elif part["label"] == "mulut_terbuka":
+                mouthOpen_count += 1   
+            elif part["label"] == "mulut_tertutup":
+                mouthClosed_count += 1
+    
+    #display as a graph
+    labels = [
+    "Eyes Open",
+    "Eyes Closed",
+    "Yawning",
+    "Not Yawning",
+    "Mouth Open",
+    "Mouth Closed"
+]
+
+values = [
+    eyes_open_count,
+    eyes_closed_count,
+    yawning_count,
+    not_yawning_count,
+    mouthOpen_count,
+    mouthClosed_count
+]
+
+plt.figure(figsize=(10, 6))
+plt.bar(labels, values)
+plt.title("Bounding Box Label Frequency")
+plt.xlabel("Label")
+plt.ylabel("Count")
+plt.xticks(rotation=30)
+plt.tight_layout()
+plt.show()
+
+#go through the file of frames and determine hte difference in event classification (between them and me)
+with mp_face_mesh.FaceMesh(
+            static_image_mode=False,
+            max_num_faces=1,
+            refine_landmarks=True,
+            min_detection_confidence=0.5
+        ) as face_mesh:
+            #get all the frames from the directory
+            
+            frame_files =[f for f in os.listdir(BinaUni_overviewFile) if f.endswith(".jpg")]
+            event_counts = Counter({
+                "eyes_closed": 0,
+                "mouth_open": 0,
+                "head_down": 0,
+                "head_turned": 0,
+                "face_detected": 0
+            })
+
+            for frame in frame_files:
+                frame_path = os.path.join(BinaUni_overviewFile, frame)
+                features = determineEvent(frame_path, face_mesh)
+                if features["face_detected"]:
+                    event_counts["face_detected"] += 1
+                    if features["eyes_closed"]:
+                        event_counts["eyes_closed"] += 1
+                    if features["mouth_open"]:
+                        event_counts["mouth_open"] += 1
+                    if features["head_down"]:
+                        event_counts["head_down"] += 1
+                    if features["head_turned"]:
+                        event_counts["head_turned"] += 1
+                        
+#Display results
+labels = list(event_counts.keys())
+values = list(event_counts.values())
+
+plt.figure(figsize=(10, 6))
+plt.bar(labels, values)
+plt.title("Event Detection Counts")
+plt.ylabel("Count")
+plt.xlabel("Event Type")
+plt.xticks(rotation=30)
+plt.tight_layout()
+plt.show()
