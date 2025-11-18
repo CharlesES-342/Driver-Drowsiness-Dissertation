@@ -26,7 +26,7 @@ Running in a 3.10 python virtual environment
     source venv/bin/activate
 
     can install libraries needed using pip
-    run like normal, from within the venv environmen
+    run like normal, from within the venv environment
 
     to exit
         deactivate
