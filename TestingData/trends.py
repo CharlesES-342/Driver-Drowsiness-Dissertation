@@ -62,17 +62,16 @@ def get_head_pose(landmarks):
     yaw = np.degrees(np.arctan2(right_side[0] - left_side[0], right_side[1] - left_side[1]))
     return pitch, yaw
 
+#TODO: can remove this function later
 def accRange(data):
     array = np.array(data)
     str = np.std(array)
-    accMax = np.median(array) + 2*str
-    accMin = np.median(array) - 2*str
-    xtremes = 0
+    accMax = np.median(array) + 1.5*str
+    accMin = np.median(array) - 1.5*str
+    extremes = 0
     for val in array:
-        if val < accMax:
-            extremes +=1
-        if val > accMin:
-            extremes +=1
+        if val > accMax or val < accMin:
+            extremes += 1
     return extremes
 
 
@@ -89,6 +88,10 @@ def determineEvent(frame, face_mesh):
         "yaw": None
     }
 
+    if frame is None:
+        print(f"ERROR: Could not load image: {frame_path}")
+        return None, None
+    
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb_frame)
     yaw = 0
@@ -135,6 +138,8 @@ if __name__ == "__main__":
         })
 
         total_frames = 0
+        total_extreme_headturns = 0   # <- NEW: sum of per-video extremes
+
         video_files = [f for f in os.listdir(video_dir) if f.endswith(".mp4")]
 
         with mp_face_mesh.FaceMesh(
@@ -144,13 +149,16 @@ if __name__ == "__main__":
             min_detection_confidence=0.5
         ) as face_mesh:
             for video in video_files:
+
                 videoPath = os.path.join(video_dir, video)
                 frames = get2fps(videoPath)
                 total_frames += len(frames)
 
-                tiltArray = []    
-                for frame in frames:                    
+                yaw_values = []   # <- Per-video yaw list
+
+                for frame in frames:
                     features, headTilt = determineEvent(frame, face_mesh)
+
                     if features["face_detected"]:
                         event_counts["face_detected"] += 1
                         if features["eyes_closed"]:
@@ -161,9 +169,26 @@ if __name__ == "__main__":
                             event_counts["head_down"] += 1
                         if features["head_turned"]:
                             event_counts["head_turned"] += 1
-                        #add to the array for determining excessive head turning (from calibration)
-                        tiltArray.append(headTilt)
-        return event_counts, total_frames,tiltArray
+
+                        yaw_values.append(headTilt)
+
+                # ---- PER-VIDEO head-tilt calibration ----
+                if len(yaw_values) > 5:
+                    arr = np.array(yaw_values)
+                    std = np.std(arr)
+                    mid = np.median(arr)
+
+                    max_acc = mid + 2.5 * std #TODO: change apropriately to test extreme head tilts
+                    min_acc = mid - 2.5 * std
+
+                    extreme_count = int(np.sum((arr > max_acc) | (arr < min_acc)))
+                else:
+                    extreme_count = 0
+
+                total_extreme_headturns += extreme_count   # accumulate
+
+        return event_counts, total_frames, total_extreme_headturns
+
 
 
     # ---------- Process both datasets ----------
@@ -172,16 +197,25 @@ if __name__ == "__main__":
 
     print("Processing Not-Tired videos...")
     not_tired_counts, not_tired_total,not_tired_headTilt = process_videos(not_tired_dir)
-    not_tired_headTiltExtreme = accRange(not_tired_headTilt)
 
     print("Processing Tired videos...")
     tired_counts, tired_total, tired_headTilt = process_videos(tired_dir)
-    tired_headTiltExtreme = accRange(tired_headTilt)
 
         # ---------- Compare results side-by-side ----------
-    labels = list(not_tired_counts.keys()) + ["head_tilt_extreme"]
-    not_tired_values = [not_tired_counts[k] for k in labels] + [not_tired_headTiltExtreme]
-    tired_values = [tired_counts[k] for k in labels] + [tired_headTiltExtreme]
+    not_tired_headTiltExtreme = not_tired_headTilt
+    tired_headTiltExtreme = tired_headTilt
+
+    not_tired_counts["extreme_head_tilt"] = not_tired_headTiltExtreme
+    tired_counts["extreme_head_tilt"] = tired_headTiltExtreme
+
+
+    #labels
+    labels = list(not_tired_counts.keys())
+
+
+    #values
+    not_tired_values = [not_tired_counts[k] for k in labels]
+    tired_values = [tired_counts[k] for k in labels]
 
     x = np.arange(len(labels))
     width = 0.35  # bar width
@@ -189,6 +223,7 @@ if __name__ == "__main__":
     # Compute percentages for each event
     not_tired_percent = [(v / not_tired_total * 100) if not_tired_total > 0 else 0 for v in not_tired_values]
     tired_percent = [(v / tired_total * 100) if tired_total > 0 else 0 for v in tired_values]
+
 
     plt.figure(figsize=(10, 6))
     bars1 = plt.bar(x - width/2, not_tired_values, width,
@@ -223,7 +258,9 @@ if __name__ == "__main__":
     print(f"\nTotal frames (Not-Tired): {not_tired_total}")
     print(f"Total frames (Tired): {tired_total}")
 
-    # readin the data from a csv file and plot it accordingly
+
+
+    # reading the data from a csv file and plot it accordingly
     #for the Bina Nusantara University data
     BinaUni_overviewFile = os.path.abspath(os.path.join(base_dir, "..", "..", "Bina Nusantara University Data", "modelling", "training", "training")) # TODO:Adjust path as needed
     
@@ -285,7 +322,7 @@ plt.xticks(rotation=30)
 plt.tight_layout()
 plt.show()
 
-#go through the file of frames and determine hte difference in event classification (between them and me)
+#go through the file of frames and determine the difference in event classification (between them and me)
 with mp_face_mesh.FaceMesh(
             static_image_mode=False,
             max_num_faces=1,
@@ -305,7 +342,7 @@ with mp_face_mesh.FaceMesh(
 
             for frame in frame_files:
                 frame_path = os.path.join(BinaUni_overviewFile, frame)
-                features = determineEvent(frame_path, face_mesh)
+                features, headTilt = determineEvent(frame_path, face_mesh)
                 if features["face_detected"]:
                     event_counts["face_detected"] += 1
                     if features["eyes_closed"]:
