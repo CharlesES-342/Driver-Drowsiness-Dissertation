@@ -80,6 +80,8 @@ def load_training_data(data_dir, label_map):
         video_dir = Path(data_dir) / label
         print(f"\nSearching in: {video_dir}") #for debugging
         
+        print(f"Files inside folder: {list(video_dir.iterdir())}")
+
         for video_file in video_dir.glob("*.mp4"):
             print(f"Processing video: {video_file}") #for debugging
             cap = cv2.VideoCapture(str(video_file))
@@ -95,7 +97,6 @@ def load_training_data(data_dir, label_map):
                     y.append(label_idx)
 
             cap.release()
-            print(f"Frames read: {frame_count}, Faces detected: {face_count}") #for debugging
     
     print(f"\nTotal samples collected: {len(X)}")
     return np.array(X), np.array(y)
@@ -168,7 +169,7 @@ def test_on_video(video_path, model):
 
 # Example usage:
 label_map = {"Not-Tired": 0, "Tired": 1}
-train_model("C:/Users/smelt/GIT_REPO_DEST/Driver-Drowsiness-Dissertation/TrainingData", label_map) #TODO :insert route to training data
+train_model(r"C:/Users/smelt/OneDrive/Documents/Uni/Year_3/Dissertation/Git_Repo_Dest/Driver-Drowsiness-Dissertation/TrainingData", label_map) #TODO :insert route to training data
 model = tf.keras.models.load_model("drowsiness_model.h5")
 test_on_video(r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\TrainingData\Not-Tired\SUST_Driver_Drowsiness_Dataset\n_13.mp4", model)
 
