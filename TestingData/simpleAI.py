@@ -1,3 +1,7 @@
+# used to generate and test a simple AI model for driver drowsiness detection
+# this was my first example and created "drowsiness_model_V1.h5"
+# an example useage can be found in 'AI/initialAI.py'
+
 import tensorflow as tf
 import cv2
 import numpy as np
