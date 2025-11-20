@@ -124,7 +124,7 @@ def train_model(data_dir, label_map, epochs=20):
     print("X shape:", X.shape) #for debugging
     model = build_model(X.shape[1])
     model.fit(X, y, epochs=epochs, batch_size=32, validation_split=0.2)
-    model.save("drowsiness_model.h5")
+    model.save("SUST_Simple_model.h5")
     return model
 
 # ---------- TEST ON VIDEO ---------- #
