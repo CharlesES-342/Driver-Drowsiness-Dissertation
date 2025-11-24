@@ -1,72 +1,13 @@
+# this takes the images, and converts them
 import tensorflow as tf
 import cv2
 import numpy as np
 import json
 import mediapipe as mp
 from pathlib import Path
+import utilities.imageProcessing as imageProcessing
 
-# ---------- GLOBAL VARIABLES ---------- #
 mp_face_mesh = mp.solutions.face_mesh
-
-# ---------- ASPECT RATIO FUNCTIONS ---------- #
-def eye_aspect_ratio(eye):
-    A = np.linalg.norm(eye[1] - eye[5])
-    B = np.linalg.norm(eye[2] - eye[4])
-    C = np.linalg.norm(eye[0] - eye[3])
-    return (A + B) / (2.0 * C)
-
-def mouth_aspect_ratio(mouth):
-    A = np.linalg.norm(mouth[2] - mouth[9])
-    B = np.linalg.norm(mouth[4] - mouth[7])
-    C = np.linalg.norm(mouth[0] - mouth[6])
-    return (A + B) / (2.0 * C)
-
-def extract_head_pose(landmarks):
-    nose = landmarks[1]
-    chin = landmarks[152]
-    left_eye = landmarks[33]
-    right_eye = landmarks[263]
-
-    pitch = np.arctan2(chin[1] - nose[1], chin[0] - nose[0]) * 180 / np.pi
-    yaw = np.arctan2(right_eye[0] - left_eye[0], right_eye[1] - left_eye[1]) * 180 / np.pi
-
-    return pitch, yaw
-
-# ---------- EXTRACT FEATURES ---------- #
-def extract_features(frame):
-    h, w = frame.shape[:2]
-    rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-
-    with mp_face_mesh.FaceMesh(
-        static_image_mode=True,
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.3,
-        min_tracking_confidence=0.3
-    ) as face_mesh:
-
-        results = face_mesh.process(rgb)
-        if not results.multi_face_landmarks:
-            return None
-
-        lm = results.multi_face_landmarks[0]
-        pts = np.array([(p.x * w, p.y * h) for p in lm.landmark])
-
-        left_eye_idx = [33, 160, 158, 133, 153, 144]
-        right_eye_idx = [263, 387, 385, 362, 380, 373]
-        mouth_idx = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375]
-
-        left_eye = pts[left_eye_idx]
-        right_eye = pts[right_eye_idx]
-        mouth = pts[mouth_idx]
-
-        ear_left = eye_aspect_ratio(left_eye)
-        ear_right = eye_aspect_ratio(right_eye)
-        mar = mouth_aspect_ratio(mouth)
-        pitch, yaw = extract_head_pose(pts)
-
-        return np.array([ear_left, ear_right, mar, pitch, yaw])
-
 
 # ---------- MAPPING INDONESIAN LABELS → TIRED / NOT TIRED ---------- #
 def is_tired(labels_list):
@@ -75,7 +16,6 @@ def is_tired(labels_list):
         if box["label"] in tired_labels:
             return True
     return False
-
 
 # ---------- MAIN IMAGE PROCESSING FUNCTION ---------- #
 def run_drowsiness_check_images(image_folder, json_labels, model):
@@ -103,7 +43,7 @@ def run_drowsiness_check_images(image_folder, json_labels, model):
             print(f"❗ Failed to load: {filename}")
             continue
 
-        features = extract_features(img)
+        features = imageProcessing.extract_features(img)
         if features is None:
             print(f"❗ No face detected: {filename}")
             continue
@@ -161,7 +101,7 @@ def predict_images(image_folder, model, json_path):
             continue
 
         # ---- Extract features ----
-        features = extract_features(img)
+        features = imageProcessing.extract_features(img)
         if features is None:
             print(f"No face detected: {filename}")
             continue
