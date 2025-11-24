@@ -47,14 +47,15 @@ if __name__ == "__main__":
                 break
             elif key == ord(' '):  # space bar pressed -> save image
                 frame = cu.capture_frame(cap)
-                if frame is not None:
+                if frame is None:
                     print("failed to capture")
+                    continue
                 else:
                     #display frame taken
                     cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
 
                     #process the captured frame
-                    features = ip.extract_features(frame)
+                    features = ip.extract_features(frame, face_mesh)
                     if features is not None:
                         #pass throgh AI model
                         print("Extracted Features:", features)

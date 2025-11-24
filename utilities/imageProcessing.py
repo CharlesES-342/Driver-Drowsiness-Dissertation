@@ -33,38 +33,30 @@ def extract_head_pose(landmarks):
 
 # ---------- EXTRACT FEATURES FROM FRAME ---------- #
 
-def extract_features(frame):
+def extract_features(frame, face_mesh):
     h, w = frame.shape[:2]
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-    with mp_face_mesh.FaceMesh(
-        static_image_mode=False,
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.3, #addjusted from 0.5
-        min_tracking_confidence=0.3 #addjusted from 0.5
-    ) as face_mesh:
+    results = face_mesh.process(rgb)
 
-        results = face_mesh.process(rgb)
+    if not results.multi_face_landmarks:
+        return None
 
-        if not results.multi_face_landmarks:
-            return None
+    lm = results.multi_face_landmarks[0]
+    pts = np.array([(p.x * w, p.y * h) for p in lm.landmark])
 
-        lm = results.multi_face_landmarks[0]
-        pts = np.array([(p.x * w, p.y * h) for p in lm.landmark])
+    # Eye + mouth landmarks (MediaPipe indexes)
+    left_eye_idx = [33, 160, 158, 133, 153, 144]
+    right_eye_idx = [263, 387, 385, 362, 380, 373]
+    mouth_idx = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375]
 
-        # Eye + mouth landmarks (MediaPipe indexes)
-        left_eye_idx = [33, 160, 158, 133, 153, 144]
-        right_eye_idx = [263, 387, 385, 362, 380, 373]
-        mouth_idx = [61, 146, 91, 181, 84, 17, 314, 405, 321, 375]
+    left_eye = pts[left_eye_idx]
+    right_eye = pts[right_eye_idx]
+    mouth = pts[mouth_idx]
 
-        left_eye = pts[left_eye_idx]
-        right_eye = pts[right_eye_idx]
-        mouth = pts[mouth_idx]
+    ear_left = eye_aspect_ratio(left_eye)
+    ear_right = eye_aspect_ratio(right_eye)
+    mar = mouth_aspect_ratio(mouth)
+    pitch, yaw = extract_head_pose(pts)
 
-        ear_left = eye_aspect_ratio(left_eye)
-        ear_right = eye_aspect_ratio(right_eye)
-        mar = mouth_aspect_ratio(mouth)
-        pitch, yaw = extract_head_pose(pts)
-
-        return np.array([ear_left, ear_right, mar, pitch, yaw])
+    return np.array([ear_left, ear_right, mar, pitch, yaw])
