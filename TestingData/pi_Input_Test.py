@@ -21,11 +21,7 @@ if __name__ == "__main__":
     mp_face_mesh = mp.solutions.face_mesh
 
     # Load TFLite model once
-    #for finding the root location of the model
-    ROOT = Path(__file__).resolve().parent.parent
-    sys.path.append(str(ROOT))
-
-    interpreter = tflite.Interpreter(model_path="drowsiness_model_V2_pi.tflite")
+    interpreter = tflite.Interpreter(model_path="AI_Models/drowsiness_model_V2_pi.tflite")
     interpreter.allocate_tensors()
 
     input_details = interpreter.get_input_details()
