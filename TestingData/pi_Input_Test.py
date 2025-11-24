@@ -27,10 +27,12 @@ if __name__ == "__main__":
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
 
+
     # Open webcam
     cap = cu.open_webcam()
     if cap is None:
         exit()
+    print("webcam opened")
 
     with mp_face_mesh.FaceMesh(
         static_image_mode=False,
@@ -40,20 +42,27 @@ if __name__ == "__main__":
         min_tracking_confidence=0.3
     ) as face_mesh:
 
+        print("please press ' ' to take photo or 'q' to guit")
         while True:
+            # Grab frame
+            frame = cu.capture_frame(cap)
+            if frame is None:
+                continue
+
+            # Show live feed
+            cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
+            
             #wait for key input
             key = cv2.waitKey(1) & 0xFF
             if key == ord('q'):
                 break
             elif key == ord(' '):  # space bar pressed -> save image
-                frame = cu.capture_frame(cap)
+                print("space pressed")
                 if frame is None:
                     print("failed to capture")
                     continue
                 else:
-                    #display frame taken
-                    cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
-
+                    print("frame taken")
                     #process the captured frame
                     features = ip.extract_features(frame, face_mesh)
                     if features is not None:
@@ -66,7 +75,7 @@ if __name__ == "__main__":
 
                         pred = interpreter.get_tensor(output_details[0]['index'])[0]
                         print("Prediction:", pred)
-
+                        break
                     else:
                         print("No face detected, cannot extract features.")
 
