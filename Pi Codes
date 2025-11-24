@@ -17,6 +17,13 @@ pulling the branch
     git pull origin 'BranchName'
         //will need Username and Key
 
+pushing changes back to gt
+    //navigate to directory
+    git add 'file to add'  //can use . to add all changed files
+    git commit -m "Descriptive message"
+    git push origin 'BranchName'
+        //will need Username and Key
+
 To run the file
     python3 'fileName'
 
