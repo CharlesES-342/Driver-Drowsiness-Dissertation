@@ -21,7 +21,7 @@ if __name__ == "__main__":
     mp_face_mesh = mp.solutions.face_mesh
 
     # Load TFLite model once
-    interpreter = tflite.Interpreter(model_path="drowsiness_model_V2.tflite")
+    interpreter = tflite.Interpreter(model_path="drowsiness_model_V2_pi.tflite")
     interpreter.allocate_tensors()
 
     input_details = interpreter.get_input_details()
