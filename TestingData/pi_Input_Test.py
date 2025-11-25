@@ -2,7 +2,7 @@
 import mediapipe as mp
 import cv2
 # import tensorflow as tf # Not using full TensorFlow on Pi, using tflite instead
-import tflite_runtime.interpreter as tflite
+import tflite_runtime.interpreter as tflite #IGNORE ISSUE AS IT IS ON THE PI AND NOT ON LAPTOP
 import numpy as np
 
 
@@ -75,6 +75,13 @@ if __name__ == "__main__":
 
                         pred = interpreter.get_tensor(output_details[0]['index'])[0]
                         print("Prediction:", pred)
+                        #convert this to a class
+                        pred_class = np.argmax(pred)
+                        if( pred_class == 1):
+                            print("Drowsiness Detected!")
+                        else:
+                            print("Driver is Alert.")
+
                         break
                     else:
                         print("No face detected, cannot extract features.")
