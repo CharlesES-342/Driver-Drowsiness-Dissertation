@@ -6,7 +6,7 @@ The aim of this project is to improve safety on the road. This will be done by u
 the driver of a vehicle and act accordingly. This could be notifying them when they are drowsy and suggest they stop, or  
 alternatively create an annoying beep to keep them awake.
 
-All findings and structure are documented in the Report
+All findings and structure are documented in the __Report__
 
 ---
 
@@ -57,8 +57,8 @@ All findings and structure are documented in the Report
  - check your python version (usually using 3.8->3.11)
     this can depend on your libraries used
 - can you open te camera?
-- - can you detect your face on your pi
-- - can you detect tiredness
+  - can you detect your face on your pi
+  - can you detect tiredness
 - convert models to appropriate formats (e.g. from TensorFlow to TensorFlowLite) 
 
 
