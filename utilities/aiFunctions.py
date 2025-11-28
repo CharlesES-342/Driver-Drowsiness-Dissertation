@@ -7,6 +7,10 @@ def convert_model_to_tflite(keras_model_path):
     # Load the Keras model (.h5)
     model = tf.keras.models.load_model(keras_model_path)
 
+    #locaiton to save the new tflite model
+    saveLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models" / model_name
+
+
     # Convert to TFLite
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
     tflite_model = converter.convert()
@@ -20,4 +24,15 @@ def convert_model_to_tflite(keras_model_path):
     print("Conversion complete!")
 
 if __name__ == "__main__":
-    convert_model_to_tflite("drowsiness_model_V2.h5")
+    #changing project root to this so it can find the utility files
+    import sys
+    from pathlib import Path
+    ROOT = Path(__file__).resolve().parent.parent.parent
+    sys.path.append(str(ROOT))
+
+    model_name = "drowsiness_model_V3.h5"
+
+    #model location
+    modelLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models" / model_name
+
+    convert_model_to_tflite(modelLocation)

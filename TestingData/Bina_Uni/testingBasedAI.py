@@ -5,7 +5,15 @@ import numpy as np
 import json
 import mediapipe as mp
 from pathlib import Path
+
+#changing project root to this so it can find the utility files
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.append(str(ROOT))
+#suporting functions
 import utilities.imageProcessing as imageProcessing
+import utilities.cameraUtility as cu
 
 mp_face_mesh = mp.solutions.face_mesh
 
@@ -30,29 +38,37 @@ def run_drowsiness_check_images(image_folder, json_labels, model):
 
     print("\nRunning inference on image dataset...\n")
 
-    for filename, label_list in box_data.items():
+    with mp_face_mesh.FaceMesh(
+        static_image_mode=False,
+        max_num_faces=1,
+        refine_landmarks=True,
+        min_detection_confidence=0.3,
+        min_tracking_confidence=0.3
+    ) as face_mesh:
 
-        img_path = Path(image_folder) / filename
+        for filename, label_list in box_data.items():
 
-        if not img_path.exists():
-            print(f"❗ Missing image: {filename}")
-            continue
+            img_path = Path(image_folder) / filename
 
-        img = cv2.imread(str(img_path))
-        if img is None:
-            print(f"❗ Failed to load: {filename}")
-            continue
+            if not img_path.exists():
+                print(f"❗ Missing image: {filename}")
+                continue
 
-        features = imageProcessing.extract_features(img)
-        if features is None:
-            print(f"❗ No face detected: {filename}")
-            continue
+            img = cv2.imread(str(img_path))
+            if img is None:
+                print(f"❗ Failed to load: {filename}")
+                continue
 
-        pred = model.predict(features.reshape(1, -1), verbose=0)[0]
-        pred_class = int(np.argmax(pred))
+            features = imageProcessing.extract_features(img,face_mesh)
+            if features is None:
+                print(f"❗ No face detected: {filename}")
+                continue
 
-        predictions.append(pred_class)
-        model_outputs.append(pred)
+            pred = model.predict(features.reshape(1, -1), verbose=0)[0]
+            pred_class = int(np.argmax(pred))
+
+            predictions.append(pred_class)
+            model_outputs.append(pred)
 
     # ---------- SUMMARY ---------- #
     tired_percentage = (predictions.count(1) / len(predictions)) * 100
@@ -82,48 +98,56 @@ def predict_images(image_folder, model, json_path):
         data = json.load(f)
     box_data = data["boundingBoxes"]
 
-    print("\n========== RUNNING BATCH EVALUATION ==========\n")
+    with mp_face_mesh.FaceMesh(
+        static_image_mode=False,
+        max_num_faces=1,
+        refine_landmarks=True,
+        min_detection_confidence=0.3,
+        min_tracking_confidence=0.3
+    ) as face_mesh:
 
-    for image_path in folder.iterdir():
-        if not image_path.suffix.lower() in [".jpg", ".png", ".jpeg"]:
-            continue  # skip non-images
+        print("\n========== RUNNING BATCH EVALUATION ==========\n")
 
-        filename = image_path.name
+        for image_path in folder.iterdir():
+            if not image_path.suffix.lower() in [".jpg", ".png", ".jpeg"]:
+                continue  # skip non-images
 
-        if filename not in box_data:
-            print(f"Skipping (no label found): {filename}")
-            continue
+            filename = image_path.name
 
-        # ---- Load image ----
-        img = cv2.imread(str(image_path))
-        if img is None:
-            print(f"Could not load image: {filename}")
-            continue
+            if filename not in box_data:
+                print(f"Skipping (no label found): {filename}")
+                continue
 
-        # ---- Extract features ----
-        features = imageProcessing.extract_features(img)
-        if features is None:
-            print(f"No face detected: {filename}")
-            continue
+            # ---- Load image ----
+            img = cv2.imread(str(image_path))
+            if img is None:
+                print(f"Could not load image: {filename}")
+                continue
 
-        # ---- Model prediction ----
-        pred = model.predict(features.reshape(1, -1), verbose=0)[0]
-        pred_class = int(np.argmax(pred))
+            # ---- Extract features ----
+            features = imageProcessing.extract_features(img, face_mesh)
+            if features is None:
+                print(f"No face detected: {filename}")
+                continue
 
-        # ---- Ground truth ----
-        true_class = 1 if is_tired(box_data[filename]) else 0
+            # ---- Model prediction ----
+            pred = model.predict(features.reshape(1, -1), verbose=0)[0]
+            pred_class = int(np.argmax(pred))
 
-        # ---- Update counters ----
-        if pred_class == true_class:
-            correct += 1
-            result = "✅ Correct"
-        else:
-            incorrect += 1
-            result = "❌ Incorrect"
+            # ---- Ground truth ----
+            true_class = 1 if is_tired(box_data[filename]) else 0
 
-        total += 1
+            # ---- Update counters ----
+            if pred_class == true_class:
+                correct += 1
+                result = "✅ Correct"
+            else:
+                incorrect += 1
+                result = "❌ Incorrect"
 
-        print(f"{filename}: Pred={pred_class}, True={true_class} → {result}")
+            total += 1
+
+            print(f"{filename}: Pred={pred_class}, True={true_class} → {result}")
 
     # ---------- SUMMARY ----------
     print("\n=========== SUMMARY ===========")
@@ -160,10 +184,45 @@ if __name__ == "__main__":
     image_folder = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\training\training" #TODO: change to your image folder
     json_path = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\training\training\bounding_boxes.labels"#TODO: change to your json labels file
 
-    model = tf.keras.models.load_model("drowsiness_model_V2.h5")
-
-    # run_drowsiness_check_images(image_folder, json_path, model)
+    saveLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models"
+    model_name = "drowsiness_model_V3.h5"
+    model_location = saveLocation / model_name
+    model = tf.keras.models.load_model(model_location)
+    #run_drowsiness_check_images(image_folder, json_path, model)
 
     test_images_path = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\testing\testing" #TODO: change to your test image path
     test_json_path = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\testing\testing\bounding_boxes.labels"#TODO: change to your test json labels file
     correct, incorrect = predict_images(test_images_path, model, test_json_path)
+
+    
+    #open camera
+    cap = cu.open_webcam()
+
+    with mp_face_mesh.FaceMesh(
+        static_image_mode=False,
+        max_num_faces=1,
+        refine_landmarks=True,
+        min_detection_confidence=0.3,
+        min_tracking_confidence=0.3
+    ) as face_mesh:
+            
+        #check based on a single image of be taken with camera
+        while True:
+            frame = cu.capture_frame(cap)
+            if frame is None:
+                continue
+            #display the frame
+            cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
+
+            key = cv2.waitKey(0) & 0xFF
+            if key == ord('q'):
+                break
+            elif key == ord(' '):
+                #take the image and move pass through
+                print("space pressed")
+                features = imageProcessing.extract_features(frame, face_mesh)
+                if features is not None:
+                    pred = model.predict(features.reshape(1, -1), verbose=0)[0]
+                    pred_class = int(np.argmax(pred))
+                    print(f"Predicted Class: {pred_class} (0=NOT TIRED, 1=TIRED)")
+            
