@@ -1,0 +1,6 @@
+#for installing libraries quickly on the pi (to remove the need to install al packages)
+numbpy<3
+opencv-python
+tflite-runtime
+mediapipe-rpi
+tensorflow
