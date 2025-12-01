@@ -192,7 +192,7 @@ if __name__ == "__main__":
 
     test_images_path = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\testing\testing" #TODO: change to your test image path
     test_json_path = r"C:\Users\smelt\OneDrive\Documents\Uni\Year_3\Dissertation\Git_Repo_Dest\Bina Nusantara University Data\modelling\testing\testing\bounding_boxes.labels"#TODO: change to your test json labels file
-    correct, incorrect = predict_images(test_images_path, model, test_json_path)
+    #correct, incorrect = predict_images(test_images_path, model, test_json_path)
 
     
     #open camera
@@ -205,20 +205,21 @@ if __name__ == "__main__":
         min_detection_confidence=0.3,
         min_tracking_confidence=0.3
     ) as face_mesh:
+        print("\nPress SPACE to capture an image for drowsiness prediction.")
             
         #check based on a single image of be taken with camera
         while True:
             frame = cu.capture_frame(cap)
             if frame is None:
                 continue
-            #display the frame
-            cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
-
+            
             key = cv2.waitKey(0) & 0xFF
             if key == ord('q'):
                 break
             elif key == ord(' '):
                 #take the image and move pass through
+                cv2.imshow('Driver Drowsiness Detection - Pi Camera', frame)
+
                 print("space pressed")
                 features = imageProcessing.extract_features(frame, face_mesh)
                 if features is not None:
