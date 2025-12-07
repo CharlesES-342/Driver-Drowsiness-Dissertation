@@ -1,4 +1,6 @@
-#REQUIRES TESTING ON THE PI
+# REQUIRES TESTING ON THE PI
+# test with AI model v3
+# using a 30 frame buffer to determine tiredness
 
 
 
