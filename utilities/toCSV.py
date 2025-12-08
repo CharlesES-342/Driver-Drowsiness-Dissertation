@@ -2,6 +2,8 @@
 # convert them into on CSV file for easier AI input for training.
 import cv2
 import mediapipe as mp
+import json
+import pandas as pd
 #mediapipe set up
 mp_face_mesh = mp.solutions.face_mesh
 mp_drawing = mp.solutions.drawing_utils
@@ -106,9 +108,29 @@ def featuresToCSV(name, features, classification):
 
 #create CSV file if not exists and add headers
 def createCSVFile(filePath):
+
     with open(filePath, 'w') as f:
         f.write("name,left_eye_height,right_eye_height,mouth_height,dx,dy,classification\n")
 
+def changing_formatting(outputLocation):
+    #takes the labelled file formmat and converts to new format
+    inputFilePath = "Bina Nusantara University Data/modelling/testing/testing/bounding_boxes.labels"
+    outputFilePath = outputLocation
+
+    with open(inputFilePath, "r") as f:
+        data = json.load(f)
+
+    rows = []
+
+    for filename, bboxes in data["boundingBoxes"].items():
+        # Extract the main label – here I assume last box = mouth state
+        main_label = bboxes[-1]["label"]
+
+        rows.append([filename, main_label])
+
+    df = pd.DataFrame(rows, columns=["filename", "label"])
+    df.to_csv(outputLocation, index=False)
+    print("Saved", outputLocation)
 
 
 
@@ -122,45 +144,13 @@ if __name__ == "__main__":
     base_dir = os.path.dirname(os.path.abspath(__file__))
 
     # Build correct paths regardless of where you run from
-    csvFilePath = os.path.join(base_dir, "..", "TrainingData", "SUST_output_features.csv")
+    csvFilePath = os.path.join(base_dir, "..", "..", "Bina Nusantara University Data/modelling/testing/testing/Img_labels.csv")
 
     os.makedirs(os.path.dirname(csvFilePath), exist_ok=True)
-
 
     #check if there is a CSV file, if not create one
     if(not os.path.exists(csvFilePath)):
         createCSVFile(csvFilePath)
 
-    #eventually do for all videos in a folder
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-
-    # directory that contains all the videos to process (Not-Tired videos) TODO: for all videos later
-    video_dir = os.path.abspath(os.path.join(base_dir, "..", "..", "TrainingData", "Not-Tired", "SUST_Driver_Drowsiness_Dataset"))
-
-    # Get all .mp4 files in the folder
-    video_files = [f for f in os.listdir(video_dir) if f.endswith(".mp4")]
-
-    with mp_face_mesh.FaceMesh(
-        static_image_mode=False,
-        max_num_faces=1,
-        refine_landmarks=True,
-        min_detection_confidence=0.5
-    ) as face_mesh:
-
-        with open(csvFilePath, 'a') as f:
-            print(len(video_files))
-            #pause of 10 seconds before processing for testing only
-            time.sleep(10)
-
-            #process each video file
-            for video in video_files:
-                videoPath = os.path.join(video_dir, video)
-                frames = getSampleFrames(videoPath, numFrames=10)
-
-                for i, frame in enumerate(frames):
-                    features = process_frame(frame, face_mesh)
-                    # use filename (without extension) as ID
-                    video_id = os.path.splitext(video)[0]
-                    csvLine = featuresToCSV(video_id, features, "not_tired")
-                    f.write(csvLine)
+    changing_formatting(csvFilePath)
     
