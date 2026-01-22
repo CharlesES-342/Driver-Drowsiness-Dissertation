@@ -277,7 +277,7 @@ def test_with_ground_truth(model_location, image_dir, csv_path):
     return results_df
 
 
-def from_camera():
+def from_camera(model_loc):
     # label mappings - this order is taken from the file used during training
     LABELS = [
         "eyes open",
@@ -299,7 +299,7 @@ def from_camera():
     cap = cu.open_webcam()
 
     # Load model
-    model = tf.keras.models.load_model("Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model.h5")
+    model = tf.keras.models.load_model(model_loc)
     while True:
         frame = cu.capture_frame(cap)
         startTime = time.time()
@@ -340,6 +340,68 @@ def from_camera():
         #slow down for visibility
         time.sleep(10)
 
+
+def from_camera_individual(model_loc):
+    LABELS = [
+        "eyes open",
+        "eyes closed",
+        "yawning",
+        "not yawning"
+    ]
+
+    import sys
+    from pathlib import Path
+    ROOT = Path(__file__).resolve().parent.parent
+    sys.path.append(str(ROOT))
+    
+    import utilities.cameraUtility as cu
+    import utilities.imageProcessing as ip
+
+    cap = cu.open_webcam()
+    model = tf.keras.models.load_model(model_loc)
+    print("waiting on input") 
+    while True:
+        # Show the live feed continuously
+        ret, frame = cap.read()
+        if not ret:
+            break
+        
+        cv2.imshow('Webcam Feed', frame)
+        
+        # Get key press ONCE
+        key = cv2.waitKey(1) & 0xFF
+        
+        if key == ord('q'):
+            break
+        elif key == ord(' '):
+            # Process the current frame
+            img = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            img = cv2.resize(img, (299, 299))
+            img = img.astype("float32")
+            img_array = preprocess_input(img)
+            img_array = np.expand_dims(img_array, axis=0)
+            
+            # Predict
+            predictions = model.predict(img_array, verbose=0)[0]
+            threshold = 0.5
+            
+            active = [
+                (LABELS[i], predictions[i] * 100)
+                for i in range(len(predictions))
+                if predictions[i] >= threshold
+            ]
+            
+            # Print confidence for each label
+            for i, score in enumerate(predictions):
+                print(f"{LABELS[i]}: {score:.2f}")
+            
+            predicted_label = ", ".join([f"{lbl} ({conf:.2f}%)" for lbl, conf in active])
+            print(f"Predicted: {predicted_label}")
+    
+    cap.release()
+    cv2.destroyAllWindows()
+            
+
 def original_classes():
     labels = []
     #go through dataset and get all the classes
@@ -365,20 +427,4 @@ if __name__ == "__main__":
     model = tf.keras.models.load_model(model_location)
     model.summary()
 
-
-    # ==========================================
-    # CREATE THE NEW MODEL WITH REFINED LABELS
-    # ==========================================
-    #create(model_location)
-
-    # ==========================================
-    # TEST THE MODEL WITH GROUND TRUTH
-    # ==========================================
-    image_dir = "Bina Nusantara University Data/modelling/testing/testing"
-    csv_path = "Bina Nusantara University Data/modelling/testing/testing/Img_labels_refined.csv"
-
-    results = test_with_ground_truth(model_location, image_dir, csv_path)
-    print("\nFinal Results DataFrame:")
-    print(results)
-
-    # from_camera()
+    from_camera_individual(model_location)
