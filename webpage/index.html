@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Drowsiness Detection</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        header {
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px;
+        }
+        main {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        h2{
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Driver Drowsiness Detection System</h1>
+    </header>
+    <main>
+        <h2 id="prediction">*insert prediciton here*</h2>
+    </main>
+</body>
+<script>
+    // setting of the prediction text
+    function queryPerdiction(retries = 3) {
+        fetch('/api/predict')
+            .then(response => response.json())
+            .then(data => {
+                localStorage.setItem("drowsiness_prediction", data.prediction);
+            })
+            .catch(error => {
+                if (retries > 0) {
+                    console.log(`Retrying... (${retries} attempts left)`);
+                    queryAPI(retries - 1);
+                } else {
+                    console.error('API query failed:', error);
+                    document.getElementById("prediction").innerText = "An error occurred, please ensure the device is on and all set up correctly \n (the device may take time to power on) ";
+                }
+            });
+    }
+
+    queryPerdiciton();
+    Documenty.getElementById("prediction").innerText = localStorage.getItem("drowsiness_prediction");
+</script>
+</html>
