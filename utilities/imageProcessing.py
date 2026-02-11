@@ -1,6 +1,8 @@
 import numpy as np
 import mediapipe as mp
 import cv2
+import tensorflow as tf
+
 
 mp_face_mesh = mp.solutions.face_mesh
 
@@ -60,3 +62,12 @@ def extract_features(frame, face_mesh):
     pitch, yaw = extract_head_pose(pts)
 
     return np.array([ear_left, ear_right, mar, pitch, yaw])
+
+def imageEffects(img):
+    # Apply augmentations BEFORE preprocessing
+    img = tf.image.random_flip_left_right(img)
+    img = tf.image.random_brightness(img, max_delta=0.2)
+    img = tf.image.random_contrast(img, lower=0.8, upper=1.2)
+    img = tf.image.random_saturation(img, lower=0.8, upper=1.2)
+        
+    return img

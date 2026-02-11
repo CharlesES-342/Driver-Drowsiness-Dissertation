@@ -9,8 +9,16 @@ import pandas as pd
 import cv2
 import os
 
+import sys
+from pathlib import Path
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(ROOT))
+
+import utilities.imageProcessing as ip
+
 
 def create(model_loc):
+
     # SETTINGS -------------------------
     IMG_SIZE = (299, 299)
     BATCH_SIZE = 16
@@ -55,6 +63,8 @@ def create(model_loc):
         img = tf.io.read_file(path)
         img = tf.image.decode_jpeg(img, channels=3)
         img = tf.image.resize(img, IMG_SIZE)
+        #TODO - add in changes to the images here
+        img = ip.imageEffects(img) #apply the image effects (augmentations) to the image
         img = preprocess_input(img)
         return img, label
 
@@ -422,9 +432,20 @@ if __name__ == "__main__":
     print("Current working directory:", os.getcwd())
     print("Files in directory:", os.listdir())
 
+    image_dir = "Bina Nusantara University Data/modelling/testing/testing"
+    csv_path = "Bina Nusantara University Data/modelling/testing/testing/Img_labels_refined.csv"
 
-    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v2.h5"
-    model = tf.keras.models.load_model(model_location)
-    model.summary()
 
-    from_camera_individual(model_location)
+    #=====MAKING MODEL EXAMPLE=====
+    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v2.h5"
+    # model = tf.keras.models.load_model(model_location)
+    # model.summary()
+
+    #=====TESTING MODEL WITH GROUND TRUTH EXAMPLE=====
+    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
+    # model = tf.keras.models.load_model(model_location)
+    # test_with_ground_truth(model_location, image_dir, csv_path)
+
+    #=====FROM CAMERA EXAMPLE=====
+    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
+    from_camera(model_location)
