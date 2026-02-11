@@ -448,4 +448,4 @@ if __name__ == "__main__":
 
     #=====FROM CAMERA EXAMPLE=====
     model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
-    from_camera(model_location)
+    from_camera_individual(model_location)
