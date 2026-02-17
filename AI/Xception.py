@@ -466,23 +466,23 @@ if __name__ == "__main__":
 
 
     #=====MAKING MODEL EXAMPLE=====
-    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v5(2_classifications).h5"
+    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v5(2_classifications).h5"
     
-    training_data_dir = "Bina Nusantara University Data/modelling/training/training"
-    training_csv = "Bina Nusantara University Data/modelling/training/training/manual_labels.csv"
+    # training_data_dir = "Bina Nusantara University Data/modelling/training/training"
+    # training_csv = "Bina Nusantara University Data/modelling/training/training/manual_labels.csv"
 
-    create(model_location, training_data_dir, training_csv)
-    model = tf.keras.models.load_model(model_location)
-    model.summary()
+    # #create(model_location, training_data_dir, training_csv)
+    # model = tf.keras.models.load_model(model_location)
+    # model.summary()
 
 
 
 
     #=====TESTING MODEL WITH GROUND TRUTH EXAMPLE=====
-    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
-    # model = tf.keras.models.load_model(model_location)
-    image_dir = "Bina Nusantara University Data/modelling/testing/testing"
-    csv_path = "Bina Nusantara University Data/modelling/testing/testing/manual_labels.csv"
+    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v5(2_classifications).h5"
+    model = tf.keras.models.load_model(model_location)
+    image_dir = "Driver-Drowsiness-Dissertation/TestingData/Personal Data" #"Bina Nusantara University Data/modelling/testing/testing"
+    csv_path = "Driver-Drowsiness-Dissertation/TestingData/Personal Data/personal_labels.csv"
     test_with_ground_truth(model_location, image_dir, csv_path)
 
 
