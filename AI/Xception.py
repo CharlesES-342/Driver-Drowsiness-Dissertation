@@ -26,14 +26,12 @@ def create(model_loc):
 
     # locations
     BASE_DIR = "Bina Nusantara University Data/modelling/training/training"
-    CSV_PATH = "Bina Nusantara University Data/modelling/training/training/Img_labels_refined.csv"
+    CSV_PATH = "Bina Nusantara University Data/modelling/training/training/Img_labels_refined.csv" #TODO - change this to the manual_labels.csv once the manual labeling is done
 
     # Predefined label space
     LABELS = [
-        "eyes_open",
-        "eyes_closed",
-        "yawning",
-        "not_yawning"
+        "drowsy",
+        "alert"
     ]
 
     # labels to index mapping
@@ -63,7 +61,6 @@ def create(model_loc):
         img = tf.io.read_file(path)
         img = tf.image.decode_jpeg(img, channels=3)
         img = tf.image.resize(img, IMG_SIZE)
-        #TODO - add in changes to the images here
         img = ip.imageEffects(img) #apply the image effects (augmentations) to the image
         img = preprocess_input(img)
         return img, label
