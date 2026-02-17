@@ -1,5 +1,6 @@
 '''
-This contains the code to take the images and run the tests on my self given a model and a video feed from the webcam
+This contains the code to take the images and run the tests on my self given a
+model and a video feed from the webcam
 '''
 #changing project root to this so it can find the utility files
 import sys
@@ -13,27 +14,62 @@ import csv
 
 #using the camera, take images
 def take_images():
-    #open webcam
+    print("image taking has begun")
+    # Open webcam
     cap = camUtil.open_webcam()
     count = 0
     
+    # Create a window to display the stream
+    cv2.namedWindow('Camera Stream', cv2.WINDOW_NORMAL)
+    
     while True:
-        key = cv2.waitKey(1)
+        # Continuously read and display frames
+        frame = camUtil.capture_frame(cap)
+        
+        if frame is not None:
+            # Display the frame with instructions
+            display_frame = frame.copy()
+            
+            # Add text overlay with instructions
+            cv2.putText(display_frame, f'Images captured: {count}/100', 
+                       (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 
+                       1, (0, 255, 0), 2)
+            cv2.putText(display_frame, 'Press SPACE to capture | Q to quit', 
+                       (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 
+                       0.7, (0, 255, 0), 2)
+            
+            # Show the frame
+            cv2.imshow('Camera Stream', display_frame)
+        
+        # Wait for key press (1ms delay for smooth video)
+        key = cv2.waitKey(1) & 0xFF
+        
         if key == ord('q'):
+            print("Quitting...")
             break
-        elif key == ord('c'):
-            frame = camUtil.capture_frame(cap)
+        elif key == ord(' '):  # Spacebar to capture image
             if frame is not None:
                 # Save the image in current file directory
-                output_path = os.path.join(os.path.dirname(__file__), 'captured_image{count}.jpg')
+                output_path = os.path.join(os.path.dirname(__file__), f'captured_image{count}.jpg')
                 cv2.imwrite(output_path, frame)
                 print(f"Image captured and saved to {output_path}")
-                count+= 1
+                count += 1
+                
+                # Visual feedback - flash the screen
+                flash = frame.copy()
+                cv2.rectangle(flash, (0, 0), (flash.shape[1], flash.shape[0]), 
+                            (255, 255, 255), 20)
+                cv2.imshow('Camera Stream', flash)
+                cv2.waitKey(100)  # Show flash for 100ms
+                
                 if count == 100:
                     print("Captured 100 images, stopping.")
                     break
-                
+    
+    # Clean up
+    cv2.destroyAllWindows()
     camUtil.close_webcam(cap)
+    print(f"Total images captured: {count}")
 
 
 def assign_labels(image_directory, output_csv='labels.csv'):
@@ -91,7 +127,7 @@ def assign_labels(image_directory, output_csv='labels.csv'):
         cv2.destroyAllWindows()
         
         if label:
-            labels_data.append({'image_name': image_name, 'label': label})
+            labels_data.append({'filename': image_name, 'label': label})
             print(f"Labeled as: {label}\n")
     
     # Save all labels to CSV
@@ -105,7 +141,7 @@ def save_labels_to_csv(labels_data, output_csv):
         return
     
     with open(output_csv, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=['image_name', 'label'])
+        writer = csv.DictWriter(csvfile, fieldnames=['filename', 'label'])
         writer.writeheader()
         writer.writerows(labels_data)
     
@@ -114,8 +150,6 @@ def save_labels_to_csv(labels_data, output_csv):
 
 
 if __name__ == "__main__":
-    # take_images()
-
     # assign_labels('/path/to/your/images', 'my_labels.csv')
     # or with default CSV name:
     # assign_labels('/path/to/your/images')
@@ -130,4 +164,8 @@ if __name__ == "__main__":
     # Convert to string if needed
     #image_dir = str(image_dir)
     print(f"Looking for images in: {BinaTraining}")
-    assign_labels(BinaTraining, 'manual_labels.csv')
+    #assign_labels(BinaTraining, 'manual_labels.csv')
+
+    # take images of me, then assign the labels to use for testing the model on myself
+    take_images()
+    assign_labels(os.path.join(current_dir), 'personal_labels.csv')

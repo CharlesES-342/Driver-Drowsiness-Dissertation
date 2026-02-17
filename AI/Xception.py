@@ -1,3 +1,7 @@
+'''
+Contains the funcitons to make an Xceptionmode, test on ground truths
+as well as test on camera feed
+'''
 import tensorflow as tf
 from tensorflow.keras.applications import Xception
 from tensorflow.keras.applications.xception import preprocess_input
@@ -17,16 +21,21 @@ sys.path.append(str(ROOT))
 import utilities.imageProcessing as ip
 
 
-def create(model_loc):
+def create(model_loc,BASE_DIR,CSV_PATH):
+    '''
+    create an xception model:
+    INPUT:
+        model_loc - the location to save the model to mak
+        BASE_DIR - the directory where the training images are
+        CSV_PATH - the path to the csv file containing the image labels
+    OUTPUT:
+        saves the model to model_loc
+    '''
 
     # SETTINGS -------------------------
     IMG_SIZE = (299, 299)
     BATCH_SIZE = 16
     EPOCHS = 20
-
-    # locations
-    BASE_DIR = "Bina Nusantara University Data/modelling/training/training"
-    CSV_PATH = "Bina Nusantara University Data/modelling/training/training/Img_labels_refined.csv" #TODO - change this to the manual_labels.csv once the manual labeling is done
 
     # Predefined label space
     LABELS = [
@@ -156,14 +165,22 @@ def create(model_loc):
 
 
 def test_with_ground_truth(model_location, image_dir, csv_path):
+    '''
+    test the model on the test set with ground truth labels
+    INPUT:
+        model_location - the location of the model to test
+        image_dir - the directory where the test images are
+        csv_path - the path to the csv file containing the test image labels
+    OUTPUT:
+        prints the predicted and true labels for each image,
+        as well as a summary of the results
+    '''
     # ============================================================
     # LABEL DEFINITIONS (MUST MATCH TRAINING EXACTLY)
     # ============================================================
     LABELS = [
-        "eyes_open",
-        "eyes_closed",
-        "yawning",
-        "not_yawning"
+        "drowsy",
+        "alert"
     ]
 
     num_classes = len(LABELS)
@@ -285,12 +302,19 @@ def test_with_ground_truth(model_location, image_dir, csv_path):
 
 
 def from_camera(model_loc):
+    '''
+    test the model on a live webcam feed, printing the predicted labels and confidence
+    for each frame
+    INPUT:
+        model_loc - the location of the model to test
+    OUTPUT:
+        prints the predicted labels and confidence for each frame of the webcam feed
+    '''
+    # This is the label order used during training, must match exactly for correct interpretation
     # label mappings - this order is taken from the file used during training
     LABELS = [
-        "eyes open",
-        "eyes closed",
-        "yawning",
-        "not yawning"
+        "drowsy",
+        "alert"
     ]
 
     #changing project root to this so it can find the utility files
@@ -349,11 +373,22 @@ def from_camera(model_loc):
 
 
 def from_camera_individual(model_loc):
+    '''
+    test the model on a live webcam feed, printing the predicted labels and confidence on an individual frame
+    INPUT:
+        model_loc - the location of the model to test
+    OUTPUT:
+        prints the predicted labels and confidence for each frame of the webcam feed when spacebar is pressed
+    '''
+    # LABELS = [
+    #     "eyes open",
+    #     "eyes closed",
+    #     "yawning",
+    #     "not yawning"
+    # ]
     LABELS = [
-        "eyes open",
-        "eyes closed",
-        "yawning",
-        "not yawning"
+        "drowsy",
+        "alert"
     ]
 
     import sys
@@ -429,20 +464,30 @@ if __name__ == "__main__":
     print("Current working directory:", os.getcwd())
     print("Files in directory:", os.listdir())
 
-    image_dir = "Bina Nusantara University Data/modelling/testing/testing"
-    csv_path = "Bina Nusantara University Data/modelling/testing/testing/Img_labels_refined.csv"
-
 
     #=====MAKING MODEL EXAMPLE=====
-    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v2.h5"
-    # model = tf.keras.models.load_model(model_location)
-    # model.summary()
+    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v5(2_classifications).h5"
+    
+    training_data_dir = "Bina Nusantara University Data/modelling/training/training"
+    training_csv = "Bina Nusantara University Data/modelling/training/training/manual_labels.csv"
+
+    create(model_location, training_data_dir, training_csv)
+    model = tf.keras.models.load_model(model_location)
+    model.summary()
+
+
+
 
     #=====TESTING MODEL WITH GROUND TRUTH EXAMPLE=====
     # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
     # model = tf.keras.models.load_model(model_location)
-    # test_with_ground_truth(model_location, image_dir, csv_path)
+    image_dir = "Bina Nusantara University Data/modelling/testing/testing"
+    csv_path = "Bina Nusantara University Data/modelling/testing/testing/manual_labels.csv"
+    test_with_ground_truth(model_location, image_dir, csv_path)
+
+
+
 
     #=====FROM CAMERA EXAMPLE=====
-    model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
-    from_camera_individual(model_location)
+    # model_location = "Driver-Drowsiness-Dissertation/AI_Models/xception_drowsiness_model_v3_imageChanges.h5"
+    # from_camera_individual(model_location)
