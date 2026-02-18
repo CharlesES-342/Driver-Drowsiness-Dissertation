@@ -101,10 +101,10 @@ This document tracks all trained models for the drowsiness detection system, inc
 ---
 
 ### xception_drowsiness_model_v4 (2 classifications)
-**Date:** [Add date]  
+**Date:** [17/02/2026]  
 **Status:** Best performing  
 **Architecture:** Xception (transfer learning)  
-**Dataset:** Opinionated binary classifier (Tired vs Alert)  
+**Dataset:** Bina - Opinionated binary classifier (Tired vs Alert)  
 **Description:**  
 - Simplified to 2-class problem (tired/alert)
 - Used opinionated classification criteria
@@ -117,10 +117,10 @@ This document tracks all trained models for the drowsiness detection system, inc
 ---
 
 ### xception_drowsiness_model_v5 (2 classifications)
-**Date:** [Add date]  
+**Date:** [17/02/2026]  
 **Status:** Retraining attempt  
 **Architecture:** Xception (transfer learning)  
-**Dataset:** Same as V4  
+**Dataset:** Bina
 **Description:**  
 - Retrained same architecture as V4
 - Goal: Improve upon 65.91% accuracy
@@ -130,6 +130,21 @@ This document tracks all trained models for the drowsiness detection system, inc
 - **Accuracy: 63.50%**
 - Slightly worse than original V4 training
 - Suggests V4 was near optimal for this approach
+
+---
+
+### xception_drowsiness_model_v6 (2 classifications)
+**Date:** [17/02/2026]  
+**Status:** Best performing for single classification
+**Architecture:** Xception (transfer learning)  
+**Dataset:** Bina Uni
+**Description:**  
+- restructured to give one final classification (tired or alert) only
+- uses opinion based learning, applies my opinion to a dataset
+
+**Results:**
+- **Accuracy on validation: 73.72%**
+- **Accuracy on me: 63.27%**
 
 ---
 
