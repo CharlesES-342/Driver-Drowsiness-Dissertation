@@ -1,7 +1,7 @@
 import cv2
 
-def open_webcam():
-    cap = cv2.VideoCapture(0)
+def open_webcam(camera_index=1):
+    cap = cv2.VideoCapture(camera_index)
     if not cap.isOpened():
         print("Error: Could not open webcam.")
         return None
