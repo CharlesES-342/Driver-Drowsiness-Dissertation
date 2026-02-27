@@ -1,0 +1,9 @@
+======= FILE STRUCTURE ON THE PI =======
+
+/project-root
+│
+├── api.py              # python logic & Flask server
+├── templates/
+│   └── index.html      # HTML file
+└── model/
+    └── your_model.weights # The AI model files
