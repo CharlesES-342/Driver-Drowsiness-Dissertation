@@ -107,6 +107,29 @@
     </main>
 </body>
 <script>
+    const API_URL = '/api/data'; 
+
+    async function fetchData() {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error("API not responding");
+            
+            const data = await response.json();
+            
+            //update the data
+            updatePrediction(data.prediction);
+            updateConfidence(data.confidence);
+            updateDistribution(data.spread);
+            
+        } catch (error) {
+            console.error("Fetch Error:", error);
+            document.getElementById("prediction-display").textContent = "OFFLINE";
+            document.getElementById("prediction").style.backgroundColor = "#ff9800"; // Orange for warning
+        }
+    }
+    
+    fetchData();
+
     // will be retrieved by the API
     var information = {
         "prediction": "alert",

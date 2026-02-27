@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Drowsiness Detection</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #050a0e;
+            --panel: #0a1520;
+            --border: #0ff2;
+            --cyan: #00f5ff;
+            --cyan-dim: #00f5ff44;
+            --green: #00ff88;
+            --orange: #ff9500;
+            --red: #ff2255;
+            --text: #b0cfe0;
+            --alert-glow: 0 0 30px #00ff8866, 0 0 60px #00ff8833;
+            --drowsy-glow: 0 0 30px #ff225566, 0 0 60px #ff225533;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Share Tech Mono', monospace;
+            background-color: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Scanline overlay */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(0,0,0,0.08) 2px,
+                rgba(0,0,0,0.08) 4px
+            );
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* Grid background */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,245,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,245,255,0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        header {
+            position: relative;
+            z-index: 1;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+            background: linear-gradient(180deg, rgba(0,245,255,0.05) 0%, transparent 100%);
+        }
+
+        .header-title {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 900;
+            font-size: clamp(14px, 2vw, 20px);
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            text-shadow: 0 0 20px var(--cyan);
+        }
+
+        .header-badge {
+            font-size: 11px;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            opacity: 0.5;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            box-shadow: 0 0 8px var(--green);
+            animation: pulse 2s ease-in-out infinite;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        main {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 200px 1fr 200px;
+            gap: 0;
+            position: relative;
+            z-index: 1;
+            padding: 30px;
+            gap: 20px;
+            align-items: stretch;
+        }
+
+        /* Side panels */
+        .side-panel {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            padding: 20px 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+        }
+
+        .side-panel::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,245,255,0.03) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .panel-label {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 9px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--cyan);
+            opacity: 0.7;
+        }
+
+        /* Bar track */
+        .bar-track {
+            flex: 1;
+            width: 48px;
+            background: rgba(0,0,0,0.4);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        /* Tick marks on bar track */
+        .bar-track::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                180deg,
+                transparent,
+                transparent calc(25% - 1px),
+                rgba(0,245,255,0.15) calc(25% - 1px),
+                rgba(0,245,255,0.15) 25%
+            );
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .bar-fill {
+            width: 100%;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.5s ease;
+            border-radius: 100px;
+            position: relative;
+        }
+
+        .bar-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: rgba(255,255,255,0.6);
+            border-radius: 100px;
+        }
+
+        .bar-percent {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--cyan);
+            text-shadow: 0 0 10px var(--cyan);
+            letter-spacing: 1px;
+        }
+
+        /* Center panel */
+        #prediction {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 2px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: box-shadow 0.5s ease;
+            clip-path: polygon(12px 0, calc(100% - 12px) 0, 100% 12px, 100% calc(100% - 12px), calc(100% - 12px) 100%, 12px 100%, 0 calc(100% - 12px), 0 12px);
+        }
+
+        #prediction::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at center, rgba(0,245,255,0.04) 0%, transparent 70%);
+            pointer-events: none;
+            transition: background 0.5s ease;
+        }
+
+        #prediction.drowsy::before {
+            background: radial-gradient(ellipse at center, rgba(255,34,85,0.08) 0%, transparent 70%);
+        }
+
+        #prediction.alert::before {
+            background: radial-gradient(ellipse at center, rgba(0,255,136,0.06) 0%, transparent 70%);
+        }
+
+        /* Corner decorations */
+        .corner-tl, .corner-tr, .corner-bl, .corner-br {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+        }
+        .corner-tl { top: 8px; left: 8px; border-top: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+        .corner-tr { top: 8px; right: 8px; border-top: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+        .corner-bl { bottom: 8px; left: 8px; border-bottom: 2px solid var(--cyan); border-left: 2px solid var(--cyan); }
+        .corner-br { bottom: 8px; right: 8px; border-bottom: 2px solid var(--cyan); border-right: 2px solid var(--cyan); }
+
+        .prediction-sublabel {
+            font-size: 10px;
+            letter-spacing: 4px;
+            color: var(--cyan);
+            opacity: 0.5;
+            text-transform: uppercase;
+        }
+
+        .prediction-text {
+            font-family: 'Orbitron', sans-serif;
+            font-size: clamp(28px, 5vw, 52px);
+            font-weight: 900;
+            letter-spacing: 8px;
+            text-transform: uppercase;
+            transition: color 0.5s ease, text-shadow 0.5s ease;
+        }
+
+        .prediction-text.alert-state {
+            color: var(--green);
+            text-shadow: 0 0 20px var(--green), 0 0 40px var(--green);
+            animation: flicker 4s ease-in-out infinite;
+        }
+
+        .prediction-text.drowsy-state {
+            color: var(--red);
+            text-shadow: 0 0 20px var(--red), 0 0 40px var(--red);
+            animation: danger-pulse 0.8s ease-in-out infinite;
+        }
+
+        @keyframes flicker {
+            0%, 96%, 100% { opacity: 1; }
+            97% { opacity: 0.85; }
+            98% { opacity: 1; }
+            99% { opacity: 0.9; }
+        }
+
+        @keyframes danger-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .prediction-line {
+            width: 60%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+            opacity: 0.3;
+        }
+
+        /* HUD elements in center */
+        .hud-ring {
+            position: absolute;
+            border-radius: 50%;
+            border: 1px solid var(--cyan-dim);
+            animation: rotate 20s linear infinite;
+        }
+
+        .hud-ring:nth-child(1) { width: 160px; height: 160px; }
+        .hud-ring:nth-child(2) { width: 220px; height: 220px; animation-direction: reverse; animation-duration: 30s; }
+        .hud-ring:nth-child(3) { width: 300px; height: 300px; animation-duration: 45s; opacity: 0.5; }
+
+        .hud-ring::before {
+            content: '';
+            position: absolute;
+            top: -3px;
+            left: 50%;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--cyan);
+            box-shadow: 0 0 6px var(--cyan);
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 12px 40px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 10px;
+            letter-spacing: 2px;
+            color: var(--cyan);
+            opacity: 0.4;
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            main {
+                grid-template-columns: 120px 1fr 120px;
+                padding: 15px;
+            }
+            .bar-track { width: 36px; }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <span class="status-dot"></span>
+            <span class="header-badge">SYS:ONLINE // v2.4.1</span>
+        </div>
+        <div class="header-title">Driver Drowsiness Detection</div>
+        <div class="header-badge">MONITOR ACTIVE</div>
+    </header>
+
+    <main>
+        <div class="side-panel" id="confidence">
+            <div class="panel-label">Confidence</div>
+            <div class="bar-track">
+                <div class="bar-fill" id="confidence-fill" style="height: 0%;"></div>
+            </div>
+            <div class="bar-percent" id="confidence-text">0%</div>
+        </div>
+
+        <div id="prediction">
+            <div class="hud-ring"></div>
+            <div class="hud-ring"></div>
+            <div class="hud-ring"></div>
+            <div class="corner-tl"></div>
+            <div class="corner-tr"></div>
+            <div class="corner-bl"></div>
+            <div class="corner-br"></div>
+            <div class="prediction-sublabel">Driver Status</div>
+            <div class="prediction-line"></div>
+            <div class="prediction-text" id="prediction-text">—</div>
+            <div class="prediction-line"></div>
+            <div class="prediction-sublabel" id="prediction-sub">AWAITING DATA</div>
+        </div>
+
+        <div class="side-panel" id="spread">
+            <div class="panel-label">Drowsy Frames</div>
+            <div class="bar-track">
+                <div class="bar-fill" id="spread-fill" style="height: 0%;"></div>
+            </div>
+            <div class="bar-percent" id="spread-text">0%</div>
+        </div>
+    </main>
+
+    <footer>
+        <span>NEURAL ENGINE: ACTIVE</span>
+        <span>FRAME ANALYSIS: RUNNING</span>
+        <span>LATENCY: &lt;12ms</span>
+    </footer>
+
+    <script>
+        var information = {
+            "prediction": "drowsy",
+            "confidence": 0.8,
+            "spread": 0.80
+        }
+
+        function updatePrediction(prediction) {
+            const container = document.getElementById("prediction");
+            const text = document.getElementById("prediction-text");
+            const sub = document.getElementById("prediction-sub");
+
+            text.textContent = prediction.toUpperCase();
+            text.className = 'prediction-text ' + (prediction === "drowsy" ? "drowsy-state" : "alert-state");
+            container.className = prediction === "drowsy" ? "drowsy" : "alert";
+
+            if (prediction === "drowsy") {
+                sub.textContent = "⚠ WARNING DETECTED";
+                container.style.boxShadow = "0 0 40px #ff225533, inset 0 0 40px #ff225511";
+            } else {
+                sub.textContent = "ALL SYSTEMS NOMINAL";
+                container.style.boxShadow = "0 0 40px #00ff8822, inset 0 0 40px #00ff8808";
+            }
+        }
+
+        function updateConfidence(confidence) {
+            const pct = Math.round(confidence * 100);
+            const fill = document.getElementById("confidence-fill");
+            fill.style.height = pct + "%";
+            document.getElementById("confidence-text").textContent = pct + "%";
+
+            if (pct < 40) fill.style.backgroundColor = "#ff2255";
+            else if (pct < 60) fill.style.backgroundColor = "#ff9500";
+            else fill.style.backgroundColor = "#00ff88";
+
+            fill.style.boxShadow = `0 0 12px ${pct < 40 ? '#ff2255' : pct < 60 ? '#ff9500' : '#00ff88'}`;
+        }
+
+        function updateDistribution(spread) {
+            const pct = Math.round(spread * 100);
+            const fill = document.getElementById("spread-fill");
+            fill.style.height = pct + "%";
+            document.getElementById("spread-text").textContent = pct + "%";
+
+            if (pct < 40) fill.style.backgroundColor = "#00ff88";
+            else if (pct < 60) fill.style.backgroundColor = "#ff9500";
+            else fill.style.backgroundColor = "#ff2255";
+
+            fill.style.boxShadow = `0 0 12px ${pct < 40 ? '#00ff88' : pct < 60 ? '#ff9500' : '#ff2255'}`;
+        }
+
+        updatePrediction(information.prediction);
+        updateConfidence(information.confidence);
+        updateDistribution(information.spread);
+    </script>
+</body>
+</html>
