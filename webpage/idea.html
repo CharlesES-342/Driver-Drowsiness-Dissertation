@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Driver Drowsiness Detection</title>
     <style>
+        * { box-sizing: border-box; }
+
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -13,9 +15,9 @@
             height: 100vh;
             display: flex;
             flex-direction: column;
-            box-sizing: border-box;
-            overflow: hidden; 
+            overflow: hidden;
         }
+
         header {
             background-color: #333;
             color: white;
@@ -23,16 +25,53 @@
             text-align: center;
             border-radius: 5px;
             margin-bottom: 10px;
+            flex-shrink: 0;
         }
         h1 { margin: 0; font-size: 1.2rem; }
 
         main {
             display: grid;
-            /* Default: Desktop/Landscape (3 columns) */
             grid-template-columns: 80px 1fr 80px;
+            grid-template-rows: 1fr;
             gap: 15px;
             flex: 1;
             min-height: 0;
+        }
+
+        #confidence,
+        #spread {
+            display: flex;
+            min-height: 0;
+        }
+
+        .bar-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            background: white;
+            padding: 15px 5px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            flex: 1;
+            min-height: 0;
+        }
+
+        .bar-track {
+            flex: 1;
+            width: 30px;
+            background-color: #e0e0e0;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .bar-fill {
+            width: 100%;
+            height: 0%;
+            transition: all 0.5s ease;
         }
 
         #prediction {
@@ -45,56 +84,36 @@
             transition: background-color 0.3s ease;
         }
 
-        .bar-container {
-            display: flex;
-            flex-direction: column; /* Default: Vertical */
-            align-items: center;
-            justify-content: space-between;
-            background: white;
-            padding: 15px 5px;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-
-        .bar-track {
-            flex: 1;
-            width: 30px;
-            background-color: #e0e0e0;
-            border-radius: 15px;
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            align-items: flex-end; /* Fill from bottom */
-        }
-
-        .bar-fill {
-            width: 100%;
-            height: 0%;
-            transition: all 0.5s ease;
-        }
-
-        /* PORTRAIT MODE ONLY */
         @media (orientation: portrait) {
             main {
                 grid-template-columns: 1fr;
-                grid-template-rows: 2fr 80px 80px; /* Stacked layout */
+                grid-template-rows: 1fr 70px 70px;
+                grid-template-areas:
+                    "pred"
+                    "conf"
+                    "sprd";
             }
 
+            #prediction { grid-area: pred; }
+            #confidence { grid-area: conf; }
+            #spread     { grid-area: sprd; }
+
             .bar-container {
-                flex-direction: row; /* Switch to horizontal */
+                flex-direction: row;
                 padding: 10px 20px;
             }
 
             .bar-track {
-                width: 100%;
+                flex: 1;
+                width: auto;
                 height: 20px;
                 margin: 0 15px;
-                align-items: stretch; /* Fill from left */
+                align-items: stretch;
             }
 
             .bar-fill {
-                height: 100% !important; /* Force full height so width shows */
-                width: 0%; 
+                height: 100% !important;
+                width: 0%;
             }
 
             .bar-label { width: 70px; font-size: 11px; text-align: left; }
@@ -111,94 +130,76 @@
             <div class="bar-container">
                 <div class="bar-label">Confidence</div>
                 <div class="bar-track">
-                    <div class="bar-fill" id="confidence-fill" style="height: 0%;"></div>
+                    <div class="bar-fill" id="confidence-fill"></div>
                 </div>
                 <div class="bar-percent" id="confidence-text">0%</div>
             </div>
         </div>
 
         <div id="prediction">
-            <h2>*insert prediction here*</h2>
+            <h2 id="prediction-display">Loading…</h2>
         </div>
 
         <div id="spread">
             <div class="bar-container">
                 <div class="bar-label">Drowsy Frames</div>
                 <div class="bar-track">
-                    <div class="bar-fill" id="spread-fill" style="height: 0%;"></div>
+                    <div class="bar-fill" id="spread-fill"></div>
                 </div>
                 <div class="bar-percent" id="spread-text">0%</div>
             </div>
         </div>
     </main>
-</body>
-<script>
-    const API_URL = '/api/data'; 
 
-    async function fetchData() {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error("API not responding");
-            
-            const data = await response.json();
-            
-            //update the data
-            updatePrediction(data.prediction);
-            updateConfidence(data.confidence);
-            updateDistribution(data.spread);
-            
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            document.getElementById("prediction-display").textContent = "OFFLINE";
-            document.getElementById("prediction").style.backgroundColor = "#ff9800"; // Orange for warning
+    <script>
+        const API_URL = '/api/data';
+        const POLL_INTERVAL_MS = 500;
+
+        async function fetchData() {
+            try {
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error("API not responding");
+
+                const data = await response.json();
+                updatePrediction(data.prediction);
+                updateConfidence(data.confidence);
+                updateDistribution(data.spread);
+
+            } catch (error) {
+                console.error("Fetch Error:", error);
+                document.getElementById("prediction-display").textContent = "OFFLINE";
+                document.getElementById("prediction").style.backgroundColor = "#ff9800";
+            }
         }
-    }
-    
-    fetchData();
 
-    // will be retrieved by the API
-    var information = {
-        "prediction": "alert",
-        "confidence": 0.3,
-        "spread": 0.1
-    }
+        function updatePrediction(prediction) {
+            document.getElementById("prediction-display").textContent = prediction.toUpperCase();
+            document.getElementById("prediction").style.backgroundColor =
+                prediction === "drowsy" ? "red" : "green";
+        }
 
-    function updatePrediction(prediction) {
-        document.getElementById("prediction").innerHTML = "<h2>" + prediction.toUpperCase() + "</h2>";
-        document.getElementById("prediction").style.backgroundColor = prediction === "drowsy" ? "red" : "green";
-    }
+        function updateConfidence(confidence) {
+            const pct = Math.round(confidence * 100);
+            const fill = document.getElementById("confidence-fill");
+            fill.style.height = pct + "%";
+            fill.style.width  = pct + "%";
+            document.getElementById("confidence-text").textContent = pct + "%";
+            fill.style.backgroundColor =
+                pct < 40 ? "red" : pct < 60 ? "orange" : "green";
+        }
 
-    function updateConfidence(confidence) {
-        const pct = Math.round(confidence * 100);
-        const fill = document.getElementById("confidence-fill");
-        
-        // Setting both ensures it works in either orientation
-        fill.style.height = pct + "%"; 
-        fill.style.width = pct + "%"; 
-        
-        document.getElementById("confidence-text").textContent = pct + "%";
+        function updateDistribution(spread) {
+            const pct = Math.round(spread * 100);
+            const fill = document.getElementById("spread-fill");
+            fill.style.height = pct + "%";
+            fill.style.width  = pct + "%";
+            document.getElementById("spread-text").textContent = pct + "%";
+            fill.style.backgroundColor =
+                pct < 40 ? "green" : pct < 60 ? "orange" : "red";
+        }
 
-        if (pct < 40) fill.style.backgroundColor = "red";
-        else if (pct < 60) fill.style.backgroundColor = "orange";
-        else fill.style.backgroundColor = "green";
-    }
-
-    function updateDistribution(spread) {
-        const pct = Math.round(spread * 100);
-        const fill = document.getElementById("spread-fill");
-        
-        fill.style.height = pct + "%";
-        fill.style.width = pct + "%";
-        
-        document.getElementById("spread-text").textContent = pct + "%";
-
-        if (pct < 40) fill.style.backgroundColor = "green";
-        else if (pct < 60) fill.style.backgroundColor = "orange";
-        else fill.style.backgroundColor = "red";
-}
-
-    updatePrediction(information.prediction);
-    updateConfidence(information.confidence);
-    updateDistribution(information.spread);
-</script>
+        fetchData();
+        setInterval(fetchData, POLL_INTERVAL_MS);
+    </script>
+</body>
 </html>
