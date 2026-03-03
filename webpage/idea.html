@@ -178,11 +178,20 @@
                 prediction === "drowsy" ? "red" : "green";
         }
 
+        function isPortrait() {
+            return window.matchMedia("(orientation: portrait)").matches;
+        }
+
         function updateConfidence(confidence) {
             const pct = Math.round(confidence * 100);
             const fill = document.getElementById("confidence-fill");
-            fill.style.height = pct + "%";
-            fill.style.width  = pct + "%";
+            if (isPortrait()) {
+                fill.style.width  = pct + "%";
+                fill.style.height = "100%";
+            } else {
+                fill.style.height = pct + "%";
+                fill.style.width  = "100%";
+            }
             document.getElementById("confidence-text").textContent = pct + "%";
             fill.style.backgroundColor =
                 pct < 40 ? "red" : pct < 60 ? "orange" : "green";
@@ -191,8 +200,13 @@
         function updateDistribution(spread) {
             const pct = Math.round(spread * 100);
             const fill = document.getElementById("spread-fill");
-            fill.style.height = pct + "%";
-            fill.style.width  = pct + "%";
+            if (isPortrait()) {
+                fill.style.width  = pct + "%";
+                fill.style.height = "100%";
+            } else {
+                fill.style.height = pct + "%";
+                fill.style.width  = "100%";
+            }
             document.getElementById("spread-text").textContent = pct + "%";
             fill.style.backgroundColor =
                 pct < 40 ? "green" : pct < 60 ? "orange" : "red";
