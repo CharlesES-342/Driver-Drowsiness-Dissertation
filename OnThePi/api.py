@@ -68,6 +68,21 @@ def get_data():
     with data_lock:
         return jsonify(shared_data)
 
+
+#===== for setup of the pi camera in the vehicle =====
+# @app.route('/setup')
+# def setup():
+#     """Serves the setup page for initial configuration"""
+#     return render_template('setup.html')
+
+# @app.route('/api/setup')
+# def get_img():
+#     """Endpoint to receive setup images or data from the client"""
+#     # Here you would handle the incoming data, save it, and possibly update the AI model
+#     return jsonify({"status": "success", "message": "Setup data received"})
+
+
+
 if __name__ == '__main__':
     # Start the AI thread before launching Flask
     ai_thread = threading.Thread(target=ai_processing_loop, daemon=True)
