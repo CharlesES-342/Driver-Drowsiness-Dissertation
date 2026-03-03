@@ -93,7 +93,6 @@ This document tracks all trained models for the drowsiness detection system, inc
 **Description:**  
 - Based on xception_drowsiness_model_v2
 - Added image preprocessing/augmentation changes
-- [Specify what image changes were made]
 
 **Results:**
 - [Add comparison to V2]
@@ -145,6 +144,7 @@ This document tracks all trained models for the drowsiness detection system, inc
 **Results:**
 - **Accuracy on validation: 73.72%**
 - **Accuracy on me: 63.27%**
+//TODO - mention the distriibution of these %'s, hwo good is it compaired to the training dataset. 100% for Alertness, what % of the training data was alertness -> compair to the drowsiness figures
 
 ---
 
@@ -158,14 +158,16 @@ This document tracks all trained models for the drowsiness detection system, inc
 | xception_drowsiness_model | Xception | [eyes open, eyes closed, yawning, not yawning] | Low | Deprecated |
 | xception_drowsiness_model_v2 | Xception | [eyes open, eyes closed, yawning, not yawning] | [?] | Baseline |
 | xception_drowsiness_model_v3 | Xception | [eyes open, eyes closed, yawning, not yawning] | [?] | Experimental |
-| xception_drowsiness_model_v4 | Xception | [tired, alert]| **65.91%** | ✅ Best |
+| xception_drowsiness_model_v4 | Xception | [tired, alert]| 65.91% | Medium |
 | xception_drowsiness_model_v5 | Xception | [tired, alert] | 63.50% | Lower |
+| xception_drowsiness_model_v6 | Xception | [tired, alert] | **73.72%** | ✅ Best |
+
 
 ---
 
 ## Key Insights
 
 1. **Xception outperforms basic NN**: Transfer learning approach shows promise
-2. **Binary classification works better**: 2-class (tired/alert) achieves 65.91% vs unclear multi-class performance
+2. **Binary classification works better**: 2-class (tired/alert) achieves 73.72% vs unclear multi-class performance
 3. **Label quality matters**: V2 English labels significantly improved reliability
 4. **Training variance**: V4 retrain shows ~2.4% accuracy variance, suggesting training stability issues or near-optimal convergence
