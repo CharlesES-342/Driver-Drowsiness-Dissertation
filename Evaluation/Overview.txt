@@ -1,0 +1,10 @@
+This folder will contain all of the necessary functions to both take and document the evalation
+of this project. While other areas (such as testing) will also be used to provide an inte into
+the models performance and real-world capabiities; this section will outline and coonstruct a bulk
+of the necessary code for the final Evaluation.
+
+This will help to cover areas such as:
+. data sampling/recording
+. accuracy conformation
+. other necessary metrics such as user reports/outlines
+. and any other comments a user sates
