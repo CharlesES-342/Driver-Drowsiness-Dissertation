@@ -2,6 +2,7 @@ import threading
 import time
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
+from collections import deque
 
 app = Flask(__name__)
 CORS(app)
@@ -32,24 +33,38 @@ def ai_processing_loop():
     # 1. Initialize your model here (load weights, etc.)
     # model = YourModel().load()
 
+    #frames buffer
+    frame_buffer = deque(maxlen=30) 
+
     while True:
         # 2. Capture Frame / Get Data
         # frame = camera.read()
         
         # 3. Run Inference
         # result = model.predict(frame)
-        
-        # --- MOCK DATA LOGIC (Replace this) --- TODO - remove
-        import random
-        new_val = random.random()
-        new_pred = "drowsy" if new_val > 0.7 else "alert"
-        # --------------------------------------
+        import random #TODO - remove
+        current_frame_state = 1.0 if random.random() > 0.7 else 0.0 #TODO - change to be from the model = result
+        frame_buffer.append(current_frame_state)
+
+        #spread (tired frames in the buffer)
+        tired_frames = sum(frame_buffer)
+        buffer_occupancy = len(frame_buffer)
+        spread_val = tired_frames / buffer_occupancy if buffer_occupancy > 0 else 0
+        #overall classification
+        if spread_val > 0.5:
+            new_pred = "drowsy"
+            # Confidence is higher the further the spread is from the 0.5 threshold
+            new_val = 0.5 + (spread_val - 0.5) 
+        else:
+            new_pred = "alert"
+            new_val = 1.0 - spread_val
 
         # 4. Update the global state securely
         with data_lock:
+            #TODO - check what the model ooutputs to see if I can use ht emodel confidence rather than just the temporal confidence
             shared_data["confidence"] = round(new_val, 2)
             shared_data["prediction"] = new_pred
-            shared_data["spread"] = round(random.random(), 2)
+            shared_data["spread"] = round(spread_val, 2)
             shared_data["last_updated"] = time.time()
 
         # Small sleep to prevent CPU Max-out if the AI is very fast
