@@ -114,7 +114,7 @@ if __name__ == "__main__":
 
     for i in range(vid_number):
         #repeat the recording process for the number of videos specified in the config file
-        output_file = f"test_output_{i}.mp4"
+        output_file = f"/home/pi/test_output_{i}.mp4"        
         cam_obj.start_recording(output_file)
         frames_to_capture = cam_obj.fps * (recording_duration_mins * 60)  # number of frames to capture based on fps and duration
         for j in range(frames_to_capture):
