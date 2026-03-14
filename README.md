@@ -65,7 +65,14 @@ All findings and structure are documented in the __Report__
 
 
 ## Progress Report (current areas I am working on)
-- **Working single frame capture model (on pi):**
-  - TestingData > pi_Input_Test.py
+- data has been camptured using the pi, and the API can be initialised
+  - need to test tht this new API functions properly using the actual model
 - **Test the following:**
-  - AI > bufferAI.py 
+  - test the actual API works
+  - make sure this starts on the boot of the PI
+ 
+##Whats Left##
+-  API starts on boot (just change the myscript.service file to point to the API)
+-  Captive Portal
+-  Nicer css for webpage
+-  
