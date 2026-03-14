@@ -47,7 +47,8 @@ def ai_processing_loop():
             if buffer_occupancy > 0:
                 spread_val = sum(frame_buffer) / buffer_occupancy
                 #overall state based on spread
-                new_pred = "drowsy" if spread_val > 0.5 else "alert"
+                threshold = 0.5 #TODO - change this as needed
+                new_pred = "drowsy" if spread_val > threshold else "alert"
                 avg_conf = sum(conf_buffer) / len(conf_buffer)
                 
                 with data_lock:
