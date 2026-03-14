@@ -1,38 +1,47 @@
-#going form tensor to tensor lite
 import tensorflow as tf
 import numpy as np
+from pathlib import Path
+import sys
 
-#converting my model into a Pi compatible tflite model
 def convert_model_to_tflite(keras_model_path):
-    # Load the Keras model (.h5)
+    # Convert path to string for Keras compatibility
+    keras_model_path = str(keras_model_path)
+    
+    print(f"Loading model from: {keras_model_path}")
     model = tf.keras.models.load_model(keras_model_path)
-
-    #locaiton to save the new tflite model
-    saveLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models" / model_name
-
 
     # Convert to TFLite
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
+    
+    # --- OPTIMIZATION FOR PI ---
+    # This reduces size and increases speed on ARM processors
+    converter.optimizations = [tf.lite.Optimize.DEFAULT]
+    
     tflite_model = converter.convert()
 
-    newModelName = keras_model_path.split(".h5")[0] + "_pi.tflite"
+    # Create the new filename
+    new_model_path = Path(keras_model_path).with_suffix('.tflite')
 
     # Save the TFLite model
-    with open(newModelName, "wb") as f:
+    with open(new_model_path, "wb") as f:
         f.write(tflite_model)
 
-    print("Conversion complete!")
+    print(f"✅ Conversion complete! Saved to: {new_model_path}")
 
 if __name__ == "__main__":
-    #changing project root to this so it can find the utility files
-    import sys
-    from pathlib import Path
-    ROOT = Path(__file__).resolve().parent.parent.parent
-    sys.path.append(str(ROOT))
+    # Get the directory where this script is located
+    SCRIPT_DIR = Path(__file__).resolve().parent
+    
+    # Go up one level to 'Driver-Drowsiness-Dissertation'
+    PROJECT_ROOT = SCRIPT_DIR.parent 
+    
+    model_name = "xception_drowsiness_model_v6.h5"
+    model_location = PROJECT_ROOT / "AI_Models" / model_name
 
-    model_name = "drowsiness_model_V3.h5"
-
-    #model location
-    modelLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models" / model_name
-
-    convert_model_to_tflite(modelLocation)
+    if not model_location.exists():
+        print(f"❌ ERROR: Cannot find {model_location}")
+        # List files to help debug
+        if model_location.parent.exists():
+            print(f"Files in AI_Models: {list(model_location.parent.glob('*.h5'))}")
+    else:
+        convert_model_to_tflite(model_location)

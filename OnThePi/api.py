@@ -3,6 +3,9 @@ import time
 from flask import Flask, jsonify, render_template
 from flask_cors import CORS
 from collections import deque
+import camera as cam
+import numpy as np
+import tflite_runtime.interpreter as tflite
 
 app = Flask(__name__)
 CORS(app)
@@ -24,16 +27,37 @@ def ai_processing_loop():
     global shared_data
     print("AI Model Thread Started...")
     
-    # Ensure AI_Model is defined/imported elsewhere
-    model = AI_Model.load() 
+    #Load model from memory
+    interpreter = tf.lite.Interpreter(model_path="model/xception_drowsiness_model_v6.tflite")
+    interpreter.allocate_tensors()
+    input_details = interpreter.get_input_details()
+    output_details = interpreter.get_output_details()
+    
+    #buffer definitions
     frame_buffer = deque(maxlen=30) #value of each prediction
     conf_buffer = deque(maxlen=30) #confidence of each prediction
 
     while True:
         try:
-            frame = cu.getFrame() 
-            #get the models prediction            
-            pred = model.predict(frame)
+            frame = cam.getFrame()
+            #incase there is an issue
+            if frame is None:
+                continue
+
+            #pre-processing
+            img_ready = preprocess_input(frame.astype('float32'))
+            img_batch = np.expand_dims(img_ready, axis=0)
+
+            #input the image
+            interpreter.set_tensor(input_details[0]['index'], img_batch)
+
+            #start the model
+            interpreter.invoke()
+
+            #extract the results
+            preds = interpreter.get_tensor(output_details[0]['index'])[0]
+
+
                 # => models output: [drowsy_confidence, alert_confidence]
             # add the overall classificaiton to the list of classificaitons
             frame_buffer.append(int(pred[0] > pred[1]))

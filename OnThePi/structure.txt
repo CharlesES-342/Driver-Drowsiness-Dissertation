@@ -6,4 +6,4 @@
 ├── templates/
 │   └── index.html      # HTML file
 └── model/
-    └── your_model.weights # The AI model files
+    └── AI_model.tflite # The AI model files (this is the 'xception_drowsiness_model_v6')
