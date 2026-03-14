@@ -8,8 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 # --- GLOBAL DATA ---
-# This dictionary holds the latest state from your AI model
-# Using a dictionary makes it easy to add more metrics later
+# holds latest state of the model predictions (and bonus data)
 shared_data = {
     "prediction": "alert",
     "confidence": 0.0,
@@ -17,58 +16,49 @@ shared_data = {
     "last_updated": 0
 }
 
-# Lock ensures the thread doesn't update the data at the exact 
-# millisecond the API tries to read it
+# Lock ensures the thread doesn't update the data at the exact time the API tries to read it
 data_lock = threading.Lock()
 
 # --- AI WORKER THREAD ---
 def ai_processing_loop():
-    """
-    This function runs continuously in the background.
-    Replace the 'time.sleep' and 'random' logic with your actual AI calls.
-    """
     global shared_data
     print("AI Model Thread Started...")
     
-    # 1. Initialize your model here (load weights, etc.)
-    # model = YourModel().load()
-
-    #frames buffer
-    frame_buffer = deque(maxlen=30) 
+    # Ensure AI_Model is defined/imported elsewhere
+    model = AI_Model.load() 
+    frame_buffer = deque(maxlen=30) #value of each prediction
+    conf_buffer = deque(maxlen=30) #confidence of each prediction
 
     while True:
-        # 2. Capture Frame / Get Data
-        # frame = camera.read()
+        try:
+            frame = cu.getFrame() 
+            #get the models prediction            
+            pred = model.predict(frame)
+                # => models output: [drowsy_confidence, alert_confidence]
+            # add the overall classificaiton to the list of classificaitons
+            frame_buffer.append(int(pred[0] > pred[1]))
+            #add the confidence to the array to be used for average confidence later
+            current_conf = max(pred[0], pred[1])
+            conf_buffer.append(current_conf)
+
+            buffer_occupancy = len(frame_buffer)
+
+            #variable assignment (for displaying)
+            if buffer_occupancy > 0:
+                spread_val = sum(frame_buffer) / buffer_occupancy
+                #overall state based on spread
+                new_pred = "drowsy" if spread_val > 0.5 else "alert"
+                avg_conf = sum(conf_buffer) / len(conf_buffer)
+                
+                with data_lock:
+                    shared_data["prediction"] = new_pred
+                    shared_data["confidence"] = round(avg_conf, 2)
+                    shared_data["spread"] = round(spread_val, 2)
+                    shared_data["last_updated"] = time.time()
         
-        # 3. Run Inference
-        # result = model.predict(frame)
-        import random #TODO - remove
-        current_frame_state = 1.0 if random.random() > 0.7 else 0.0 #TODO - change to be from the model = result
-        frame_buffer.append(current_frame_state)
+        except Exception as e:
+            print(f"Error in AI Loop: {e}")
 
-        #spread (tired frames in the buffer)
-        tired_frames = sum(frame_buffer)
-        buffer_occupancy = len(frame_buffer)
-        spread_val = tired_frames / buffer_occupancy if buffer_occupancy > 0 else 0
-        #overall classification
-        if spread_val > 0.5:
-            new_pred = "drowsy"
-            # Confidence is higher the further the spread is from the 0.5 threshold
-            new_val = 0.5 + (spread_val - 0.5) 
-        else:
-            new_pred = "alert"
-            new_val = 1.0 - spread_val
-
-        # 4. Update the global state securely
-        with data_lock:
-            #TODO - check what the model ooutputs to see if I can use ht emodel confidence rather than just the temporal confidence
-            shared_data["confidence"] = round(new_val, 2)
-            shared_data["prediction"] = new_pred
-            shared_data["spread"] = round(spread_val, 2)
-            shared_data["last_updated"] = time.time()
-
-        # Small sleep to prevent CPU Max-out if the AI is very fast
-        # this will also help to keep the device cooler and save power
         time.sleep(0.1)
 
 # --- FLASK ROUTES ---
