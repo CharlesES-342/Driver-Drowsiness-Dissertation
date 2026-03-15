@@ -1,0 +1,9 @@
+======= FILE STRUCTURE ON THE PI =======
+
+/project-root
+│
+├── api.py              # python logic & Flask server
+├── templates/
+│   └── index.html      # HTML file
+└── model/
+    └── AI_model.tflite # The AI model files (this is the 'xception_drowsiness_model_v6')
