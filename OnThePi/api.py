@@ -29,6 +29,7 @@ def ai_processing_loop():
     
     #Load model from memory
     interpreter = tf.lite.Interpreter(model_path="model/xception_drowsiness_model_v6.tflite")
+    
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
@@ -55,7 +56,7 @@ def ai_processing_loop():
             interpreter.invoke()
 
             #extract the results
-            preds = interpreter.get_tensor(output_details[0]['index'])[0]
+            pred = interpreter.get_tensor(output_details[0]['index'])[0]
 
 
                 # => models output: [drowsy_confidence, alert_confidence]
