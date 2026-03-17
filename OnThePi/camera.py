@@ -47,5 +47,14 @@ _cam_instance = None
 def getFrame():
     global _cam_instance
     if _cam_instance is None:
+        print("[DEBUG] _cam_instance is None, attempting to create Camera()...")
         _cam_instance = Camera()
-    return _cam_instance.getFrame()
+    
+    frame = _cam_instance.getFrame()
+    
+    if frame is None:
+        # Check if the hardware actually stayed open
+        is_open = _cam_instance.cap.isOpened()
+        print(f"[DEBUG] getFrame returned None. cap.isOpened() is: {is_open}")
+    
+    return frame

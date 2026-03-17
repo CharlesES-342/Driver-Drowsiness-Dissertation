@@ -52,6 +52,7 @@ def ai_processing_loop():
         try:
             frame = cam.getFrame()
             if frame is None:
+                print("frame failed")
                 continue
 
             # 2. PRO-TIP: Ensure preprocess_input exists! 
