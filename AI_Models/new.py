@@ -16,8 +16,7 @@ model = tf.keras.models.load_model(model_path)
 # --- PI 2.14.0 COMPATIBILITY SETTINGS ---
 converter = tf.lite.TFLiteConverter.from_keras_model(model)
 converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
-converter._experimental_lower_tensor_list_ops = True
-converter.optimizations = [tf.lite.Optimize.DEFAULT]
+converter.target_spec.supported_ops = [tf.float32]
 
 print("Converting... this will take a moment.")
 tflite_model = converter.convert()
