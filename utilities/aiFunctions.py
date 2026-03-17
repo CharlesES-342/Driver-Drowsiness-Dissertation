@@ -1,38 +1,44 @@
 import tensorflow as tf
-import numpy as np
 from pathlib import Path
-import sys
 
 def convert_model_to_tflite(keras_model_path):
     # Convert path to string for Keras compatibility
-    keras_model_path = str(keras_model_path)
+    keras_model_path_str = str(keras_model_path)
     
-    print(f"Loading model from: {keras_model_path}")
-    model = tf.keras.models.load_model(keras_model_path)
+    print(f"Loading H5 model from: {keras_model_path_str}")
+    
+    # 1. Load the Keras model (H5 format)
+    model = tf.keras.models.load_model(keras_model_path_str)
 
-    # Convert to TFLite
+    # 2. Use the Keras-specific converter
     converter = tf.lite.TFLiteConverter.from_keras_model(model)
+
+    # --- PI 2.14.0 COMPATIBILITY & OPTIMIZATION ---
+    # This prevents 'Op Version 12' errors on the Pi
+    converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
     
-    # --- OPTIMIZATION FOR PI ---
-    # This reduces size and increases speed on ARM processors
+    # Enable optimization to make the Xception model faster on the Pi's CPU
     converter.optimizations = [tf.lite.Optimize.DEFAULT]
     
+    # Crucial for older runtimes like 2.14.0
+    converter._experimental_lower_tensor_list_ops = True
+
+    print("Converting... Xception models can take a moment to optimize.")
     tflite_model = converter.convert()
 
-    # Create the new filename
-    new_model_path = Path(keras_model_path).with_suffix('.tflite')
-
-    # Save the TFLite model
+    # 3. Save the new file in the same AI_Models folder
+    new_model_path = keras_model_path.with_suffix('.tflite')
+    
     with open(new_model_path, "wb") as f:
         f.write(tflite_model)
 
     print(f"✅ Conversion complete! Saved to: {new_model_path}")
 
 if __name__ == "__main__":
-    # Get the directory where this script is located
+    # Get the directory where this script is located (On your Lenovo laptop)
     SCRIPT_DIR = Path(__file__).resolve().parent
     
-    # Go up one level to 'Driver-Drowsiness-Dissertation'
+    # Navigate to 'Driver-Drowsiness-Dissertation'
     PROJECT_ROOT = SCRIPT_DIR.parent 
     
     model_name = "xception_drowsiness_model_v6.h5"
@@ -40,7 +46,6 @@ if __name__ == "__main__":
 
     if not model_location.exists():
         print(f"❌ ERROR: Cannot find {model_location}")
-        # List files to help debug
         if model_location.parent.exists():
             print(f"Files in AI_Models: {list(model_location.parent.glob('*.h5'))}")
     else:
