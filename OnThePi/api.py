@@ -1,6 +1,6 @@
 import threading
 import time
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, make_response
 from flask_cors import CORS
 from collections import deque
 import camera as cam
@@ -9,6 +9,12 @@ import tflite_runtime.interpreter as tflite
 
 app = Flask(__name__)
 CORS(app)
+
+def preprocess_input(frame):
+    import cv2
+    img = cv2.resize(frame, (299, 299)) # Xception standard size
+    img = img.astype(np.float32) / 255.0 # Normalize 0 to 1
+    return img
 
 # --- GLOBAL DATA ---
 # holds latest state of the model predictions (and bonus data)
@@ -27,54 +33,54 @@ def ai_processing_loop():
     global shared_data
     print("AI Model Thread Started...")
     
-    #Load model from memory
-    interpreter = tf.lite.Interpreter(model_path="model/xception_drowsiness_model_v6.tflite")
+    # 1. FIXED: Use the correct alias from your import
+    try:
+        interpreter = tflite.Interpreter(model_path="model/xception_drowsiness_model_v6.tflite")
+        interpreter.allocate_tensors()
+    except Exception as e:
+        print(f"Failed to load model: {e}")
+        return
     
     interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     
-    #buffer definitions
-    frame_buffer = deque(maxlen=30) #value of each prediction
-    conf_buffer = deque(maxlen=30) #confidence of each prediction
+    frame_buffer = deque(maxlen=30) 
+    conf_buffer = deque(maxlen=30) 
 
     while True:
         try:
             frame = cam.getFrame()
-            #incase there is an issue
             if frame is None:
+                print("frame failed")
                 continue
 
-            #pre-processing
-            img_ready = preprocess_input(frame.astype('float32'))
-            img_batch = np.expand_dims(img_ready, axis=0)
+            # 2. PRO-TIP: Ensure preprocess_input exists! 
+            # It should resize to the model's expected shape (e.g., 299, 299, 3)
+            img_ready = preprocess_input(frame) 
+            img_batch = np.expand_dims(img_ready, axis=0).astype(np.float32)
 
-            #input the image
             interpreter.set_tensor(input_details[0]['index'], img_batch)
-
-            #start the model
             interpreter.invoke()
 
-            #extract the results
-            pred = interpreter.get_tensor(output_details[0]['index'])[0]
+
+            # 3. FIXED: Consistently use 'preds'
+            preds = interpreter.get_tensor(output_details[0]['index'])[0]
 
 
-                # => models output: [drowsy_confidence, alert_confidence]
-            # add the overall classificaiton to the list of classificaitons
-            frame_buffer.append(int(pred[0] > pred[1]))
-            #add the confidence to the array to be used for average confidence later
-            current_conf = max(pred[0], pred[1])
+            # Index 0 = Drowsy, Index 1 = Alert (based on your comment)
+            is_drowsy = int(preds[0] > preds[1])
+            frame_buffer.append(is_drowsy)
+            
+            current_conf = float(max(preds[0], preds[1]))
             conf_buffer.append(current_conf)
 
-            buffer_occupancy = len(frame_buffer)
-
-            #variable assignment (for displaying)
-            if buffer_occupancy > 0:
-                spread_val = sum(frame_buffer) / buffer_occupancy
-                #overall state based on spread
-                threshold = 0.5 #TODO - change this as needed
-                new_pred = "drowsy" if spread_val > threshold else "alert"
+            if len(frame_buffer) > 0:
+                spread_val = sum(frame_buffer) / len(frame_buffer)
                 avg_conf = sum(conf_buffer) / len(conf_buffer)
+                
+                # Threshold logic
+                new_pred = "drowsy" if spread_val > 0.5 else "alert"
                 
                 with data_lock:
                     shared_data["prediction"] = new_pred
@@ -87,18 +93,28 @@ def ai_processing_loop():
 
         time.sleep(0.1)
 
+        time.sleep(0.1)
+
 # --- FLASK ROUTES ---
 @app.route('/')
 def index():
     """Serves the dashboard UI"""
     return render_template('index.html')
-
+'''
 @app.route('/api/data')
 def get_data():
     """Returns the latest data from the AI thread"""
     with data_lock:
         return jsonify(shared_data)
-
+'''
+@app.route('/api/data')
+def get_data():
+    with data_lock:
+        response = make_response(jsonify(shared_data))
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        return response
 
 #===== for setup of the pi camera in the vehicle =====
 # @app.route('/setup')
