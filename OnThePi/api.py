@@ -35,7 +35,7 @@ def ai_processing_loop():
     
     # 1. FIXED: Use the correct alias from your import
     try:
-        interpreter = tflite.Interpreter(model_path="model/xception_drowsiness_model_v6.tflite")
+        interpreter = tflite.Interpreter(model_path="model/xception_v6_pi.tflite")
         interpreter.allocate_tensors()
     except Exception as e:
         print(f"Failed to load model: {e}")
