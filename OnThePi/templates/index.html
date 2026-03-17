@@ -112,9 +112,10 @@
             }
 
             .bar-fill {
-                height: 100% !important;
-                width: 0%;
-            }
+				width: 100%;
+				height: 0%;
+				transition: all 0.2s ease; /* Faster transition than the poll rate */
+			}
 
             .bar-label { width: 70px; font-size: 11px; text-align: left; }
             .bar-percent { width: 40px; text-align: right; }
@@ -157,7 +158,8 @@
 
         async function fetchData() {
             try {
-                const response = await fetch(API_URL);
+                //const response = await fetch(API_URL);
+                const response = await fetch(`${API_URL}?t=${new Date().getTime()}`);
                 if (!response.ok) throw new Error("API not responding");
 
                 const data = await response.json();
@@ -183,35 +185,36 @@
         }
 
         function updateConfidence(confidence) {
-            const pct = Math.round(confidence * 100);
-            const fill = document.getElementById("confidence-fill");
-            if (isPortrait()) {
-                fill.style.width  = pct + "%";
-                fill.style.height = "100%";
-            } else {
-                fill.style.height = pct + "%";
-                fill.style.width  = "100%";
-            }
-            document.getElementById("confidence-text").textContent = pct + "%";
-            fill.style.backgroundColor =
-                pct < 40 ? "red" : pct < 60 ? "orange" : "green";
-        }
+			const pct = Math.round(confidence * 100);
+			const fill = document.getElementById("confidence-fill");
+			
+			if (isPortrait()) {
+				fill.style.width = pct + "%";
+				fill.style.height = "100%"; // Force height to fill the track
+			} else {
+				fill.style.height = pct + "%";
+				fill.style.width = "100%"; // Force width to fill the track
+			}
+			
+			document.getElementById("confidence-text").textContent = pct + "%";
+			fill.style.backgroundColor = pct < 40 ? "red" : pct < 60 ? "orange" : "green";
+		}
 
-        function updateDistribution(spread) {
-            const pct = Math.round(spread * 100);
-            const fill = document.getElementById("spread-fill");
-            if (isPortrait()) {
-                fill.style.width  = pct + "%";
-                fill.style.height = "100%";
-            } else {
-                fill.style.height = pct + "%";
-                fill.style.width  = "100%";
-            }
-            document.getElementById("spread-text").textContent = pct + "%";
-            fill.style.backgroundColor =
-                pct < 40 ? "green" : pct < 60 ? "orange" : "red";
-        }
-
+		function updateDistribution(spread) {
+			const pct = Math.round(spread * 100);
+			const fill = document.getElementById("spread-fill");
+			
+			if (isPortrait()) {
+				fill.style.width = pct + "%";
+				fill.style.height = "100%";
+			} else {
+				fill.style.height = pct + "%";
+				fill.style.width = "100%";
+			}
+			
+			document.getElementById("spread-text").textContent = pct + "%";
+			fill.style.backgroundColor = pct < 40 ? "green" : pct < 60 ? "orange" : "red";
+		}
         fetchData();
         setInterval(fetchData, POLL_INTERVAL_MS);
     </script>

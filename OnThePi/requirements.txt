@@ -1,0 +1,5 @@
+flask
+flask-core
+numpy==1.26.4
+opencv-python-headless
+tflite-runtime
