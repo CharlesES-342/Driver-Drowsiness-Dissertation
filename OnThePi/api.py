@@ -45,8 +45,8 @@ def ai_processing_loop():
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     
-    frame_buffer = deque(maxlen=30) 
-    conf_buffer = deque(maxlen=30) 
+    frame_buffer = deque(maxlen=10) 
+    conf_buffer = deque(maxlen=10) 
 
     while True:
         try:
@@ -80,7 +80,7 @@ def ai_processing_loop():
                 avg_conf = sum(conf_buffer) / len(conf_buffer)
                 
                 # Threshold logic
-                new_pred = "drowsy" if spread_val > 0.5 else "alert"
+                new_pred = "drowsy" if spread_val > 0.2 else "alert"
                 
                 with data_lock:
                     shared_data["prediction"] = new_pred
