@@ -40,7 +40,8 @@ def ai_processing_loop():
     except Exception as e:
         print(f"Failed to load model: {e}")
         return
-
+    
+    interpreter.allocate_tensors()
     input_details = interpreter.get_input_details()
     output_details = interpreter.get_output_details()
     
@@ -61,8 +62,10 @@ def ai_processing_loop():
             interpreter.set_tensor(input_details[0]['index'], img_batch)
             interpreter.invoke()
 
+
             # 3. FIXED: Consistently use 'preds'
             preds = interpreter.get_tensor(output_details[0]['index'])[0]
+
 
             # Index 0 = Drowsy, Index 1 = Alert (based on your comment)
             is_drowsy = int(preds[0] > preds[1])
