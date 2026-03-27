@@ -167,7 +167,7 @@ class ImageAnnotator:
         img_tk = ImageTk.PhotoImage(display_img)
         self.img_panel.configure(image=img_tk, text="")
         self.img_panel.image = img_tk 
-        self.reset_specific_inputs()
+        #self.reset_specific_inputs()
 
     def reset_specific_inputs(self):
         self.camera_pos.set(4)
@@ -192,14 +192,16 @@ class ImageAnnotator:
             "manual_state": self.alertness.get()
         }
 
-        file_name = 'annotations.csv'
+        script_dir = Path(__file__).resolve().parent
+        file_path = script_dir / 'annotations.csv'
         all_rows = []
         found = False
 
-        if os.path.exists(file_name):
-            with open(file_name, 'r', newline='') as f:
+        if file_path.exists():
+            with open(file_path, 'r', newline='') as f:
                 reader = csv.DictReader(f)
                 all_rows = list(reader)
+            
             for row in all_rows:
                 if row['image_id'] == current_id:
                     row.update(new_data)
@@ -208,11 +210,12 @@ class ImageAnnotator:
 
         if not found: all_rows.append(new_data)
 
-        with open(file_name, 'w', newline='') as f:
+        with open(file_path, 'w', newline='') as f:
             writer = csv.DictWriter(f, fieldnames=new_data.keys())
             writer.writeheader()
             writer.writerows(all_rows)
 
+        # Move to next image
         self.current_idx += 1
         if self.current_idx < len(self.image_list):
             self.display_image(self.image_list[self.current_idx])
