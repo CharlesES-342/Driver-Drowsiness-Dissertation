@@ -1,3 +1,7 @@
+'''
+convert models to the correct form to run with the compatable tflite-runtime
+that is installed on the pi
+'''
 import tensorflow as tf
 from pathlib import Path
 import os
