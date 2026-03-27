@@ -65,14 +65,12 @@ All findings and structure are documented in the __Report__
 
 
 ## Progress Report (current areas I am working on)
-- data has been camptured using the pi, and the API can be initialised
-  - need to test tht this new API functions properly using the actual model
-- **Test the following:**
-  - test the actual API works
-  - make sure this starts on the boot of the PI
+- Evaluation
+ - turn the videos into a series of images (again) - these can be deleted after so could think about doing dynamically
+ - Go through all of the captured images and assign labels
+ - Grab the videos off of the PI and label them aswell
  
-##Whats Left##
--  API starts on boot (just change the myscript.service file to point to the API)
+## Whats Left
 -  Captive Portal
 -  Nicer css for webpage
--  
+-  Evaluation (take the data and assign labels/classification)
