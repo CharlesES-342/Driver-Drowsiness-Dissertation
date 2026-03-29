@@ -6,54 +6,42 @@ from tkinter import ttk, filedialog, messagebox
 from PIL import Image, ImageTk
 import os
 import csv
+import cv2
+import threading
+import time
 from pathlib import Path
 from tensorflow.keras.preprocessing import image
 from tensorflow.keras.applications.xception import preprocess_input
 
-# --- Helper Function ---
 def getDarkness(img):
-    """Calculates image darkness: 0 (White) to 1 (Black)"""
     grayscale = img.convert('L')
     data = np.array(grayscale)
-    avg_brightness = np.mean(data)
-    darkness = 1.0 - (avg_brightness / 255.0)
-    return round(darkness, 4)
+    return round(1.0 - (np.mean(data) / 255.0), 4)
 
 class ImageAnnotator:
     def __init__(self, root):
         self.root = root
-        self.root.title("Image Annotation Tool")
+        self.root.title("Driver Drowsiness Annotation Tool")
+        self.root.geometry("1200x800") # Slightly smaller default window
         
-        # 1. Window Configuration
-        self.root.geometry("1400x850") 
+        self.image_list = []
+        self.current_idx_img = -1
+        self.image_path = ""
+        self.list_lock = threading.Lock()
         
-        # 2. Load Model from AI_Models Folder
+        # Load Model
         self.model = None
         try:
-            # Get the path of the current script (evauation_pre-processing.py)
             current_script_path = Path(__file__).resolve()
-            
-            # Step back 1 level into 'Driver-Drowsiness-Dissertation'
-            # Then enter 'AI_Models' and find the file
             model_path = current_script_path.parents[1] / "AI_Models" / "xception_drowsiness_model_v6.h5"
-            
             if model_path.exists():
                 self.model = tf.keras.models.load_model(str(model_path))
-                print(f"SUCCESS: Loaded model from {model_path}")
-            else:
-                print(f"ERROR: Model not found at {model_path}")
-                messagebox.showerror("Model Error", f"File not found:\n{model_path}")
         except Exception as e:
-            print(f"Load Error: {e}")
+            print(f"Model Load Error: {e}")
         
-        # 3. Data State
-        self.image_path = ""
-        self.image_list = []
-        self.current_idx = -1
-        
-        # 4. Observables
+        # Observables
         self.image_id = tk.StringVar(value="None")
-        self.progress_text = tk.StringVar(value="No folder loaded")
+        self.progress_text = tk.StringVar(value="Ready")
         self.camera_pos = tk.IntVar(value=4) 
         self.accessories = tk.BooleanVar()
         self.hair_obscured = tk.BooleanVar()
@@ -66,122 +54,156 @@ class ImageAnnotator:
         self.root.bind('<Return>', lambda event: self.save_and_next())
 
     def setup_ui(self):
-        self.root.columnconfigure(0, weight=4) 
-        self.root.columnconfigure(1, weight=1) 
-        self.root.rowconfigure(0, weight=1)
+        # Main Paned Window
+        self.paned = tk.PanedWindow(self.root, orient=tk.HORIZONTAL, sashwidth=6, bg="#444")
+        self.paned.pack(fill="both", expand=True)
 
-        img_frame = tk.Frame(self.root, bg="black")
-        img_frame.grid(row=0, column=0, sticky="nsew", padx=5, pady=5)
-        self.img_panel = tk.Label(img_frame, text="No Image Loaded", bg="black", fg="white")
+        # LEFT: Image Display (Flexible)
+        self.img_container = tk.Frame(self.paned, bg="black")
+        self.paned.add(self.img_container, stretch="always")
+        
+        self.img_panel = tk.Label(self.img_container, text="No Image Loaded", bg="black", fg="white")
         self.img_panel.pack(expand=True, fill="both")
 
-        controls = tk.Frame(self.root, width=320)
-        controls.grid(row=0, column=1, sticky="nsew", padx=10, pady=5)
-        controls.pack_propagate(False) 
+        # RIGHT: Controls (Fixed Width)
+        self.controls = tk.Frame(self.paned, width=350, padx=15, pady=10)
+        self.controls.pack_propagate(False) # CRITICAL: Prevents children from resizing this frame
+        self.paned.add(self.controls, stretch="never")
 
-        tk.Label(controls, textvariable=self.progress_text, font=('Arial', 8, 'italic')).pack(anchor="w")
-        tk.Label(controls, text="Image ID:", font=('Arial', 9, 'bold')).pack(anchor="w")
-        tk.Label(controls, textvariable=self.image_id, fg="blue", font=('Arial', 8)).pack(anchor="w", pady=(0, 2))
+        # Layout inside controls
+        tk.Label(self.controls, textvariable=self.progress_text, font=('Arial', 9, 'italic')).pack(anchor="w")
+        self.load_progress = ttk.Progressbar(self.controls, orient="horizontal", mode="determinate")
+        self.load_progress.pack(fill="x", pady=5)
 
-        stats_frame = tk.LabelFrame(controls, text="Auto Stats", padx=5, pady=2, font=('Arial', 8))
-        stats_frame.pack(fill="x", pady=2)
-        tk.Label(stats_frame, text="Dark:", font=('Arial', 8)).grid(row=0, column=0, sticky="w")
-        tk.Label(stats_frame, textvariable=self.darkness_val, font=('Arial', 8, 'bold')).grid(row=0, column=1, sticky="w", padx=5)
-        tk.Label(stats_frame, text="Model:", font=('Arial', 8)).grid(row=0, column=2, sticky="w", padx=(10,0))
-        tk.Label(stats_frame, textvariable=self.prediction_val, fg="red", font=('Arial', 8, 'bold')).grid(row=0, column=3, sticky="w")
+        # Classification Stats
+        stats_frame = tk.LabelFrame(self.controls, text=" AI Classification ", padx=10, pady=5)
+        stats_frame.pack(fill="x", pady=10)
+        tk.Label(stats_frame, text="Darkness:").grid(row=0, column=0, sticky="w")
+        tk.Label(stats_frame, textvariable=self.darkness_val, font=('Arial', 9, 'bold')).grid(row=0, column=1, sticky="w", padx=5)
+        tk.Label(stats_frame, text="AI Predict:").grid(row=1, column=0, sticky="w")
+        tk.Label(stats_frame, textvariable=self.prediction_val, fg="red", font=('Arial', 9, 'bold')).grid(row=1, column=1, sticky="w", padx=5)
 
-        tk.Label(controls, text="Camera Pos:", font=('Arial', 9, 'bold')).pack(anchor="w", pady=(2, 0))
-        grid_frame = tk.Frame(controls)
-        grid_frame.pack(pady=2)
+        # Camera Position
+        tk.Label(self.controls, text="Camera Pos (Grid):", font=('Arial', 10, 'bold')).pack(anchor="w")
+        grid_frame = tk.Frame(self.controls)
+        grid_frame.pack(pady=5)
         for i in range(9):
-            tk.Radiobutton(grid_frame, variable=self.camera_pos, value=i).grid(row=i//3, column=i%3, padx=2, pady=1)
+            tk.Radiobutton(grid_frame, variable=self.camera_pos, value=i).grid(row=i//3, column=i%3, padx=8, pady=2)
 
-        toggle_frame = tk.Frame(controls)
-        toggle_frame.pack(fill="x", pady=2)
-        tk.Checkbutton(toggle_frame, text="Accessory", variable=self.accessories, font=('Arial', 8)).pack(side="left")
-        tk.Checkbutton(toggle_frame, text="Hair in Face", variable=self.hair_obscured, font=('Arial', 8)).pack(side="left", padx=5)
+        # Inputs
+        tk.Checkbutton(self.controls, text="Accessories", variable=self.accessories).pack(anchor="w")
+        tk.Checkbutton(self.controls, text="Hair in Face", variable=self.hair_obscured).pack(anchor="w")
 
-        tk.Label(controls, text="Gender:", font=('Arial', 9, 'bold')).pack(anchor="w", pady=(2, 0))
-        g_frame = tk.Frame(controls)
-        g_frame.pack(anchor="w")
+        tk.Label(self.controls, text="Gender:", font=('Arial', 10, 'bold')).pack(anchor="w", pady=(10, 0))
         for g in ["Male", "Female", "Other"]:
-            tk.Radiobutton(g_frame, text=g, variable=self.gender, value=g, font=('Arial', 8)).pack(side="left")
+            tk.Radiobutton(self.controls, text=g, variable=self.gender, value=g).pack(anchor="w")
 
-        tk.Label(controls, text="State:", font=('Arial', 9, 'bold')).pack(anchor="w", pady=(2, 0))
-        s_frame = tk.Frame(controls)
-        s_frame.pack(anchor="w")
+        tk.Label(self.controls, text="Label State:", font=('Arial', 10, 'bold')).pack(anchor="w", pady=(10, 0))
         for state in ["Alert", "Tired"]:
-            tk.Radiobutton(s_frame, text=state, variable=self.alertness, value=state, font=('Arial', 8)).pack(side="left")
+            tk.Radiobutton(self.controls, text=state, variable=self.alertness, value=state).pack(anchor="w")
 
-        button_frame = tk.Frame(controls)
-        button_frame.pack(fill="x", side="bottom", pady=5)
-        tk.Button(button_frame, text="Open Folder", command=self.load_folder, font=('Arial', 9)).pack(fill="x", pady=2)
-        self.btn_save = tk.Button(button_frame, text="SAVE & NEXT", command=self.save_and_next, bg="#2ecc71", fg="white", font=('Arial', 10, 'bold'), height=1)
-        self.btn_save.pack(fill="x", pady=2)
-        tk.Button(button_frame, text="Previous", command=self.go_back, font=('Arial', 9)).pack(fill="x", pady=2)
+        # Bottom Buttons
+        btn_frame = tk.Frame(self.controls)
+        btn_frame.pack(fill="x", side="bottom", pady=5)
+        
+        tk.Button(btn_frame, text="Open Folder", command=self.load_folder_threaded).pack(fill="x", pady=2)
+        tk.Button(btn_frame, text="Previous", command=self.go_back).pack(fill="x", pady=2)
+        self.btn_save = tk.Button(btn_frame, text="SAVE & NEXT", command=self.save_and_next, 
+                                  bg="#2ecc71", fg="white", font=('Arial', 11, 'bold'), height=2)
+        self.btn_save.pack(fill="x", pady=5)
 
-    def predict_model(self, pil_img):
-        if self.model is None: return "N/A"
-        try:
-            img = pil_img.resize((299, 299))
-            img_array = image.img_to_array(img)
-            img_array = np.expand_dims(img_array, axis=0)
-            img_array = preprocess_input(img_array)
-            preds = self.model.predict(img_array, verbose=0)
-            
-            # Logic: preds[0] = [drowsy_conf, alert_conf]
-            # np.argmax returns index 0 (Tired) if drowsy is higher, 1 (Alert) if alert is higher
-            idx = np.argmax(preds[0])
-            return "Tired" if idx == 0 else "Alert"
-        except:
-            return "Error"
+    def load_folder_threaded(self):
+        folder = filedialog.askdirectory()
+        if not folder: return
+        with self.list_lock:
+            self.image_list = []
+            self.current_idx_img = -1
+        threading.Thread(target=self.background_loader, args=(folder,), daemon=True).start()
 
-    def load_folder(self):
-        folder_selected = filedialog.askdirectory()
-        if folder_selected:
-            self.image_list = [os.path.join(folder_selected, f) for f in os.listdir(folder_selected) 
-                              if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-            self.image_list.sort()
-            if self.image_list:
-                self.current_idx = 0
-                self.display_image(self.image_list[self.current_idx])
+    def background_loader(self, folder_path):
+        temp_dir = Path("extracted_frames")
+        temp_dir.mkdir(exist_ok=True)
+        all_items = os.listdir(folder_path)
+        self.root.after(0, lambda: self.load_progress.configure(maximum=len(all_items)))
+
+        for f in all_items:
+            full_path = os.path.join(folder_path, f)
+            if not os.path.isfile(full_path): continue
+            if f.lower().endswith(('.jpg', '.jpeg', '.png')):
+                with self.list_lock: self.image_list.append(full_path)
+            elif f.lower().endswith(('.mp4', '.avi', '.mov')):
+                self.extract_frames_fast(full_path, temp_dir)
+            self.root.after(0, self.load_progress.step)
+
+            if len(self.image_list) > 0 and self.current_idx_img == -1:
+                self.current_idx_img = 0
+                self.root.after(200, lambda: self.display_image(self.image_list[0]))
+
+        with self.list_lock: self.image_list.sort()
+        self.root.after(0, lambda: self.progress_text.set(f"Loaded: {len(self.image_list)}"))
+
+    def extract_frames_fast(self, v_path, temp_dir):
+        cap = cv2.VideoCapture(v_path)
+        fps = cap.get(cv2.CAP_PROP_FPS)
+        total_f = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
+        if fps <= 0: return
+        duration_ms = int((total_f / fps) * 1000)
+        v_name = Path(v_path).stem
+        for msec in range(0, duration_ms, 5000):
+            cap.set(cv2.CAP_PROP_POS_MSEC, msec)
+            ret, frame = cap.read()
+            if ret:
+                s_path = str(temp_dir / f"{v_name}_t{msec//1000}s.jpg")
+                cv2.imwrite(s_path, frame)
+                with self.list_lock: self.image_list.append(s_path)
+            else: break
+        cap.release()
 
     def display_image(self, path):
-        self.image_path = path
-        self.image_id.set(os.path.basename(path))
-        self.progress_text.set(f"Img {self.current_idx + 1}/{len(self.image_list)}")
-        raw_img = Image.open(path).convert('RGB')
-        self.darkness_val.set(getDarkness(raw_img))
-        self.prediction_val.set(self.predict_model(raw_img))
-        
-        self.root.update_idletasks()
-        p_w, p_h = self.img_panel.winfo_width(), self.img_panel.winfo_height()
-        if p_w < 10: p_w, p_h = 1000, 700
-        
-        scale = min(p_w / raw_img.size[0], p_h / raw_img.size[1])
-        if scale < 1.0:
-            display_img = raw_img.resize((int(raw_img.size[0]*scale), int(raw_img.size[1]*scale)), Image.Resampling.LANCZOS)
-        else:
-            display_img = raw_img
+        # Wait for file write
+        for _ in range(5):
+            if os.path.exists(path) and os.path.getsize(path) > 0: break
+            time.sleep(0.1)
+
+        try:
+            self.image_path = path
+            self.image_id.set(os.path.basename(path))
+            raw_pil = Image.open(path).convert('RGB')
+            self.darkness_val.set(getDarkness(raw_pil))
             
-        img_tk = ImageTk.PhotoImage(display_img)
-        self.img_panel.configure(image=img_tk, text="")
-        self.img_panel.image = img_tk 
-        #self.reset_specific_inputs()
-
-    def reset_specific_inputs(self):
-        self.camera_pos.set(4)
-        self.alertness.set("Alert")
-
-    def go_back(self):
-        if self.current_idx > 0:
-            self.current_idx -= 1
-            self.display_image(self.image_list[self.current_idx])
+            # Model Predict
+            if self.model:
+                img_prep = raw_pil.resize((299, 299))
+                img_arr = image.img_to_array(img_prep)
+                img_arr = np.expand_dims(img_arr, axis=0)
+                img_arr = preprocess_input(img_arr)
+                preds = self.model.predict(img_arr, verbose=0)
+                self.prediction_val.set("Tired" if np.argmax(preds[0]) == 0 else "Alert")
+            
+            # RESIZING LOGIC: Keep it contained
+            self.root.update_idletasks()
+            # We subtract a small margin to prevent the image from "pushing" the window bigger
+            max_w = self.img_container.winfo_width() - 20
+            max_h = self.img_container.winfo_height() - 20
+            
+            if max_w < 100: max_w, max_h = 800, 600 # Fallback
+            
+            display_pil = raw_pil.copy()
+            display_pil.thumbnail((max_w, max_h), Image.Resampling.LANCZOS)
+            
+            img_tk = ImageTk.PhotoImage(display_pil)
+            self.img_panel.config(image=img_tk, text="")
+            self.img_panel.image = img_tk
+            self.progress_text.set(f"Item {self.current_idx_img+1} / {len(self.image_list)}")
+            
+        except Exception as e:
+            print(f"Error: {e}")
 
     def save_and_next(self):
-        if not self.image_path: return
+        if self.current_idx_img == -1 or not self.image_path: return
+        
         current_id = self.image_id.get()
-        new_data = {
+        new_row = {
             "image_id": current_id,
             "darkness": self.darkness_val.get(),
             "model_prediction": self.prediction_val.get(),
@@ -192,35 +214,36 @@ class ImageAnnotator:
             "manual_state": self.alertness.get()
         }
 
-        script_dir = Path(__file__).resolve().parent
-        file_path = script_dir / 'annotations.csv'
-        all_rows = []
+        csv_path = Path(__file__).resolve().parent / 'annotations.csv'
+        data = []
+        if csv_path.exists():
+            with open(csv_path, 'r', newline='') as f:
+                data = list(csv.DictReader(f))
+        
         found = False
+        for row in data:
+            if row['image_id'] == current_id:
+                row.update(new_row)
+                found = True
+                break
+        if not found: data.append(new_row)
 
-        if file_path.exists():
-            with open(file_path, 'r', newline='') as f:
-                reader = csv.DictReader(f)
-                all_rows = list(reader)
-            
-            for row in all_rows:
-                if row['image_id'] == current_id:
-                    row.update(new_data)
-                    found = True
-                    break
-
-        if not found: all_rows.append(new_data)
-
-        with open(file_path, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=new_data.keys())
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=new_row.keys())
             writer.writeheader()
-            writer.writerows(all_rows)
+            writer.writerows(data)
 
-        # Move to next image
-        self.current_idx += 1
-        if self.current_idx < len(self.image_list):
-            self.display_image(self.image_list[self.current_idx])
-        else:
-            messagebox.showinfo("Done", "Folder finished!")
+        self.current_idx_img += 1
+        with self.list_lock:
+            if self.current_idx_img < len(self.image_list):
+                self.display_image(self.image_list[self.current_idx_img])
+            else:
+                messagebox.showinfo("Done", "End of list reached.")
+
+    def go_back(self):
+        if self.current_idx_img > 0:
+            self.current_idx_img -= 1
+            self.display_image(self.image_list[self.current_idx_img])
 
 if __name__ == "__main__":
     root = tk.Tk()
