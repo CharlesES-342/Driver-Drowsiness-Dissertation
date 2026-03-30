@@ -20,6 +20,12 @@ def getDarkness(img):
 
 class ImageAnnotator:
     def __init__(self, root):
+        '''
+        initialiser
+        Input: location
+        Defines the model used, frame sizes and the variables used for the annotation of the images.
+        Also defines the UI layout and the buttons and their functions.
+        '''
         self.root = root
         self.root.title("Driver Drowsiness Annotation Tool")
         self.root.geometry("1200x800") # Slightly smaller default window
@@ -54,6 +60,11 @@ class ImageAnnotator:
         self.root.bind('<Return>', lambda event: self.save_and_next())
 
     def setup_ui(self):
+        '''
+        Window layout and design
+        - left = image
+        - right = controls
+        '''
         # Main Paned Window
         self.paned = tk.PanedWindow(self.root, orient=tk.HORIZONTAL, sashwidth=6, bg="#444")
         self.paned.pack(fill="both", expand=True)
@@ -113,6 +124,11 @@ class ImageAnnotator:
         self.btn_save.pack(fill="x", pady=5)
 
     def load_folder_threaded(self):
+        '''
+        Thread for loading the folder containing the images and videos
+        Allows you to continue to load images (especially from videos), while also being able to
+        annotate those already loaded
+        '''
         folder = filedialog.askdirectory()
         if not folder: return
         with self.list_lock:
@@ -121,6 +137,12 @@ class ImageAnnotator:
         threading.Thread(target=self.background_loader, args=(folder,), daemon=True).start()
 
     def background_loader(self, folder_path):
+        '''
+        allows you to the images and videos in the folder
+        Also contains resuming logic (load last image - but only after it has been loaded)
+        Doesn't work if annotations is already full (meanas you have to wait for the entire folder
+        to load before images will road) 
+        '''
         temp_dir = Path("extracted_frames")
         temp_dir.mkdir(exist_ok=True)
         all_items = os.listdir(folder_path)
@@ -135,31 +157,63 @@ class ImageAnnotator:
                 self.extract_frames_fast(full_path, temp_dir)
             self.root.after(0, self.load_progress.step)
 
-            if len(self.image_list) > 0 and self.current_idx_img == -1:
-                self.current_idx_img = 0
-                self.root.after(200, lambda: self.display_image(self.image_list[0]))
+        # Sort list so it matches the expected order
+        with self.list_lock: 
+            self.image_list.sort()
 
-        with self.list_lock: self.image_list.sort()
-        self.root.after(0, lambda: self.progress_text.set(f"Loaded: {len(self.image_list)}"))
+        # Auto-resuming for joining back in
+        csv_path = Path(__file__).resolve().parent / 'annotations.csv'
+        resume_idx = 0
+        
+        if csv_path.exists():
+            try:
+                with open(csv_path, 'r', newline='') as f:
+                    data = list(csv.DictReader(f))
+                    if data:
+                        last_saved_id = data[-1]['image_id']
+                        # Find the index of the last saved image in our current list
+                        for i, path in enumerate(self.image_list):
+                            if os.path.basename(path) == last_saved_id:
+                                resume_idx = i + 1
+                                break
+            except Exception as e:
+                print(f"Error reading CSV for resume: {e}")
+
+        # ensure the index is valid for the current images
+        if resume_idx >= len(self.image_list):
+            resume_idx = len(self.image_list) - 1 if len(self.image_list) > 0 else 0
+
+        self.current_idx_img = resume_idx
+
+        if len(self.image_list) > 0:
+            self.root.after(200, lambda: self.display_image(self.image_list[self.current_idx_img]))
+
+        self.root.after(0, lambda: self.progress_text.set(f"Loaded: {len(self.image_list)} (Resumed at {self.current_idx_img + 1})"))
 
     def extract_frames_fast(self, v_path, temp_dir):
+        '''
+        Get the images from videos (every 5 seconds)
+        '''
         cap = cv2.VideoCapture(v_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
         total_f = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
         if fps <= 0: return
         duration_ms = int((total_f / fps) * 1000)
         v_name = Path(v_path).stem
-        for msec in range(0, duration_ms, 5000):
+        for msec in range(0, duration_ms, 5000): #5 second interval
             cap.set(cv2.CAP_PROP_POS_MSEC, msec)
             ret, frame = cap.read()
             if ret:
-                s_path = str(temp_dir / f"{v_name}_t{msec//1000}s.jpg")
+                s_path = str(temp_dir / f"{v_name}_t{msec//1000}s.jpg")#temp file ID
                 cv2.imwrite(s_path, frame)
                 with self.list_lock: self.image_list.append(s_path)
             else: break
         cap.release()
 
     def display_image(self, path):
+        '''
+        Show the image on screen (takes file location - could be temp file location for video images)
+        '''
         # Wait for file write
         for _ in range(5):
             if os.path.exists(path) and os.path.getsize(path) > 0: break
@@ -200,6 +254,10 @@ class ImageAnnotator:
             print(f"Error: {e}")
 
     def save_and_next(self):
+        '''
+        For image value submissions
+        Store the changed/added values in the CSV
+        '''
         if self.current_idx_img == -1 or not self.image_path: return
         
         current_id = self.image_id.get()
@@ -221,14 +279,14 @@ class ImageAnnotator:
                 data = list(csv.DictReader(f))
         
         found = False
-        for row in data:
+        for row in data: #updating existing values
             if row['image_id'] == current_id:
                 row.update(new_row)
                 found = True
                 break
         if not found: data.append(new_row)
 
-        with open(csv_path, 'w', newline='') as f:
+        with open(csv_path, 'w', newline='') as f: #adding new values to bottom (appending)
             writer = csv.DictWriter(f, fieldnames=new_row.keys())
             writer.writeheader()
             writer.writerows(data)
@@ -241,11 +299,14 @@ class ImageAnnotator:
                 messagebox.showinfo("Done", "End of list reached.")
 
     def go_back(self):
+        '''
+        jump back a file (in case of mistakes or to check consistency)
+        '''
         if self.current_idx_img > 0:
             self.current_idx_img -= 1
-            self.display_image(self.image_list[self.current_idx_img])
+            self.display_image(self.image_list[self.current_idx_img]) #reload the section
 
 if __name__ == "__main__":
-    root = tk.Tk()
+    root = tk.Tk() #initialise window
     app = ImageAnnotator(root)
     root.mainloop()
