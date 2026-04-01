@@ -200,7 +200,8 @@ class ImageAnnotator:
         if fps <= 0: return
         duration_ms = int((total_f / fps) * 1000)
         v_name = Path(v_path).stem
-        for msec in range(0, duration_ms, 5000): #5 second interval
+        skip_duration = 30000 #ms
+        for msec in range(0, duration_ms, skip_duration):
             cap.set(cv2.CAP_PROP_POS_MSEC, msec)
             ret, frame = cap.read()
             if ret:
