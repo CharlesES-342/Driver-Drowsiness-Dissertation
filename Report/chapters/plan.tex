@@ -34,3 +34,72 @@ information or alerting the user.
     \captionsetup{labelformat=empty}
     \caption{\tiny (ChatGPT generated –> prompt=”please make this look nice + drawing of this”)}
 \end{figure}
+
+\subsection{Component Choices and Reasoning:}
+\paragraph{Raspberry Pi:}
+For the main processing unit of this system, I have chosen a Raspberry Pi 4B. While this might be over the top in certain aspects,
+such as:
+\begin{itemize}
+    \item Basic Graphics Processor
+	\item 4 USB-A ports
+	\item Ethernet capabilities
+	\item HDMI compatibility
+	\item GPIO Header (40-pin)
+	\item Audio/Video jack
+\end{itemize}
+All of these are not necessary for this project specifically; however, I will be using this for a variety of additional projects
+beyond the scope of my dissertation. I chose model 4 because this has sufficient computation power to process video or images fast
+enough that it should not hinder the analysis. This should also be able to stay cool (while staying silent due to no fans) while
+running my intended AI model.
+\paragraph{Camera:}
+Initially, I wanted to use a rear dashcam as this was small and would provide the infra-red capabilities I desired for nighttime video,
+however this required additional wiring which would make this more expensive. In future, I would recommend a smaller camera module,
+however, for the current constraints and the plug and play capabilities, this is the superior option. These also often support 30fps.
+This isn’t too fast of a frame rate that you are unable to extract and process the data between the frames, as well as not being too slow
+that you miss vital things such as blinking (which can further be used to detect tiredness).
+\paragraph{WIFI Capable Device:}
+This is the area of the project that can have the most flexibility in requirements. I will be making use of several different devices
+that I own (old phones or tablets), with the intent of users being able to use whatever they have available.
+
+\paragraph{Structure:}
+This project can be broken down into the following areas of consideration:
+\begin{itemize}
+    \item \textbf{Hardware:} Selection and configuration to allow the support of a real-time driver drowsiness detection system. This
+    includes the use of a Raspberry Pi as the main processing unit, as well as peripheral devices to capture user data required for
+    operation.
+    \item \textbf{Data Pre-processing:}To ensure data quality and consistency, before training the models. The handling of missing or
+    corrupted data should be performed, as well as general normalization and clear labeling to allow for an easy workflow.
+    \item \textbf{Image Procesing:} This is a core component of the system, enabling facial detection and analysis from still images
+    (frames). This will consist of the following:
+    \begin{itemize}
+        \item Facial Feature Extraction
+        \item Model Development
+        \item Training
+        \item Testing
+    \end{itemize}
+\end{itemize}
+\paragraph{Video Processing:}
+Following the development of single frame processing, it is a good idea to apply this to a series of frames taken from a video input.
+This will allow for it to give the real-time analysis that is required. This stage will consist of:
+\begin{itemize}
+    \item Extracting frames for reference
+    \item Facial Feature Extraction
+    \item Model development 
+    \item Training
+    \item Testing
+\end{itemize}
+
+Following the development of the AI model, the next stage of the project is to display these findings and apply warning or other
+safety measures to the user.
+\paragraph{Networking:}
+    Connecting to the user’s device. Providing a connection to host a webpage on, and later allow f	for alerts and information to be
+    passed
+\paragraph{Webpage:}
+	Develop a simple webpage to display system outputs and status information.
+\paragraph{Hosting:}
+    Host the webpage locally on the Raspberry Pi in a display-only configuration. This will help to ensure that the user does not
+    interact with the system from within the vehicle. This will help to ensure safe operation in a vehicle setting.
+\paragraph{Mobile Device Connectivity:}
+    Connect the user mobile device to the Raspberry Pi via local network connection to access the hosted webpage
+\paragraph{Additional:}
+    To ensure safety and conform to laws, disable actions form the webpage (if any are sued) while in motion.

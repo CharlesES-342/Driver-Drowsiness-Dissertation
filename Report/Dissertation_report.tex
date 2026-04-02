@@ -26,8 +26,16 @@
     innerleftmargin=10pt,
     innerrightmargin=10pt
 }
+
 \geometry{margin=1in}
-\hypersetup{colorlinks=true, linkcolor=blue, urlcolor=cyan}
+
+% feature colours
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,   % TOC, sections, figures, equations
+    citecolor=blue,   % bibliography references
+    urlcolor=red     % URLs
+}
 
 % --- Document Metadata ---
 \title{
@@ -57,6 +65,7 @@
 
 \include{chapters/plan}
 
+\include{chapters/datasets}
 
 
 
@@ -73,10 +82,10 @@ Brake. (2026). ``UK Road Safety Knowledge Centre.'' \url{https://www.brake.org.u
 \bibitem{SUST}
 Kavalci Yilmaz, E., and Akcayol, M. A. (2022). ``SUST-DDD: A Real-Drive Dataset for Driver Drowsiness Detection.'' \textit{Proceedings of the 31st FRUCT Conference}, 31:416--21. doi: 10.5281/zenodo.6519933.
 
-\bibitem{ortega2020dmd}
+\bibitem{vicomtech}
 Ortega, J. D., et al. (2020). ``DMD: A Large-Scale Multi-modal Driver Monitoring Dataset for Attention and Alertness Analysis.'' \textit{Computer Vision — ECCV 2020 Workshops}, pp. 387--405. Springer International Publishing.
 
-\bibitem{yang2023fatigueview}
+\bibitem{fatigueview}
 Yang, C., Yang, Z., Li, W., and See, J. (2023). ``FatigueView: A Multi-Camera Video Dataset for Vision-Based Drowsiness Detection.'' \textit{IEEE Transactions on Intelligent Transportation Systems}, vol. 24, no. 1, pp. 233--246. doi: 10.1109/TITS.2022.3216017.
 
 \bibitem{gov_mobile_law}
