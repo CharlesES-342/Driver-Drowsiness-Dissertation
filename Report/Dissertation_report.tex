@@ -40,6 +40,15 @@
     urlcolor=red     % URLs
 }
 
+% custom todo
+\newcommand{\TODO}[1]{%
+  \noindent
+  \colorbox{yellow!30}{%
+    \parbox{\dimexpr\textwidth-2\fboxsep}{\textbf{#1}}%
+  }%
+}
+
+
 % --- Document Metadata ---
 \title{
     \Huge \textbf{Driver Drowsiness Detector} \\
@@ -69,10 +78,12 @@
 
 \include{chapters/datasets}
 
+% --- Finish the Checklist ---
 \input{chapters/development_checklist}
 
 \input{chapters/development}
 
+% --- TO COMPLETE ---
 \include{chapters/connectivity}
 \include{chapters/evaluation}
 
