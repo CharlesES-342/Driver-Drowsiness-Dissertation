@@ -16,3 +16,4 @@ Report/*blg
 Report/*bbl
 Report/*fdb_latexmk
 Report/*fls
+Report/chapters/*aux

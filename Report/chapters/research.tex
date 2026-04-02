@@ -1,0 +1,165 @@
+\section{Research}
+\subsection{Tiredness Identifiers}
+There are several different ways to identify tiredness, especially when driving. Somes examples are:
+\begin{itemize}
+    \item More frequent blinking – this is because your eyes and brain function to counter fatigue and discomfort
+    \item Harder Blinking – prolonged opening can result in them being saw and dry, so, to combat this, your body
+    makes you blink harder and more frequently to keep them lubricated
+    \item Delayed reaction times – neurons in your brain slow as they process information less efficiently
+    \item Your head can begin to drop as you inevitably slowly fall asleep (worst case)
+    \item Yawning – this is your body’s attempt to both keep your brain awake as well as cool the body
+    \item Grip loosens – your body begins to relax as you fall asleep, actions aren’t made with the same intent
+    \item Mood changes – you can often become more irritable as you fall asleep
+    \item Snoring – if you have already fallen asleep, you relax and this can result in snoring
+\end{itemize}
+
+\subsection{Driving Effected Factors}
+As you get more tired, you often lose concentration. You can’t find yourself reacting more slowly and your decision
+making can become impaired. You can also become a more violent or unstable driver as your mood can be easily influenced
+as you do not have the energy to combat how you feel. Not only this, but in the worst case (int eh event of falling
+asleep) you can no longer operate the vehicle.
+
+\subsection{Legality of Using a Mobile Device}
+In this project, I would like to make use of the users’ own device, which will probably be their mobile phone. To get
+around the legal issue of using a mobile device, it will have to be securely fastened in a cradle and not held by the
+driver. Furthermore, I will not be able to request interaction from the driver once the vehicle is in motion unless I
+use hands-free \cite{gov_mobile_law}, "for example:
+\begin{itemize}
+    \item A Bluetooth headset
+    \item Voice commands
+    \item A dashboard holder or mat
+    \item A windscreen mount
+    \item A built-in satnav” 
+\end{itemize}
+Failure to comply with this can result in 6 penalty points and a £200 fine. But this can go up to a driving ban as
+well as a maximum of £1000 fine.
+
+\begin{mdframed}
+\textbf{Key Implementation Takeaways:}
+\begin{itemize}
+    \item \textbf{Setup Protocol:} User-interactive features must be restricted to the initial setup phase while the
+    vehicle is stationary.
+    \item \textbf{Motion Safety:} Integration of the device's internal accelerometer to disable interactive displays
+    during motion, ensuring the system does not become a distraction.
+\end{itemize}
+\end{mdframed}
+
+\subsection{Potential Models and Algorithms}
+\subsubsection{Initial thought process – basic Convolutional Neural Netwrk (CNN):}
+My initial idea was to follow a methodology I had previously learnt in one of my prior modules, using a simple
+Convolutional model consisting of input nodes containing extracted values from an image, and then train the model to
+detect these trends in data to predict an outcome. For this I made use of Mediapipe’s face mesh to extract features from
+frames extracted from videos, to form inputs into the neural network. This was my initial thought process, and with a desire
+to start coding, and deliver a prototype, I naively started to develop this without additional research.
+
+This was methodology and implementation is talked about in ‘Simple AI Models’ section of this document. Here I explain my
+methodology and thought process (as well as data validation) as to why I believed this method feasible in the early stages of
+this project.
+
+Following this failure, which is also expressed in the ‘Simple AI Models’ section I expanded my research to other AI models which
+will follow.
+
+\subsubsection{Deep Convolutional Models:}
+As an expansion from the idea above, this consists of a far greater number of layers. With its main uses in image identification,
+this would be ideal for the task at hand. One key difference being the number of layers. This adds size and complexity to the
+network, which may make it more difficult to run on the Pi compared to other models due to its increased parameter size as a result
+of its increases in width and levels.
+
+\subsubsection{Xception Model (Extreme Inception):}
+A development of the normal inception model, this stands as the middle ground between regular convolutional models and depthwise
+separable convolutional models (depthwise + pointwise). This makes better use of parameters than the Inception v3  model rather than
+reducing the number of parameters. This is done through channel mixing.
+
+By removing the multi branch capabilities of an inception model, opting for a single branch this completely decouple spatial
+correlations as well as branch correlations, which results in more focused learning .
+
+To take this further, you can make use of pre-trained models. The example I have used in the Inception Models section of this
+paper was trained on the ImageNet dataset. This transferred learning allows for pre-learns identification of edges, shapes and facial
+structure to be applied to my current data, without the need for the network to necessarily learn these itself, rather re-enforce its
+previous learning with my new data. This should allow for a model which learns faster, requiring less time to train, as well as a more
+accurate model, due to its additional pre-training.
+Some information gathered from \cite{xception}.
+
+\subsubsection{CondenseNet:}
+This is an example of an “Efficient DenseNet using Learned Group Convolutions”[10]. This was designed for mobile use, with the aim of
+requiring limited computational power by removing connections between layers, aiming to remove redundancies which are not used in the
+later layers. Due to this, only one tenth of the computation is required compared to the DenseNet (a Deep Convolutional Model where all
+layers are connected to every other layer, rather than one layer being connected to the next). Comparable to MobileNet (an Inception
+model approach which focuses on efficiency and power usage rather than accuracy) but requiring less computation.
+This is done through pruning in the early stages of learning to form a ‘sweet spot’ \cite{condensenet} in between sparsity and
+regularity. Essentially,group (cluster) sizes are reduced (e.g. $3 \times 3 \to 1 \times 1$) which results in less computation, but a
+loss in accuracy, and requirement of more grouping of inputs.
+The idea of this is to reduce the number of connections during learning, to improve computational speeds and re-enforce routes, at the
+cost of accuracy. 
+
+\subsubsection{Further Development Ideas / Key Takeaways:}
+\paragraph{Model Selection}
+On such a small number of classifications and training examples for each classification, CondenseNet may not be the best option for
+this project. While it is said to be faster and more optimizable for a device with limited computational ability and power (like the
+Raspberry Pi I am using), it requires a greater quantity of training data than I have, without crossing between sources, and for the
+sake of this project, I believe that this may be beyond the scope of what is required for success – but this may change as the project
+progresses.
+Xception, while slower, can provide greater accuracy given the training data that I have. This would be good for experimenting on what
+the greatest achievable accuracy of a model given my training data could be. Not only this, but this model is available in Tflite, so
+it is possible for the performance to be improved while on the Pi. While not necessary, this is a nice bonus and something worth
+considering.
+Documentation on this can be found at \url{https://keras.io/api/applications/xception/}.
+
+\paragraph{Pre-train Options:}
+To improve the versatility of these AI models, the images that are used for training should be altered to allow for a more versatile
+classification. 
+Since users will be using this at day and night, it would be beneficial to alter some of the training data (if it isn’t already at
+day and night) by adjusting the \textbf{brightness} to simulate darkness or lower light conditions such as changes in cloud cover or
+going through a tunnel.  \textit{(±15°)}
+
+The camera angle and position can also change depending on how the user sets up the system. While the location of the recordings
+cannot be changed in post, the \textbf{angle} can. This will help to provide some fixability in the model, to still allow for detection
+of tiredness, even if the set-up is not perpendicular to the driver, like in most of the recordings.  \textit{(±20\%)}
+
+Another issue is \textbf{zoom}. My hardware, as well as the hardware between the different training data sources, is different. As a
+result, my inputs may automatically be different based on camera zoom, and how the user positions their face in the focus region,
+so fluctuations in zoom/crop may be a thing to consider.  (0.9 $\to$ 1.1 zoom/crop)
+
+\subsubsection{Information Communication:}
+\paragraph{Webpage Hosting}
+With this project being done in python, for ease of use and versatility of existing libraries for the AI section of this project, it
+would be best to utilize some existing python libraries for the webpage.
+
+\subparagraph{Flask and Alternate Frameworks}
+Flask is a lightweight web framework used for web-based interfaces and API’s. In the case of this project, it would be used to host
+the local webpage. This will allow for offline communication of the drowsiness state. 
+
+Tkinter and PyQt provide a graphical use interface (idea for what I need), however, have a far more limited flexibility as well as
+requiring a physically connected device which will further limit how the project will function and be operated as additional wiring
+will create clutter as the user does not use something which id found in the vehicle anyway. As a result, neither of these frameworks
+are likely to be considered in the final result.
+
+Django is a very powerful framework, however, with this comes complexity for a system with such simple routing and visualization
+requirements.
+
+Another example of another framework to consider is REACT. With past experience in other projects, this has the upside that I understand
+it already. However, with the project being aimed to be as light as possible to improve efficiency, this client-heavy framework might
+not be the best for this project.
+
+Overall, the low resource requirements and lightweight nature of this project, as well as the majority of the code base being in
+python, the obvious choice seems to be Flask to provide a platform-independent web interface.
+
+\subparagraph{API}
+A simple way of connecting the webpage to the AI model. There are several different ways of communicating data from the tiredness
+detection AI to the webpage:
+\begin{itemize}
+    \item \textbf{Shared File:} The idea is that both programs for AI detection and web hosting are run simultaneously with a common
+    file to relay information between them. However, this could be more compute heavy, something I have expressed repeatedly as being
+    something I want to reduce. Additionally, this can result in race conditions, where there is inconsistency between the file and the
+    actual value. From a hardware point of view, with files being stored on the SD card (with limited numbers of writes) this method
+    can result in shortfalls in the long run.
+    \item \textbf{Shared Database:} Using some form of database (e.g. SQLite) can provide additional information as well as filtering.
+    However, because of the simplistic nature of this project, it is likely too costly to do this. While given more time, and a greater
+    fixation on tracking and suggested improvements to inform the user of patterns or issues, this is not in the scope of this project. 
+    \item \textbf{Use of integrated API:} This is the least expensive option in terms of computing power. You can make use of threading
+    to keep the two lightweight, related programs, together. This makes it easier to manage and in the event of failure of the AI, the
+    whole program knows (as opposed to being in the dark due to each program being separate).
+\end{itemize}
+
+Therefore, Option 3 (combined server and AI runner with threading) was selected as it minimizes computational overhead, avoids disk I/O
+bottlenecks, and keeps the architecture simple for this real-time detection application. 
