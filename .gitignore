@@ -5,3 +5,14 @@
 Evaluation/recordedData
 Evaluation/extracted_frames
 Evaluation/corrections (temp).py
+
+#report data
+Report/*toc
+Report/*log
+Report/*aux
+Report/*out
+Report/*synctex.gz
+Report/*blg
+Report/*bbl
+Report/*fdb_latexmk
+Report/*fls
