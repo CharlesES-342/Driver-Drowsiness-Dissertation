@@ -12,9 +12,9 @@
 \usepackage{hyperref}    % For clickable TOC and links
 \usepackage[framemethod=TikZ]{mdframed} % For highlighted key points
 \usepackage{xcolor}
-\usepackage{parskip} %for better spacing between paragraphs
-
-
+\usepackage{parskip} % for better spacing between paragraphs
+\usepackage{caption} % For better control over figure captions
+\usepackage{float} % For precise figure placement
 
 % Define the box style
 \mdfdefinestyle{takeawaybox}{
@@ -187,7 +187,7 @@ Another issue is \textbf{zoom}. My hardware, as well as the hardware between the
 result, my inputs may automatically be different based on camera zoom, and how the user positions their face in the focus region,
 so fluctuations in zoom/crop may be a thing to consider.  (0.9 $\to$ 1.1 zoom/crop)
 
-\subsubsection{Connections:}
+\subsubsection{Information Communication:}
 \paragraph{Webpage Hosting}
 With this project being done in python, for ease of use and versatility of existing libraries for the AI section of this project, it
 would be best to utilize some existing python libraries for the webpage.
@@ -252,8 +252,26 @@ project, I will have to order them, and this takes time. However, in the meantim
 gather a better understanding of what attributes can affect a driver’s concentration and different potential models that I could use for
 my lightweight AI component.
 
+\subsection{Connections:}
+Since raspberry pie 4 is WIFI compatible, I plan to connect the user’s own device by this. Therefore, using the pi as a host device for
+a website that can display data and other information to the user. This is the ideal option as wired displays either require the pi to be:
+\begin{itemize}
+    \item Dashboard mounted due to a small wire. This has the potential to fall or move, causing further irritation or distraction for
+    the driver. This is against the aim of the project of keeping the driver focused on the road.
+    \item More wires and additional screens for setting up. Once again, this takes up space in their field of vision and will create
+    added hassle if setting up for different drivers. Most people will likely opt to not use this device, making it a futile construction.
+\end{itemize}
+By using the users’ own wireless device, you not only remove the added expense of the screen (if released to the commercial market) but
+also remove clutter. Users are likely to already have phone mounts in their desired location, so why not give the idle device some added
+functionality. This will also be optional, if they are already using the device for maps, it will not prevent the system from relaying
+information or alerting the user.
 
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Images/pie_idea.png}
+    \captionsetup{labelformat=empty}
+    \caption{\tiny (ChatGPT generated –> prompt=”please make this look nice + drawing of this”)}
+\end{figure}
 
 
 
