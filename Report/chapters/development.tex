@@ -114,7 +114,7 @@ From here, I thought it best to experiment with a different model to see what th
 \subsubsection{Inception Model}
 This will be used to determine an upper-bound on the potential accuracy a model can give. With its primary purpose, to identify images, this is ideal.
 As stated in the research section of this document, I will be proceeding with the Xception Model to classify images. The initial model I used was pre-trained on the ImageNet dataset. This will allow for the easy identification of features (e.g. lines and shapes) without needing for the model to learn them from scratch, which should help to improve learning rate and require less data inputs to create a fine-tuned model.
-From here, I trained it on the Bina University [7] dataset as it was composed of just images and contained a label file which would make classification easier.
+From here, I trained it on the Bina University \cite{BINA} dataset as it was composed of just images and contained a label file which would make classification easier.
 
 \paragraph{Issues:}
 Following the training of the model, the outputs as to classifications were in the same order as they were in the labels file. As an
