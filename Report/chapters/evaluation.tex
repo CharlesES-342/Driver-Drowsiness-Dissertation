@@ -1,1 +1,163 @@
 \section{Evaluation}
+\subsection{Simulation Testing}
+The best way to test the accuracy of the finished product is in the desired market location (in a vehicle). To collect the data, I
+established a simple program that will capture 5-minute videos of the course of an hour while you drive. Additionally, other datasets,
+such as the SUST dataset [3] will be used to help increase the variety and test range for the model.
+
+The duration and period are not important – rather the frames that are extracted are. These were then manually classified based on my
+own opinion of tiredness (the same opinion that the model was trained on). Then these frames were passed through the model.
+
+This will then be used to form my \textbf{Stratified Stress Testing}.
+Following this, the results were processed to help identify any issues or areas of strength within the model. Factors that were
+considered were:
+\begin{itemize}
+    \item \textbf{Darkness} of the captured frame. This will help to identify the time of day and help to show how general lighting conditions
+    affect the accuracy of the model.
+    \item \textbf{Gender}. General facial structure might be a factor in the reliability of the model.
+    \item \textbf{Camera placement} Since the Xception\_v6 model was trained soley on one dataset, the camera placement was consistent. With the
+    intention for it to be used in a variety of vehicles, the need for a model to be dynamic is key. 
+    \item \textbf{Accessories} This could be anything from classes to masks. 
+    \item \textbf{Hair in face}. Be this long hair or through facial hair, the overall classifications can be affected
+\end{itemize}
+Overall, I would like to see how each factor effects the model as well as how well the model general performs in everyday simulations.
+
+
+\subsection{Data Extraction}
+While in previous areas of this project, I went through and manually assigned classifications, with the need for a more in-depth range of attributed
+I decided it was better to start over.
+\paragraph{How many of each classification?}
+To determine if there is a trend between the predicted result and that attribute(s) it should fulfill the following:
+\begin{equation}
+    E = z \cdot \sqrt{\frac{p(1 - p)}{n}}
+\end{equation}
+To achieve the ‘scientific gold standard’ of a 95\% confidence I have taken p=0.5 (the worst-case probability, equal to 50/50 a guess),
+n=number of images and E being the margin or error. Given this you need 384 images to provide a confidence of 95\% within the data, and
+so, for ease, I chose to aim for at least 400 images of each attribute. This can help reduce Type II errors by ensuring that there is
+sufficient evidence of this hypothesis.
+
+\paragraph{How data was extracted?}
+While simple and not necessarily relevant for the overall project, this was formed using the ****** library. This searched through a
+selected folder and displayed every image within it; any videos were dissected into frames (captured 5 seconds apart). From the videos,
+the frames were stored in temporary files to allow me to navigate through while removing the delay of having to search through a video
+for an image every time I wanted to move on (or to previous frames in the event of misclassification). Once this has been done, I manually
+went through every image and applied labels to each feature. While certain aspects such as darkness would be done automatically,
+determining the camera position relative to the driver would have been more challenging (simply taking camera position to relative head
+direction, would not be as informative as position as for an articular user, this is fixed following setup).
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/data_extraction.png}
+    \caption{The interface for data extraction. Features an image from the SUST dataset \cite{SUST}}
+\end{figure}
+All this combined into a 5676-line CSV file which would hopefully provide an insight into positive or negative trends within the model.
+
+\subsection{Preliminary Observations}
+While assigning variables, I noticed several trends in the data that I would like to point out prior to the quantitative data.
+
+With the camera position being in a high-up position, the data tended to miss classify more than in other positions. I believe this to be
+because of how your eyes are orientated. With the camera being in a higher position, the eyelids are perceived as being more closed.
+This bias could potentially be represented in the data.
+
+Eye shape. Some of the data contained people whose eyes are considered more of a ‘hunter’ eye. For these people, it seemed that the miss
+classification of tiredness was more prevalent that other people. This and other factors also appear to lead to one person having a
+higher tendency to one classification over another.
+
+Also, for those who would sit more upright (or laid back) in their seats also seemed to be mislabeled more. This also seemed true for
+incredibly sunny environments for the same reason; they wouldn’t need their eyes as open to be able to see and so were considered tired
+incorrectly.
+
+Another strange observation was that when someone was wearing a mask (even just under the chin) the person was often considered to be
+tired incorrectly, compared to other accessory features.
+
+\subsection{Quantitative Data Extraction}
+For this, I am using Orange (\url{https://orangedatamining.com}). This is a datamining software that helps identify features in both a visual
+and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
+
+\subsubsection{General Data Spread:}
+For this I used a ‘column statistics’ node to express how each attribute is distributed over the entire dataset.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.6\textwidth]{images/data_spread_nodes.png}
+    \caption{Node structure for general data spread}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.9\textwidth]{images/data_spread_results.png}
+\end{figure}
+
+There is very little data represented by the high center and high right camera positions. This could lead to my initial observation that
+higher positions are not as accurate being drowned out by the other data.
+There is a surprising amount of hair\_in\_face data. This is because beards and fringes were both counted as hair\_in\_face, the main
+dividing factor being the gender. Females with hair\_in\_face represents fringes or their hair down, while males with this attribute talk
+about beards or the appearance of stubble.
+
+The main observation is that overall accuracy is very good. With 58.7\% of the manually classified data being Alert and 63.9\% of the
+models’ classifications also being Alert, this implies there is a strong consistency between the model and my own opinions. However,
+this does not tell me anything about accuracy. While overall, the distribution is similar (which is a good start) the exact images which
+are classified as such might not be the same; it could refer to other images, so the accuracy could be appalling. 
+
+\subsubsection{Box Plots} \TODO{impove naming}
+\paragraph{How Darkness corresponds to the model’s Prediction:}
+\begin{figure}[H]
+    \centering
+    % First Subfigure
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/box_actual.png}
+        \caption{Actual classification}
+        \label{fig:box_actual}
+    \end{subfigure}
+    \hfill % This pushes the two images to the outer edges
+    % Second Subfigure
+    \begin{subfigure}{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/box_predicted.png}
+        \caption{Predicted classification}
+        \label{fig:box_predicted}
+    \end{subfigure}
+    
+    \caption{Comparison of darkness variance between actual and predicted classifications.}
+    \label{fig:darkness_comparison}
+\end{figure}
+With the position of the median shifting towards lower values, it could be safe to assume that the model appears to be become less
+reliable in lower light conditions (especially when predicting tiredness). With the upper and lower quartiles also being smaller for
+the predicted values, it suggests that the model is more likely to detect tiredness in lower light conditions (which is to be expected
+as lower light implies earlier in the morning/later in the day – when someone is more likely to be tired).
+
+\subsection{Scatter Plot} \TODO{impove naming}
+\subsection{Sieve Diagram} \TODO{impove naming}
+    \TODO{The size of the boxes shows the frequency, and the color (Red/Blue) shows if that combination happens more or less often than
+    mathematically expected. It’s perfect for seeing if a specific camera angle is "linked" to being tired.}
+\subsection{Distributions} \TODO{impove naming}
+\subsection{Confussion Matrix} \TODO{impove naming}
+    \TODO{Look for the "Off-Diagonal" cells. If you click on a cell representing a mistake (e.g., Manually Alert but Predicted Tired),
+    you can output that specific data to a \textbf{Scatter Plot} to see if those errors share a common camera\_pos or darkness level.}
+\subsection{DBSCAN} \TODO{impove naming}
+    \TODO{show potential of islands within the data}
+\subsection{Overall Accuracy} 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/overall_accuracy.png}
+\end{figure}
+Using the Python node, I counted through every line and counted the differences between the model’s prediction and the actual
+classification. With 50/50 being the average split for simple guesses, independent of any image, a 77\% classification is great for a
+variety of circumstances. Considering that this was all trained off of one dataset, which consisted of a fixed camera angle, same vehicle,
+same lighting conditions and a limited number of participants with little variation in terms of accessory features, I am more than happy
+with this final result.
+\TODO{how each variable affects the accuracy}
+\TODO{overall accuracy of the model}
+\TODO{generalized issues -> how should it be used ideally}
+
+
+
+
+\subsection{User Feedback:}
+    \TODO{get some people to use it, take some pictures of placements and other things - talk about what they liked/didn't like}
+
+\subsubsection{Areas of Success}
+    \TODO{areas of success}
+\subsubsection{Areas of Failure}
+    \TODO{what could I have done better if done again, or areas that were difficult that really stand out}
+
+\subsubsection{Additional Remarks and Development ideas}
+This section will outline any ideas or areas that I beleive are worth commenting on; with many of these being future considerations given
+more time.
