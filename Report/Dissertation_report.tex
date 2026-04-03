@@ -18,12 +18,14 @@
 \usepackage{pdflscape} % For landscape pages
 \usepackage{longtable} % For tables that span multiple pages
 \usepackage{adjustbox}
+\usepackage{listings} % For code snippets
+\usepackage{tabularx}   % For the auto-wrapping columns
 
 % Define the box style
 \mdfdefinestyle{takeawaybox}{
     roundcorner=5pt,
     linecolor=gray!50,
-    backgroundcolor=gray!5pt,
+    backgroundcolor=gray!5,   % REMOVED "pt" HERE
     innertopmargin=10pt,
     innerbottommargin=10pt,
     innerleftmargin=10pt,
@@ -83,8 +85,10 @@
 
 \input{chapters/development}
 
-% --- TO COMPLETE ---
+% --- Finish Write-up
 \include{chapters/connectivity}
+
+% --- To Write ---
 \include{chapters/evaluation}
 
 \newpage
