@@ -134,8 +134,15 @@ as lower light implies earlier in the morning/later in the day – when someone 
     \includegraphics[width=0.8\textwidth]{images/correlations.png}
     \caption{Darkness effect}
 \end{figure}
-\TODO{what does this say}
+\TODO{does darkness have an overall effect (can it point to one classification more than the other?)}
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/darknessxmodel_confidence.png}
+    \caption{Darkness vs model confidence}
+\end{figure}
+\TODO{what does this say, use the numbers to back up the claim. Does darkness have an effect on the confidence of \\
+the model? come to some kind of conclusion about the effect of darkness on the model}
 
 
 
@@ -149,6 +156,29 @@ as lower light implies earlier in the morning/later in the day – when someone 
 \subsubsection{How does a user having their \textbf{hair in their face} affect the model?}
 \TODO{do}
 
+\subsubsection{Camera position effect on accuracy}
+\TODO{do}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/tirednesxcamera_pos.png}
+    \caption{Camera position effect on accuracy}
+\end{figure}
+Which represents the positions as follows:\\
+\TODO{change this to be an image from within a car (overlay the grid ontop of the picture)}
+\begin{center}
+    \begin{tabular}{|c|c|c|}
+        \hline
+        0 & 1 & 2 \\ \hline
+        3 & 4 & 5 \\ \hline
+        6 & 7 & 8 \\ \hline
+    \end{tabular}
+\end{center}
+\TODO{compair to the spread of the actual classifications (show discrupsency)}
+As you can see, the position of the camera has significant effect on accuracy. With higher positions being more
+likely to be calssified as tired (potentially as a result of eyelisd being considered more closed with respect to
+the rest of the eye), while lower positions are more likely to be classified as alert. This is a significant issue
+as it suggests that the model is not as versitile as I would have hoped, and that the point I initially made about
+hardware and vehicle versitility is not met.
 
 
 \subsubsection{Sieve Diagram} \TODO{impove naming}
