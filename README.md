@@ -66,11 +66,11 @@ All findings and structure are documented in the __Report__
 
 ## Progress Report (current areas I am working on)
 - Evaluation
-  - turn the videos into a series of images (again) - these can be deleted after so could think about doing dynamically
-  - Go through all of the captured images and assign labels
-  - Grab the videos off of the PI and label them aswell
+  - use the labels and all of the gathered data to make assumptions into if trends exist
+  - do more in Orange
+    populate the evaluation with images of theories/ideas
  
 ## Whats Left
 -  Captive Portal
 -  Nicer css for webpage
--  Evaluation (take the data and assign labels/classification)
+-  Evaluation
