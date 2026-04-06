@@ -2,38 +2,42 @@
 \subsection{Simulation Testing}
 The best way to test the accuracy of the finished product is in the desired market location (in a vehicle). To collect the data, I
 established a simple program that will capture 5-minute videos of the course of an hour while you drive. Additionally, other datasets,
-such as the SUST dataset \cite{SUST} will be used to help increase the variety and test range for the model.
+such as the SUST \cite{SUST} and BINA \cite{BINA}will be used to help increase the variety and test range for the model.
 
-The duration and period are not important – rather the frames that are extracted are. These were then manually classified based on my
-own opinion of tiredness (the same opinion that the model was trained on). Then these frames were passed through the model.
-
-This will then be used to form my \textbf{Stratified Stress Testing}.
-Following this, the results were processed to help identify any issues or areas of strength within the model. Factors that were
-considered were:
+The duration of the videos is not importaint, but I tough it was a good idea to break an extended recording session down into sub-sessions,
+incase removing power mid recording resulted in its corruption. I was hoping this would not be an issue (which it wasn't), but based on my
+past experiences with varying dashcameras, it was a risk I was not willing to take. From here, frames were extracted at regular intervals.
+These were then manually classified based on my own opinion of tiredness (the same opinion that the model was trained on). Then these
+frames were passed through the model. All of this data was then combined into a single datasets with the following attributes:
 \begin{itemize}
-    \item \textbf{Darkness} of the captured frame. This will help to identify the time of day and help to show how general lighting conditions
-    affect the accuracy of the model.
-    \item \textbf{Gender}. General facial structure might be a factor in the reliability of the model.
-    \item \textbf{Camera placement} Since the Xception\_v6 model was trained soley on one dataset, the camera placement was consistent. With the
-    intention for it to be used in a variety of vehicles, the need for a model to be dynamic is key. 
-    \item \textbf{Accessories} This could be anything from classes to masks. 
-    \item \textbf{Hair in face}. Be this long hair or through facial hair, the overall classifications can be affected
+    \item \textbf{Actual classification} This is the classification I assigned to the image based on my own opinion of tiredness.
+    \item \textbf{Predicted classification} This is the classification that the model assigned to the image.
+    \item \textbf{Darkness} This is a value between 0 and 1 that represents how dark the image is. This was calculated by taking the average
+    pixel value across the entire image and dividing it by 255 (the maximum pixel value).
+    \item \textbf{Gender} This is the gender of the driver in the image.
+    \item \textbf{Camera position} The position of the camera relative to the driving position.
+    \item \textbf{Accessories} This is a binary value that represents whether the driver is wearing any accessories (e.g. glasses, hats,
+    masks).
+    \item \textbf{Hair in face} A binary value that represents whether the driver has any hair in their face (e.g. fringes, beards).
+    \item \textbf{Alert\_Confidence} This is a direct output from the model and represents how sure the model is that they are
+    \textbf{alert} (not tired)
+    \item \textbf{Tired\_Confidence} This is a direct output from the model and represents how sure the model is that they are
+    \textbf{tired}.
 \end{itemize}
+This will then be used to form a basis for my \textbf{Stratified Stress Testing}.
 Overall, I would like to see how each factor effects the model as well as how well the model general performs in everyday simulations.
 
 
-\subsection{Data Extraction}
-While in previous areas of this project, I went through and manually assigned classifications, with the need for a more in-depth range of attributed
-I decided it was better to start over.
+\subsection{Data Extraction:}
 \paragraph{How many of each classification?}
 To determine if there is a trend between the predicted result and that attribute(s) it should fulfill the following:
 \begin{equation}
     E = z \cdot \sqrt{\frac{p(1 - p)}{n}}
 \end{equation}
-To achieve the ‘scientific gold standard’ of a 95\% confidence I have taken p=0.5 (the worst-case probability, equal to 50/50 a guess),
-n=number of images and E being the margin or error. Given this you need 384 images to provide a confidence of 95\% within the data, and
-so, for ease, I chose to aim for at least 400 images of each attribute. This can help reduce Type II errors by ensuring that there is
-sufficient evidence of this hypothesis.
+To achieve the ‘scientific gold standard’ of a 95\% confidence that a pattern exists within the data, I have taken p=0.5
+(the worst-case probability, equal to 50/50 a guess), n=number of images and E being the margin or error. Given this you need 384
+images to provide a confidence of 95\% within the data, and so, to cover all bases, I chose to aim for at least 400 images of each
+attribute (at a minimum). This can help reduce Type II errors by ensuring that there is sufficient evidence of this hypothesis.
 
 \paragraph{How data was extracted?}
 While simple and not necessarily relevant for the overall project, this was formed using the ****** library. This searched through a
@@ -68,9 +72,9 @@ incorrectly.
 Another strange observation was that when someone was wearing a mask (even just under the chin) the person was often considered to be
 tired incorrectly, compared to other accessory features.
 
-\subsection{Quantitative Data Extraction}
-For this, I am using Orange (\url{https://orangedatamining.com}). This is a datamining software that helps identify features in both a visual
-and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
+\subsection{Quantitative Analysis}
+For this, I am using Orange (\url{https://orangedatamining.com}). This is a datamining software that helps identify features in both a
+visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
 
 \subsubsection{General Data Spread:}
 For this I used a ‘column statistics’ node to express how each attribute is distributed over the entire dataset.
@@ -92,11 +96,12 @@ about beards or the appearance of stubble.
 
 The main observation is that overall accuracy is very good. With 58.7\% of the manually classified data being Alert and 63.9\% of the
 models’ classifications also being Alert, this implies there is a strong consistency between the model and my own opinions. However,
-this does not tell me anything about accuracy. While overall, the distribution is similar (which is a good start) the exact images which
-are classified as such might not be the same; it could refer to other images, so the accuracy could be appalling. 
+you can also see from this that there is considerable discrepancy in my own classifications and that of the mode. But, despite this, the
+model appears to make mistakes more in te middle of the range (when it is more unsure) suggesting that there are no extreme paths within
+the model that have been aloud to spiral out of control (e.g. always classifying tired or always classifying alert). This is a good
+sign as it suggests that the model is not overfitted to one classification, despite the slight bias in the training data.
 
-\subsubsection{Box Plots} \TODO{impove naming}
-\paragraph{How Darkness corresponds to the model’s Prediction:}
+\subsubsection{How \textbf{Darkness} affects the model’s Prediction:}
 \begin{figure}[H]
     \centering
     % First Subfigure
@@ -122,17 +127,32 @@ With the position of the median shifting towards lower values, it could be safe 
 reliable in lower light conditions (especially when predicting tiredness). With the upper and lower quartiles also being smaller for
 the predicted values, it suggests that the model is more likely to detect tiredness in lower light conditions (which is to be expected
 as lower light implies earlier in the morning/later in the day – when someone is more likely to be tired).
+\newline\TODO{how does the confidence change with darkness?}
 
-\subsection{Scatter Plot} \TODO{impove naming}
-\subsection{Sieve Diagram} \TODO{impove naming}
+
+\subsubsection{How well the mode performs over varying \textbf{genders}?}
+\TODO{do}
+
+\subsubsection{Effect of \textbf{accessories} on accuracy}
+\TODO{do}
+
+\subsubsection{How does a user having their \textbf{hair in their face} affect the model?}
+\TODO{do}
+
+
+
+\subsubsection{Sieve Diagram} \TODO{impove naming}
     \TODO{The size of the boxes shows the frequency, and the color (Red/Blue) shows if that combination happens more or less often than
     mathematically expected. It’s perfect for seeing if a specific camera angle is "linked" to being tired.}
-\subsection{Distributions} \TODO{impove naming}
-\subsection{Confussion Matrix} \TODO{impove naming}
+\subsubsection{Distributions} \TODO{impove naming}
+\subsubsection{Confussion Matrix} \TODO{impove naming}
     \TODO{Look for the "Off-Diagonal" cells. If you click on a cell representing a mistake (e.g., Manually Alert but Predicted Tired),
     you can output that specific data to a \textbf{Scatter Plot} to see if those errors share a common camera\_pos or darkness level.}
-\subsection{DBSCAN} \TODO{impove naming}
+\subsubsection{DBSCAN} \TODO{impove naming}
     \TODO{show potential of islands within the data}
+
+
+
 \subsection{Overall Accuracy} 
 \begin{figure}[H]
     \centering
