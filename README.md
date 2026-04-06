@@ -71,5 +71,6 @@ All findings and structure are documented in the [__Report__](Report/Dissertatio
  
 ## Whats Left
 -  Captive Portal
+-  Fix DNS to get it working again (think its just an issue with loading order on Boot-Up)
 -  Nicer css for webpage
 -  Evaluation
