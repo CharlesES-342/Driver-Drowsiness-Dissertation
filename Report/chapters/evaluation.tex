@@ -157,7 +157,6 @@ the model? come to some kind of conclusion about the effect of darkness on the m
 \TODO{do}
 
 \subsubsection{Camera position effect on accuracy}
-\TODO{do}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/tirednesxcamera_pos.png}
@@ -179,6 +178,38 @@ likely to be calssified as tired (potentially as a result of eyelisd being consi
 the rest of the eye), while lower positions are more likely to be classified as alert. This is a significant issue
 as it suggests that the model is not as versitile as I would have hoped, and that the point I initially made about
 hardware and vehicle versitility is not met.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\textwidth]{images/camera_pos_node.png}
+    \caption{Camera Position separation}
+\end{figure}
+
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/true_tired_cam.png}
+         \caption{Alert prediction in Tired cases}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.48\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/true_alert_cam.png}
+         \caption{Alert prediction in Alert cases}
+     \end{subfigure}
+     \caption{Positive predictions accross the camera locations}
+     \label{fig:camera_distributions}
+\end{figure}
+In the figure above, a distinct correlation between camera position and the model's confidence on True values is evident. The results
+demonstrate that the model achieves significantly higher accuracy when the camera is in the Middle position. This aligns with
+expectations, as the training dataset consists primarily of centered, front-facing imagery.
+\paragraph{Hypothesis Testing:}
+Even in the smallest sample group (Top: $N=587$), the sample size exceeds the minimum requirement of 384 units for statistical
+significance. We established that a discrepancy greater than 5\% between groups would constitute substantial evidence of a "Position
+Effect."The observed delta between the Middle position ($0.46$) and the average of the peripheral positions ($\approx 0.37$) is $0.09$
+(a 9\% difference). Because this 9\% gap exceeds our 5\% threshold—and given that the 95\% confidence intervals for the Middle group do
+not overlap with the others—there is significant evidence to conclude that camera position has a substantial effect on model performance,
+with the central position yielding the highest accuracy.
 
 
 \subsubsection{Sieve Diagram} \TODO{impove naming}
