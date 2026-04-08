@@ -6,8 +6,7 @@ The aim of this project is to improve safety on the road. This will be done by u
 the driver of a vehicle and act accordingly. This could be notifying them when they are drowsy and suggest they stop, or  
 alternatively create an annoying beep to keep them awake.
 
-All findings and structure are documented in the __Report__
-
+All findings and structure are documented in the [__Report__](Report/Dissertation_report.pdf)
 ---
 
 ## Project Stages
@@ -66,11 +65,12 @@ All findings and structure are documented in the __Report__
 
 ## Progress Report (current areas I am working on)
 - Evaluation
-  - turn the videos into a series of images (again) - these can be deleted after so could think about doing dynamically
-  - Go through all of the captured images and assign labels
-  - Grab the videos off of the PI and label them aswell
+  - use the labels and all of the gathered data to make assumptions into if trends exist
+  - do more in Orange
+    populate the evaluation with images of theories/ideas
  
 ## Whats Left
 -  Captive Portal
+-  Fix DNS to get it working again (think its just an issue with loading order on Boot-Up)
 -  Nicer css for webpage
--  Evaluation (take the data and assign labels/classification)
+-  Evaluation
