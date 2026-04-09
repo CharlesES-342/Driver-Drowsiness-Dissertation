@@ -11,7 +11,6 @@
 \usepackage{titlesec}    % For clean section headings
 \usepackage{hyperref}    % For clickable TOC and links
 \usepackage[framemethod=TikZ]{mdframed} % For highlighted key points
-\usepackage{xcolor}
 \usepackage{parskip} % for better spacing between paragraphs
 \usepackage{caption} % For better control over figure captions
 \usepackage{float} % For precise figure placement
@@ -26,11 +25,12 @@
 \mdfdefinestyle{takeawaybox}{
     roundcorner=5pt,
     linecolor=gray!50,
-    backgroundcolor=gray!5,   % REMOVED "pt" HERE
+    backgroundcolor=gray!5, 
     innertopmargin=10pt,
     innerbottommargin=10pt,
     innerleftmargin=10pt,
-    innerrightmargin=10pt
+    innerrightmargin=10pt,
+    needspace=0pt % Add this to prevent potential page break errors
 }
 
 \geometry{margin=1in}

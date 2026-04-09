@@ -148,7 +148,39 @@ the model? come to some kind of conclusion about the effect of darkness on the m
 
 
 \subsubsection{How well the mode performs over varying \textbf{genders}?}
-\TODO{do}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/seive_gender.png}
+\end{figure}
+12.99\% are Female \\
+ A Sieve Diagram (also called a Parquet Diagram) is a specialized tool for categorical data analysis. It visualizes
+ whether the relationship between two variables—in your case, Gender and Alert\_Confidence—is random or if there is 
+ specific pattern (an "association") between them.Here is an overview of the mechanics and the specific narrative
+ for your report.1. How the Diagram WorksThe diagram starts with a "null hypothesis" that there is no relationship
+ between gender and confidence.The Grid (Sieve): The rectangles represent the different combinations of gender and
+ confidence. The area of each rectangle is the Expected Frequency (what would happen if everything were perfectly
+ balanced/independent).The Density: The number of small squares (the "dots" or "grid lines") inside each rectangle
+ shows the Observed Frequency (what actually happened in your 5,676-line CSV).2. Interpreting the Colors (The "Why")
+ The colors are the most important part for your "Quantitative Analysis" section:Blue (Positive Association): This
+ means the frequency of that specific combination is higher than expected. For example, if "Female + High
+ Confidence" is blue, it means the model is "over-representing" women in the high-confidence bracket compared to
+ its average behavior.Red (Negative Association): This means the combination occurs less often than expected.Neutral
+ (Gray/White): The data aligns perfectly with what is mathematically expected.3. What Your Specific Diagram
+ SaysBased on the image you provided earlier, here are the three core findings for your "Gender Analysis"
+ section:Gender-Confidence Bias: There is a statistically significant correlation ($p = 0.000$). The model does not
+ treat Male and Female data the same way.The "Female" Trend: Your diagram shows blue boxes in the highest confidence
+ brackets for females. This suggests that when the driver is female, the model is consistently more certain of its
+ classification.The "Male" Trend: Conversely, the blue boxes for males appear in the lower confidence brackets. This
+ suggests the model is more hesitant or "unsure" when classifying male drivers.4. Technical Terms to UseWhen putting
+ this into your own words, use these "power words" to sound more professional in your evaluation:Disproportionate
+ Representation: "The sieve diagram reveals that high confidence scores are disproportionately represented in
+ female subjects."Statistical Significance: "With a $\chi^2$ value of $261.66$ and $p < 0.001$, the association
+ between gender and confidence is not due to random chance."Model Consistency: "The density of the sieve indicates
+ that the model exhibits higher predictive certainty for the female demographic."5. Why this matters for your
+ projectYou can conclude this section by noting that since your female sample is smaller ($12.99\%$), the model
+ might be "overfitting" to those specific female examples, or perhaps the female subjects in the SUST/BINA datasets
+ provided clearer facial features (like fewer beards, which you noted earlier) that led to higher confidence scores.
+\TODO{put into own words \^}
 
 \subsubsection{Effect of \textbf{accessories} on accuracy}
 \TODO{do}
