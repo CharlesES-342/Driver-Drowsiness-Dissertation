@@ -73,7 +73,7 @@ Another strange observation was that when someone was wearing a mask (even just 
 tired incorrectly, compared to other accessory features.
 
 \subsection{Quantitative Analysis}
-For this, I am using Orange (\url{https://orangedatamining.com}). This is a datamining software that helps identify features in both a
+For this, I am using Orange (\url{https://orangedatamining.com})\cite{orange}. This is a datamining software that helps identify features in both a
 visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
 
 \subsubsection{General Data Spread:}
@@ -214,11 +214,63 @@ show that the model is more highly-optimised for female-centric characteristics.
 
 
 
+
 \subsubsection{Effect of \textbf{accessories} on accuracy}
-\TODO{do}
+\begin{figure}[H]
+    \centering
+    % First Image
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/alert_vs_accessories.png}
+        \caption{Alert Confidence}
+    \end{subfigure}
+    \hfill % This adds the horizontal space to push them apart
+    % Second Image
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/tired_vs_accessories.png}
+        \caption{Tired Confidence}
+    \end{subfigure}
+    \caption{Comparison of the effect Accessories have on confidence.}
+    \label{fig:accessoried_box}
+\end{figure}
+In \ref{fig:accessoried_box}, the presence of accessories (such as glasses, hats and masks) appeats to have a signigficant effect on the
+models confidence. With both graphs showing a significant shift, you can see that the model tends more towards a \textbf{tired} 
+classification when accessories are present.
+\paragraph{Hypothesis Testing:}
+With the sample size being $1767$ images (for the smaller classification -- with accessories), the data is sufficient to draw
+statistically significant conclusions. With a mean difference of $0.142$ (14.2\%) in alert confidence between the two groups, and a
+standard deviation of $0.25$, the calculated effect size (Cohen's d) is approximately $0.568$, which is considered a medium effect size.
+This indicates that the presence of accessories has a moderate impact on the model's confidence in classifying alertness, with a
+significant shift towards tired classifications when accessories are present. However, this does suggest that the model works flawlessly
+with certain images where this is present, but also terribly on specific examples, which is not ideal for a model that is supposed to be 
+versitile and work in a varitey of circumstances.
+
+\paragraph{Further Considerations:} To further rienforce these findings, I have made use of the \textbf{violin} structure in Orange
+\cite{orange} to illustrate this point. If this is true, the main body of the data should sit higher in accessory cases for tired
+confidence, and lower for alert confidence. This is exactly what we see in the figure below:
+\begin{figure}[H]
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/alert_vs_accessories(violin).png}
+        \caption{Alert Confidence}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{images/tired_vs_accessories(violin).png}
+        \caption{Tired Confidence}
+    \end{subfigure}
+\end{figure}
+
+
+
 
 \subsubsection{How does a user having their \textbf{hair in their face} affect the model?}
 \TODO{do}
+
+
+
 
 \subsubsection{Camera position effect on accuracy}
 \begin{figure}[H]
