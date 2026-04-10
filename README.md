@@ -74,3 +74,6 @@ All findings and structure are documented in the [__Report__](Report/Dissertatio
 -  Fix DNS to get it working again (think its just an issue with loading order on Boot-Up)
 -  Nicer css for webpage
 -  Evaluation
+  - accessories notes
+  - hair in face notes
+  - Overview (accuracy) - false positives/negatives
