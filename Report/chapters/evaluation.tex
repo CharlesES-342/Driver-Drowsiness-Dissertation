@@ -127,22 +127,40 @@ With the position of the median shifting towards lower values, it could be safe 
 reliable in lower light conditions (especially when predicting tiredness). With the upper and lower quartiles also being smaller for
 the predicted values, it suggests that the model is more likely to detect tiredness in lower light conditions (which is to be expected
 as lower light implies earlier in the morning/later in the day – when someone is more likely to be tired).
-\newline\TODO{how does the confidence change with darkness?}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/correlations.png}
     \caption{Darkness effect}
 \end{figure}
-\TODO{does darkness have an overall effect (can it point to one classification more than the other?)}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/darknessxmodel_confidence.png}
     \caption{Darkness vs model confidence}
+    \label{fig:darkness_confidence}
 \end{figure}
-\TODO{what does this say, use the numbers to back up the claim. Does darkness have an effect on the confidence of \\
-the model? come to some kind of conclusion about the effect of darkness on the model}
+With the R values (regression lines) in (figure \ref{fig:darkness_confidence}) being relitively low ($<0.3$) but
+positive, suggests that there is a weak, but present, correlation between darkness and the model's confidence. This
+shows that there is a subconcious tendancy within the model to predict a higher confidence for tiredness in lower
+light (when the image is darker) conditions, despite the user presenting as \textbf{alert}.
+
+The lower correlation ($R$) between darkness and confidence for tiredness suggests the model is more robust to
+lighting changes. While \textbf{alert} predictions are more sensitive to light levels—potentially due to visibility
+issues or over-exposure causing subjects to squint—the model remains more consistent in its confidence across
+varying light conditions when identifying fatigue.
+
+
+\paragraph{Observations on Data Density:} Within Figure \ref{fig:darkness_confidence}, certain vertical clusters of
+data points are visible, particularly around a darkness level of $0.75$. Rather than representing a model bias, this
+high density indicates:
+    \begin{itemize}
+    \item \textbf{Batch Consistency:} Large subsets of the testing data were likely captured under identical 
+    environmental conditions, such as the same vehicle interior, specific time of day, or consistent camera sensor
+    settings (or entire camera).
+    \item \textbf{Discrete Metadata:} These "strips" represent the limitations of the darkness metadata , where
+    multiple images are assigned the exact same darkness value despite slight visual variances.
+\end{itemize}
 
 
 
