@@ -73,7 +73,7 @@ Another strange observation was that when someone was wearing a mask (even just 
 tired incorrectly, compared to other accessory features.
 
 \subsection{Quantitative Analysis}
-For this, I am using Orange (\url{https://orangedatamining.com})\cite{orange}. This is a datamining software that helps identify features in both a
+For this, I am using Orange \cite{orange}. This is a datamining software that helps identify features in both a
 visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
 
 \subsubsection{General Data Spread:}
@@ -234,7 +234,7 @@ show that the model is more highly-optimised for female-centric characteristics.
     \caption{Comparison of the effect Accessories have on confidence.}
     \label{fig:accessoried_box}
 \end{figure}
-In \ref{fig:accessoried_box}, the presence of accessories (such as glasses, hats and masks) appeats to have a signigficant effect on the
+In figure \ref{fig:accessoried_box}, the presence of accessories (such as glasses, hats and masks) appeats to have a signigficant effect on the
 models confidence. With both graphs showing a significant shift, you can see that the model tends more towards a \textbf{tired} 
 classification when accessories are present.
 \paragraph{Hypothesis Testing:}
@@ -267,8 +267,31 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
 
 
 \subsubsection{How does a user having their \textbf{hair in their face} affect the model?}
-\TODO{do}
-
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/hair_in_face (fairness).png}
+    \caption{Dataset Bias Indication}
+\end{figure}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/fairness_nodes.png}
+    \caption{Node structure for fairness testing}
+    \vspace{2pt}
+    \small{\textbf{Note:} The warning sign in the Dataset Bias widget refers to missing values within specific feature columns.
+    These issues are omitted from the Disparate Impact calculation to maintain the validity.}
+\end{figure}
+With a \textbf{Disparate Impact} value of $0.999$, there is very little evidence to suggest that the model is unfairly biased to either
+classificaiton when the subject has their \textbf{hair\_in\_face}. The \textbf{Parity Difference} represents the difference in how the
+model treats the different groups. In this case, there is $-0.0$ difference, which implies there is a tiny proportion (uncountably small)
+tat points to one classificaiton over another. However, this isso small that it could simply represent a single instance which was
+misslabeled in the entire dataset. Thus implying that the model is 'blind' to the effects of this classificaiton.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=\textwidth]{images/hair_in_face (alert-scatter).png}
+\end{figure}
+This is re-enforced with the scatter plot where you can see there is no correlation between this and the model's confidence. To account
+for the linear and unclear nature of duel classifications, the 'Jitter' of the data has been scaled to the maximum to form a maximum
+disparity between data points to allow for better visualiisation.
 
 
 
@@ -278,8 +301,9 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
     \includegraphics[width=0.8\textwidth]{images/tirednesxcamera_pos.png}
     \caption{Camera Position vs Model Confidence of Classifications}
 \end{figure}
-Which represents the positions as follows:\\
-\TODO{change this to be an image from within a car (overlay the grid ontop of the picture)}
+\noindent
+\begin{minipage}{\linewidth}
+Which represents the positions as follows (as you look towards the driver):\\[4pt]
 \begin{center}
     \begin{tabular}{|c|c|c|}
         \hline
@@ -288,7 +312,9 @@ Which represents the positions as follows:\\
         6 & 7 & 8 \\ \hline
     \end{tabular}
 \end{center}
-\TODO{compair to the spread of the actual classifications (show discrupsency)}
+\end{minipage}
+
+
 As you can see, the position of the camera has significant effect on accuracy. With higher positions being more
 likely to be calssified as tired (potentially as a result of eyelisd being considered more closed with respect to
 the rest of the eye), while lower positions are more likely to be classified as alert. This is a significant issue
@@ -326,7 +352,7 @@ Effect."The observed delta between the Middle position ($0.46$) and the average 
 (a 9\% difference). Because this 9\% gap exceeds our 5\% threshold—and given that the 95\% confidence intervals for the Middle group do
 not overlap with the others—there is significant evidence to conclude that camera position has a substantial effect on model performance,
 with the central position yielding the highest accuracy.
-
+\\\TODO{compair to the spread of the actual classifications (show discrupsency)}
 
 
 
@@ -340,11 +366,12 @@ classification. With $50/50$ being the average split for simple guesses, indepen
 variety of circumstances. Considering that this was all trained off of one dataset, which consisted of a fixed camera angle, same vehicle,
 same lighting conditions and a limited number of participants with little variation in terms of accessory features, I am more than happy
 with this final result.
-\TODO{how each variable affects the accuracy}
+\\\TODO{how each variable affects the accuracy}
 \TODO{overall accuracy of the model}
 \TODO{generalized issues -> how should it be used ideally}
 \TODO{false positives/negatives}
 \TODO{of those that were wrong, how confident was the model (it should have not been very confident of this)}
+\TODO{maybe look at the 'TREE' to see if there is a path - people like what they understand}
 
 
 

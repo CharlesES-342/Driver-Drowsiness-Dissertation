@@ -126,7 +126,7 @@ however the eyes open/closed labels were substituted inn for a neutral face labe
 converted to English).
 
 \paragraph{Solution:}
-To fix this issue, I wrote a short section of code (based on my initial feature detection process from the data validation section, to
+To fix this issue, I wrote a short section of code (based on my initial feature detection process from the data validation section) to
 turn these classifications into valid labels (only for eye openness). Following this, I then went through each image, which had changed,
 and verified the labeling.
 Following this, I then re-trained the model on these new labels. Then I tested it on the validation dataset, resulting in 131/137
