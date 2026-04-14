@@ -234,7 +234,7 @@ show that the model is more highly-optimised for female-centric characteristics.
     \caption{Comparison of the effect Accessories have on confidence.}
     \label{fig:accessoried_box}
 \end{figure}
-In figure \ref{fig:accessoried_box}, the presence of accessories (such as glasses, hats and masks) appeats to have a signigficant effect on the
+In Figure \ref{fig:accessoried_box}, the presence of accessories (such as glasses, hats and masks) appeats to have a signigficant effect on the
 models confidence. With both graphs showing a significant shift, you can see that the model tends more towards a \textbf{tired} 
 classification when accessories are present.
 \paragraph{Hypothesis Testing:}
@@ -352,7 +352,6 @@ Which represents the positions as follows (as you look towards the driver):\\[4p
 \end{center}
 \end{minipage}
 
-
 As you can see, the position of the camera has significant effect on accuracy. With higher positions being more
 likely to be classified as tired (potentially as a result of eyelids being considered more closed with respect to
 the rest of the eye), while lower positions are more likely to be classified as alert. This is a significant issue
@@ -380,7 +379,7 @@ hardware and vehicle versitility is not met.
      \caption{Positive predictions across the camera locations}
      \label{fig:camera_distributions}
 \end{figure}
-In the figure above, a distinct correlation between camera position and the model's confidence on True values is evident. The results
+In the Figure above, a distinct correlation between camera position and the model's confidence on True values is evident. The results
 demonstrate that the model achieves significantly higher accuracy when the camera is in the Middle position. This aligns with
 expectations, as the training dataset consists primarily of centered, front-facing imagery.
 \paragraph{Hypothesis Testing:}
@@ -398,8 +397,8 @@ High confidence however is only valuable if is correlates to correct classificai
     \label{fig:correct_cam_accuracy}
 \end{figure}
 
-As illustrated in Figure \ref{fig:correct_cam_accuracy}, the model is undoubtadly more accurate (and as shown previously) more certain of a specific classification when the
-camera is centre mounted, compared to other positions.
+As illustrated in Figure \ref{fig:correct_cam_accuracy}, the model is undoubtadly more accurate (and as shown previously) more certain of
+a specific classification when the camera is centre mounted, compared to other positions.
 
 
 
@@ -413,12 +412,37 @@ classification. With $50/50$ being the average split for simple guesses, indepen
 variety of circumstances. Considering that this was all trained off of one dataset, which consisted of a fixed camera angle, same vehicle,
 same lighting conditions and a limited number of participants with little variation in terms of accessory features, I am more than happy
 with this final result.
-\\\TODO{how each variable affects the accuracy}
-\TODO{overall accuracy of the model}
-\TODO{generalized issues -> how should it be used ideally}
-\TODO{false positives/negatives}
-\TODO{of those that were wrong, how confident was the model (it should have not been very confident of this)}
-\TODO{maybe look at the 'TREE' to see if there is a path - people like what they understand}
+\subsubsection{Distribution of Results:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/true-pos-true-neg.png}
+\end{figure}
+The distribution above illustrates the model's predictive performance across the entire dataset, specifically focusing on the 5,675 complete
+rows of data. Analysis of the classification errors indicates that the model is more inclined toward False Negative predictions regarding
+alert states (mistakenly identifying tiredness). From a safety-critical perspective, this bias is preferable; it is more advantageous for the
+system to err on the side of caution by providing a 'false alarm' than to fail to detect a genuine instance of driver fatigue, which would pose
+a significantly higher risk.
+
+\subsubsection{Confidence in False Cases}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.4\textwidth]{images/conf_diff_wrong.png}
+    \caption{Distribution of Peak Classification Confidence vs Accuracy}
+    \label{fig:confidence vs correction}
+\end{figure}
+The model demonstrates a desirabel \textbf{"self-aware"} error profile, where the predictive certainty is reduced in cases where the model is wrong. With
+Figure \ref{fig:confidence vs correction} showing that incorrect classificaitons exhibit a significantly greater density cluster near the 0.5 mark (border between 2
+calsses), with correct classifications haviung a \textbf{higher median confidence}. This is statistically supported by the moderate correlation between
+confidence levels and classificairtion outcomes:
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.5\textwidth]{images/error_rate_correlation.png}
+\end{figure}
+
+\subsubsection{Effect of Each Attribute:}
+\TODO{\% effects of each variable on accuracy (from baseline)}
+\TODO{generalized issues -> ideal use case / environmewnt for use}
+
 
 
 
