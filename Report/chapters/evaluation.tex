@@ -165,7 +165,7 @@ high density indicates:
 
 
 
-\subsubsection{How well the mode performs over varying \textbf{genders}?}
+\subsubsection{How well the mode performs over varying \textbf{genders}?} \label{sssec:gender section}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/seive_gender.png}
@@ -302,10 +302,13 @@ Within this classification of \textbf{hair\_in\_face} there are two different re
 While you can have cross-overs in this representation (e.g. men with long hair that can over their face), throught all of the datasets,
 there was no-one who countered this assumption, so it was easier to classify them as the same (with the distinguishing factor being
 gender).
-Since gender bias was already determined in(\TODO{see Section on gender analysis}\\), that women yield a greater predictive certainty,
+Since gender bias was already determined in \ref{sssec:gender section}, that women yield a greater predictive certainty,
 it would be wise to compair the combined effect of these characteristict. Leading me to the question: \texttt{Is the greater certainty of a classification a result
 of a greater presence of hair?}
 \\ \TODO{are there any differences between men and women (are beards more of an effect compaired to long hiar?)}
+
+
+
 
 \subsubsection{Camera position effect on accuracy}
 \begin{figure}[H]
@@ -328,9 +331,9 @@ Which represents the positions as follows (as you look towards the driver):\\[4p
 
 
 As you can see, the position of the camera has significant effect on accuracy. With higher positions being more
-likely to be calssified as tired (potentially as a result of eyelisd being considered more closed with respect to
+likely to be classified as tired (potentially as a result of eyelids being considered more closed with respect to
 the rest of the eye), while lower positions are more likely to be classified as alert. This is a significant issue
-as it suggests that the model is not as versitile as I would have hoped, and that the point I initially made about
+as it suggests that the model is not as versatile as I would have hoped, and that the point I initially made about
 hardware and vehicle versitility is not met.
 \begin{figure}[H]
     \centering
@@ -351,7 +354,7 @@ hardware and vehicle versitility is not met.
          \includegraphics[width=\textwidth]{images/true_alert_cam.png}
          \caption{Alert prediction in Alert cases}
      \end{subfigure}
-     \caption{Positive predictions accross the camera locations}
+     \caption{Positive predictions across the camera locations}
      \label{fig:camera_distributions}
 \end{figure}
 In the figure above, a distinct correlation between camera position and the model's confidence on True values is evident. The results
@@ -364,7 +367,16 @@ Effect."The observed delta between the Middle position ($0.46$) and the average 
 (a 9\% difference). Because this 9\% gap exceeds our 5\% threshold—and given that the 95\% confidence intervals for the Middle group do
 not overlap with the others—there is significant evidence to conclude that camera position has a substantial effect on model performance,
 with the central position yielding the highest accuracy.
-\\\TODO{compair to the spread of the actual classifications (show discrupsency)}
+High confidence however is only valuable if is correlates to correct classificaitons.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/correct_cam.png}
+    \caption{proportion bars for correctness over camera positions}
+    \label{fig:correct_cam_accuracy}
+\end{figure}
+
+As illustrated in Figure \ref{fig:correct_cam_accuracy}, the model is undoubtadly more accurate (and as shown previously) more certain of a specific classification when the
+camera is centre mounted, compared to other positions.
 
 
 
