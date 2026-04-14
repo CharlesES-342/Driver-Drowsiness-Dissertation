@@ -133,12 +133,49 @@ The API file will be broken into 3 sections for simplicity and ease of use:
 The primary objective of the front-end interface is to communicate the user’s predicted alertness efficiently while maintaining a
 discrete aesthetic. To ensure the interface is non-intrusive during general use – regardless of ambient lighting – a permanent dark-mode
 theme will be implemented. This will minimize user distraction and reduce eye strain during both day and night time use. 
+
 \paragraph{Design Ideas}
-This section will give some examples of potential ideas. Some of these ideas will not make it into the final product, but may wish to be
-considered in other related projects or in the event this project is done again.
-\\\TODO{insert sketches and ideas}
-\\\TODO{give some resons or ideas for shape, colour - HCI ideas}
-\\\TODO{end with one idea as a final choice and explain each idea and its pro/cons}
+This section will give some examples of potential ideas. Some of these ideas will not make it into the final product, but may be
+considered in other related projects or in the event this project is repeated.
+
+\setlength{\columnsep}{2.5em}
+\begin{paracol}{2}
+    \textbf{Circular Counter:}
+    % Use \centering and \includegraphics directly inside paracol for better control
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{Images/circular_dial.jpg}
+    \end{center}
+    \begin{itemize}
+        \item[$+$] \textbf{Automotive Influence:} Helps the interface blend in and reduces driver distraction.
+        \item[$-$] \textbf{Implementation:} Complexity is higher due to formatting constraints
+    \end{itemize}
+    
+    \switchcolumn
+    
+    \textbf{Biological Meter:}
+    \begin{center}
+        \includegraphics[width=0.4\linewidth]{Images/bio_meter.jpg}
+    \end{center}
+    \begin{itemize}[leftmargin=1.5em]
+        \item[$+$] Improved clarity.
+        \item[$+$] Easy to implement.
+        \item[$-$] Less aesthetically appealing.
+    \end{itemize}
+    \textit{Note: Similar to a fuel gauge already found in a vehicle.}
+\end{paracol}
+
+\vspace{1em}
+\textbf{Potential Implementations:}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{Images/full_display_ideas.jpg}
+    \caption{Overview of full display layout concepts.}
+\end{figure}
+
+Each of the designs above has its own pros and cons. The ideal interface should blend in with the surrounding vehicle to avoid
+distracting the driver while clearly conveying data. As a result, I have opted to combine the leftmost and rightmost layouts to ensure
+clear communication and simple implementation.
+
 \paragraph{Integration}
 Following the construction of a basic frontend, I wanted to see how it would look as a changing display – using random variable
 generation to get a better view of the system. To do this, I simply used the ‘random’ function to generate appropriate (possible)
@@ -148,3 +185,6 @@ values and store them in the shared variables to be sent upon API call.
     \includegraphics[width=0.6\textwidth]{Images/basic_integrated_webpage.jpg}
     \caption{Example of a simple webpage layout.}
 \end{figure}
+
+\TODO{add a bit more on how this works/what data is being shown - how is the model worked into it (give the final product culmunation
+section)}
