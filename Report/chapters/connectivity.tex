@@ -21,7 +21,7 @@ with the ease of not needing to type commands or form a toggle file.
 To validate the connection, I developed a light-weight Flask application to serve a basic index.html file. This contained no information,
 images or other resources, just text. This confirmed that devices could successfully connect to the Pi’s hotspot and access the web
 server by inputting the Pi’s IP address.
-This application was constructed to specifically use port 80 (HTTP), removing the need to define the connection protocols when handling
+This application was constructed to specifically use \texttt{port 80} (HTTP), removing the need to define the connection protocols when handling
 IP addresses (Such as when changing the hostname)
 \paragraph{Local DNS Resolution}
 To provide a seamless user experience, I wanted to remove the IP-based navigation and instead navigate with a custom hostname. To do this
@@ -33,7 +33,8 @@ scope/knowledge}.
 This improves the performance by preventing the Pi from attempting to contact upstream servers for un-known queries, eliminating the
 latency caused by waiting for timeout responses.
 However, with this in mind, it is important that this change is reverted when connecting to the wider internet as this can prevent you
-from accessing resources such as the GitHub repository. To revert simply remove “no-resolv” from /etc/dnsmasq.conf. \TODO{remmeber this}
+from accessing resources such as the GitHub repository. To revert simply remove “no-resolv” from \texttt{/etc/dnsmasq.conf}. This will
+allow the device to now look towards up-stream providers in the event a webpage cannot be found.
 
 
 % dnsmasq code section
@@ -106,29 +107,24 @@ and avoid race conditions.
 The API file will be broken into 3 sections for simplicity and ease of use:
 \begin{itemize}
     \item\textbf{Flask Initialization}
-        Since this file will eventually be run on start-up of the device, rather than a manual start up (so that the system is up
-        and functional for ease of use), I have decided to group the initialization of the webpage to this file. While this could
-        be separated out, the simplistic nature allows for a cheap and easy way of ensuring everything is functional. Additionally,
-        with it being an operation which calls other processes, it also allows for other areas of the project to load in the mean-time
-        (e.g. load the AI model from memory).
-        Furthermore, this asynchronous initialization… \TODO{finish}
+        To ensure the system is "headless" and user-ready upon booting, the Flask application is initialized within the main execution
+        script. While the web server and the core logic could be decoupled, integrating them here ensures that all dependencies are
+        functional before the system enters its operational state. Furthermore, this centralized initialization allows for the
+        asynchronous loading of resource-heavy components, such as the AI model, ensuring the web interface is responsive while the
+        backend completes its setup.
     \item\textbf{Prediction Generation}
-        This will allow for both the model’s predictions and the calling function to have access to the same variables. By using
-        threading, I can continuously run the model without interfering with other procedure calls, allowing for seamless and continual
-        integration. This is especially important when considering the multi-user capabilities. If the webpages are not synced (highly
-        likely), API calls from each independent version of the webpage would otherwise cause the AI model to stop capturing data while
-        the calls are answered. This would result in fewer frames being captured and processed, increasing latency to this critical safety
-        system.
-        While the use of threading can invoke race conditions by each thread trying to both interact with the same variable,
-        ‘thread.Lock()’ is used to freeze a variable during assignment or reading to only allow one process to use this variable at a
-        time.
+        To maintain a real-time "safety-critical" stream, the AI model runs on a dedicated background thread. This decoupling is vital
+        for multi-user support; without threading, independent API calls from multiple web clients would block the main execution
+        loop, causing the model to drop frames and increasing system latency. To prevent race conditions during data exchange between
+        the inference engine and the API endpoints, \texttt{threading.Lock()} is implemented. This ensures thread-safe access to shared
+        variables, allowing one process to update the prediction data while others read it without data corruption.
     \item\textbf{Web Call Processing}
-        Rather than refer to a direct IP address (which may vairy between devices and can be dependent on other connections), this API
-        call uses relative URL routing to easily find the correct API. This is potentially less secure, however, with the final aim being
-        to remove all other processes and files and only have the API, webpage and AI model on the device, here is little more that a
-        potential attacker could do. 
-        In an ideal world, with the correct hardware which is tailored specifically to this project, forming a more market focused product,
-        the scope of what could be done would be reduced and \TODO{finish this off}
+        The system utilizes relative URL routing for API requests rather than hardcoded IP addresses, which ensures the interface
+        remains functional regardless of the network environment or the specific IP assigned to the Raspberry Pi. While a
+        production-level environment would require robust authentication and a reverse proxy \footnote{This is a layer of protection between
+        the applicaiton and users which aims to protect the server (Raspberry Pi)}, the current architecture
+        prioritizes low-latency communication within a local network. Given the hardware constraints, this approach minimizes overhead
+        while maintaining the responsiveness required for an embedded AI application.
 \end{itemize}
 
 
@@ -140,8 +136,9 @@ theme will be implemented. This will minimize user distraction and reduce eye st
 \paragraph{Design Ideas}
 This section will give some examples of potential ideas. Some of these ideas will not make it into the final product, but may wish to be
 considered in other related projects or in the event this project is done again.
-\TODO{insert sketches and ideas}
-\TODO{end with one idea as a final choice and explain each idea and its pro/cons}
+\\\TODO{insert sketches and ideas}
+\\\TODO{give some resons or ideas for shape, colour - HCI ideas}
+\\\TODO{end with one idea as a final choice and explain each idea and its pro/cons}
 \paragraph{Integration}
 Following the construction of a basic frontend, I wanted to see how it would look as a changing display – using random variable
 generation to get a better view of the system. To do this, I simply used the ‘random’ function to generate appropriate (possible)

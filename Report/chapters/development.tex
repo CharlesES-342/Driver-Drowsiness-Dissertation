@@ -46,7 +46,7 @@ As you can see, there is a distinct difference between the 2 datasets, and so th
 surprisingly (could be just from the chosen videos) that there seems to be reduced mouth movement when tired. This was not an expected
 result!
 
-Something else that caught my eye was the number of \texttt{extreme\_head\_tilt} events. By playing around with threshold values, I was
+Something else that caught my eye was the number of \texttt{extreme\_head\_tilt} events. By exploring different threshold values, I was
 able to determine that while tired, you tilt your head more (physically)than when awake.
 
 However, following on from this, I formed a lightweight model where I passed in a selection of 5/6 videos of each classification and
@@ -98,12 +98,11 @@ the data is classified correctly for training). This improved accuracy slightly 
 
 Following this, I thought it was a good idea to test its compatibility on the Pi and use myself as a test subject. Initially, I thought
 this was working brilliantly, as closing my eyes or imitating a yawn would result in the classification of Tired (with a similar amount
-of accuracy to on the testing data). However, as my testing became more extensive as I played around with varying facial expressions
-(to test the limits of the model) as well as different orientations (looking to the left or right to simulate varying camera positions),
-I noticed that my tilting your head to the left (moving your ear down towards your shoulder) that you would be classified as tired,
-no matter the rest of your facial expressions. This is something that was completely overlooked in the testing data and implies there is
-a subtle trend in the data that your head tilted left is a sign of being tired. This is not true for the real world and could be down to
-camera position.
+of accuracy to on the testing data). However, as my testing became more extensive -- testing with varied facial expressions and
+testing the effect of pitch and roll on classifications -- I noticed a discrepancy in model prediciton. As I tilted my head to the left
+(moving my ear towards my shoulder), no matter the facial exression, the model predicted \textbf{tiredness}. This is something that was
+completely overlooked in the testing data and implies there is a subtle trend in the data that your head tilted left is a sign of being
+tired. This is a spurious correlation and could be down to camera position.
 
 My initial thought was to retrain the model as it may be that that classifier (through that run of training) has gotten to a local
 maximum (locally high bias) and been unable to recover. However, despite other iterations, I was unable to produce a more accurate model,
@@ -174,11 +173,20 @@ With this being an opinion and not necessarily a definitive solution yes or no, 
 an 85.33\% accuracy in detecting ‘alertness’.
 
 \paragraph{Personal Testing:}
-Following my pervious tests on myself, I found that I would try and remove personal bias to a favorable model by formulating a
-quantitative dataset that I can test against. While only consisting of 100 images and a fixed environment, I wanted to play around with
-varying  expressions to validate functionality.
+Following my previous tests on myself, I found that I would try and remove personal bias to a favorable model by formulating a
+quantitative dataset that I can test against. While only consisting of 100 images and a fixed environment, I wanted to test model
+robustness thorugh varying facial expressions.
 Despite using a webcam and in my room with no natural light and unlikely camera placement (vastly different from the actual use case),
-I was still able to obtain a 63.27\% accuracy in detecting ‘tiredness’. From the results, however, all errors were false positives for
-alertness (mistaking the user for being alert compared to tired).
-\\
-\TODO{explain what you might change to help rectify this issue and why it may be caused… maybe more testing data that is more real‑world}
+I was still able to obtain a 63.27\% accuracy in detecting ‘tiredness’. From the results, however, all errors were False Positives for
+alertness (mistaking the user for being alert compared to tired). This could be down to a variety of factors:
+\begin{itemize}
+    \item \textbf{Camera Placement:} With the camera being mounted ontop of my monitor (standard webcamera location), it was directly
+    in the line--of--sight. This minute change could result in my eyes being more correctly orientated for an Alert classification.
+    \item \textbf{Lighting:} To reduce discrepancy caused by glare, I aimed to produce a high contrast image by removing background
+    light and to reduce the effect of external factors. However, this lack of ambient light and harsh gradients could have formed an environment
+    that lies outside of the training distribution.
+\end{itemize}
+
+Following on from this, it would be more ideal to generate testing data in the correct working environment to get a more accurate representation
+of the models predictive capabilities. Additionally, the effect of background lighting and camera placement might also be affecting the model
+and so a more extensive and varied dataset might be more representative of overall performance.

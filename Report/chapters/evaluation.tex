@@ -293,7 +293,19 @@ This is re-enforced with the scatter plot where you can see there is no correlat
 for the linear and unclear nature of duel classifications, the 'Jitter' of the data has been scaled to the maximum to form a maximum
 disparity between data points to allow for better visualiisation.
 
-
+\paragraph{Hair positioning:}
+Within this classification of \textbf{hair\_in\_face} there are two different representations:
+\begin{itemize}
+    \item \textbf{Beards} \- when on a male user
+    \item \textbf{hair down} \- when matched with a female participant
+\end{itemize}
+While you can have cross-overs in this representation (e.g. men with long hair that can over their face), throught all of the datasets,
+there was no-one who countered this assumption, so it was easier to classify them as the same (with the distinguishing factor being
+gender).
+Since gender bias was already determined in(\TODO{see Section on gender analysis}\\), that women yield a greater predictive certainty,
+it would be wise to compair the combined effect of these characteristict. Leading me to the question: \texttt{Is the greater certainty of a classification a result
+of a greater presence of hair?}
+\\ \TODO{are there any differences between men and women (are beards more of an effect compaired to long hiar?)}
 
 \subsubsection{Camera position effect on accuracy}
 \begin{figure}[H]
@@ -384,6 +396,6 @@ with this final result.
 \subsubsection{Areas of Failure}
     \TODO{what could I have done better if done again, or areas that were difficult that really stand out}
 
-\subsubsection{Additional Remarks and Development ideas}
+\subsection{Additional Remarks and Development ideas}
 This section will outline any ideas or areas that I beleive are worth commenting on; with many of these being future considerations given
 more time.
