@@ -303,9 +303,32 @@ While you can have cross-overs in this representation (e.g. men with long hair t
 there was no-one who countered this assumption, so it was easier to classify them as the same (with the distinguishing factor being
 gender).
 Since gender bias was already determined in \ref{sssec:gender section}, that women yield a greater predictive certainty,
-it would be wise to compair the combined effect of these characteristict. Leading me to the question: \texttt{Is the greater certainty of a classification a result
+it would be wise to compair the combined effect of these characteristict. Leading to the question:
+\\\texttt{Is the greater certainty of a classification a result
 of a greater presence of hair?}
-\\ \TODO{are there any differences between men and women (are beards more of an effect compaired to long hiar?)}
+\begin{figure}[H]
+     \centering
+     \begin{subfigure}[b]{0.3\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/gender_hair_box.png}
+         \caption{Model confidence across subgroups}
+         \label{fig:gender_hair_box}
+     \end{subfigure}
+     \hfill
+     \begin{subfigure}[b]{0.6\textwidth}
+         \centering
+         \includegraphics[width=\textwidth]{images/gender_hair_correct.png}
+         \caption{Classification accuracy distribution}
+         \label{fig:gender_hair_correct}
+     \end{subfigure}
+     \caption{Comparison of model confidence and accuracy for Gender and Hair combinations}
+     \label{fig:combined_gender_hair_analysis}
+\end{figure}
+While the overall data suggests that there is no effect in overall accuracy as a result of a user haivng their \textbf{hair\_in\_face}, figure
+\ref{fig:combined_gender_hair_analysis} suggests this is not the case regarding its placement. For male users (where it primarilly represents beards), the presence
+of hair correlates to a decrease in models accuracy, suggesting facial hear acts as \textbf{noise} for feature extraction. Conversely, for female participants
+(representing hair down), the model shows an increase in accuracy and certainty. This suggests that while beards obscure crutial features, long hair inadvertantly
+helps to act as a secondary framing feature, helping the model anchor the face.
 
 
 
