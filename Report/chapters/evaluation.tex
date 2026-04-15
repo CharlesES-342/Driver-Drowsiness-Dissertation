@@ -439,11 +439,64 @@ confidence levels and classificairtion outcomes:
     \includegraphics[width=0.5\textwidth]{images/error_rate_correlation.png}
 \end{figure}
 
-\subsubsection{Effect of Each Attribute:}
-\TODO{\% effects of each variable on accuracy (from baseline)}
-\TODO{generalized issues -> ideal use case / environmewnt for use}
 
 
+
+
+
+\subsubsection{Summary of Attribute Effects and Ideal Environment}
+To quantify the impact of each variable, the model's performance was measured against the overall baseline accuracy of 77\%. The "Delta" represents the percentage point
+shift in accuracy for this atrribute.
+
+\begin{landscape}
+%\begin{center}
+\renewcommand{\arraystretch}{1.3} % Adds vertical padding for better readability
+\begin{xltabular}{\linewidth}{@{} l c c X @{}}
+\caption{Summary of Attribute Effects on Model Accuracy} \label{tab:attr_summary} \\
+\toprule
+    \textbf{Attribute} & \textbf{Acc. Overall} & \textbf{Delta} & \textbf{Key Insight \& Ideal Environment} \\
+\midrule
+\endfirsthead
+
+\toprule
+    \textbf{Attribute} & \textbf{Acc. Overall} & \textbf{Delta} & \textbf{Key Insight \& Ideal Environment} \\
+\midrule
+\endhead
+
+Accessories (None)    & $83.9\%$  & $+6.6\%$  & Presence of eyewear/masks shifts bias toward \textbf{Alert} ($91.16\%$). Sub-optimal for safety-critical environments where false negatives are risky. \\ \addlinespace
+Accessories (Present) & $62.76\%$ & $-14.5\%$ & Superior at predicting \textbf{Tiredness} ($83.54\%$). From a safety standpoint, this "erring on the side of caution" is preferable for fatigue detection. \\ \midrule
+
+Gender (Female)       & $82.2\%*$ & $+4.9\%$  & High alert accuracy; however, "Tired" cases show significantly lower parity ($44.7\%$), suggesting potential training set imbalance. \\ \addlinespace
+Gender (Male)         & $76.6\%$  & $-0.7\%$  & Highly balanced across classes ($\pm 4.4\%$); significantly less prone to extreme classification bias than female subjects. \\ \midrule
+
+Camera (Top)          & $59.6\%*$ & $-17.7\%$ & Over-weighted toward \textbf{Tired} due to downward eyelid perspective; useful specifically for prioritizing safety-critical "false alarms." \\ \addlinespace
+Camera (Middle)       & $88.3\%$  & $+11.0\%$ & Optimal for predictive confidence; aligns with the primary training distribution (centered, front-facing imagery). \\ \addlinespace
+Camera (Bottom)       & $75.7\%$  & $-1.6\%$  & Most stable and versatile across both classifications with a minimal recorded bias of only $0.16\%$. \\ \midrule
+
+Hair in Face (None)   & $86.1\%$  & $+8.8\%$  & High predictive power but exhibits greater disparity between classes, with a $94.8\%$ bias toward \textbf{Alert} classifications. \\ \addlinespace
+Hair in Face (Present)& $73.1\%$  & $-4.2\%$  & Context-dependent: Facial hair acts as noise for male subjects, while long hair assists in framing for female participants. Minimal accuracy delta of $3.2\%$. \\
+
+\bottomrule
+\multicolumn{4}{l}{\small{*Note: High accuracy in these specific subsets is often a result of class-weighted bias rather than general model power.}}
+\end{xltabular}%
+%\end{center}%
+\end{landscape}
+\nopagebreak
+
+\paragraph{Darkness Distribution}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{images/brightnerss_correction_relation.png}
+\end{figure}
+
+There is little correlation between the brightness and the corrrectness of the model. While it appears that in birgh conditions the model works best, but this is not the case as the $\leq0.9$
+only represents $0.04\%$ of the data and so is not representative of the dataset as a whole. The same can be said for $<0.4$ where it represents only $\approx2\%$. As a result, the ideal range is $0.5\to0.8$ as this has a high succeess rate and has enough data to
+support this conclusion, as each subsequent section represents around $25\%$ of the data each.
+
+\subsection{Ideal Use Case / Environment:}
+Based on the aggregated data, the "Perfect Environment" for this model is a user with long hair, no facial accessories, situated in a vehicle with a center-bottom
+mounted camera, and operating in a darkness index between $0.5$ and $0.8$. Deviations from these parameters—specifically the introduction of eyewear or side-mounted cameras—require
+a lower confidence threshold for alerts to compensate for the model's inherent biases. Leading to an increased chance of misclassificaiotn.
 
 
 
