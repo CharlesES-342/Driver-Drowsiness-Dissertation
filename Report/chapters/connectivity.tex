@@ -188,11 +188,27 @@ be the source of the data rather than random data generation.
     \caption{Example of integrated AI model Integration}
 \end{figure}
 
-\TODO{how does the API work, using ports and things}
-\TODO{what information is sent (what is in the package)}
-\TODO{how does the page re-load}
+\paragraph{Package and Data-Transfer}
+Cache-Control is required to ensure that the system remains up-to-date and safety is paramount. This is done by teh following Modern Header Controlls:
+\begin{itemize}
+    \item \textbf{no-chache:} forces the webpage receiving/requesting the data to check with the server before using the cached version of the data
+    \item \textbf{no-store:} tells teh browser to \textbf{never} save any part ofm the request or response to the local disk
+    \item \textbf{must-revalidata} reinforces the no-cache. Tells teh browser that once data becomes 'stale' (imediatelly) it can no longer be used
+\end{itemize}
 
-% In your document:
+To help support older borwsers (in the event the user has an older device), Legacy Headers are also used:
+\begin{itemize}
+    \item \textbf{Progma: no-cache} Check with the server before using the cached version of the data
+    \item \textbf{Expired: 0} sets an expiration date to the begining of th etime count (01/01/9070), since all dates are now after that, it means the
+    data will be expired instantly
+\end{itemize}
+
+To support this integration, the project was organized into a structured directory on the Raspberry Pi (Figure \ref{fig:Tree_Figure}). This layout separates the core Python
+logic and Flask API (api.py) from the frontend assets (templates/) and the pre-trained weights of the Xception model (model/). By housing the .tflite model in a
+dedicated directory, the system can efficiently load the AI weights into memory during the server's initialization, replacing the initial random data generation with
+real-time inference results.
+
+To allow for the testing of multiple different AI models and varying webpages, I decided to 
 \begin{figure}[h]
     \centering
     \begin{minipage}{0.7\textwidth}
@@ -206,32 +222,24 @@ be the source of the data rather than random data generation.
     }
     \end{minipage}
     \caption{Project Directory Structure on the Raspberry Pi}
+    \label{fig:Tree_Figure}
 \end{figure}
 
-
-\TODO{add a bit more on how this works/what data is being shown - how is the model worked into it (give the final product culmunation
-section)}
-
-\begin{lstlisting}[language=bash, caption={Systemd Service Configuration for Driver Drowsiness API}]
-[Unit]
-Description=My Python Script Service - Driver Drowsiness API
-# Added network-online.target to ensure the internet/local link is active
-After=multi-user.target network-online.target
-Wants=network-online.target
-
-[Service]
-Type=idle
-User=ces
-Group=ces
-# Directory script is heldd in
-# WorkingDirectory=/home/ces/Documents/Dissertation/Driver-Drowsiness-Dissertation/OnThePi
-WorkingDirectory=/home/ces/Documents/Dissertation
-# Path to script
-#ExecStart=/home/ces/Documents/Dissertation/Driver-Drowsiness-Dissertation/OnThePi/venv/bin/python /home/ces/Do
-ExecStart=/usr/bin/python3 /home/ces/Documents/Dissertation/cap.py
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-\end{lstlisting}
+\subsection{Enabling on Boot:}
+Since this is to be a 'headless' system, it is importaint for the program to run automatically (e.g. when the vehicle is turned on). Since general cigarette lighter power cables
+provide the 5V necessary for the Pi to function as intended, this can be used to power the system, however, without a display (thus far), you cannot enable the program. To recrify
+this, a \textbf{.service} file will be used. This has three subsections:
+\begin{itemize}
+    \item \textbf{[Unit]} - Acts as the metadata and dependency layer. It provides a description for debugging during status checks and defines the boot order. In this case, it
+    includes a \textbf{soft dependency} (\texttt{Wants=network-online.target}) to ensure the system attempts to establish a connection before the script runs, while also ensuring
+    the script only starts once the system is fully initialized.
+    
+    \item \textbf{[Service]} - This is the "execution" layer that defines \textit{how} the script runs. It specifies the command to execute the Python script, the working directory,
+    and the specific user permissions to ensure the script does not run with unnecessary root privileges. Crucially for a headless system, it handles
+    \textbf{error recovery} via the \texttt{Restart} parameter, which automatically re-launches the program if it crashes or fails. I choose a delay period of 10-seconds becuase
+    it allows me to rectify any issues (e.g. the camera becoming unplugged)
+    
+    \item \textbf{[Install]} - This section handles the "integration" of the service into the system's boot sequence. By using the \texttt{multi-user.target}, it tells the Raspberry
+    Pi to link this service to the standard startup routine. This ensures that as soon as the Pi receives power from the vehicle and reaches its normal operating state, the service
+    is triggered without any manual user intervention. This helps to ensure that the safe normal start-up occures correctly before the program is run.
+\end{itemize}
