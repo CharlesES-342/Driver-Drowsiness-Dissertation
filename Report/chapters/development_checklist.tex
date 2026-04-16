@@ -1,51 +1,56 @@
+\clearpage
 \begin{landscape}
 
-\setlength{\topskip}{0pt}
-\vspace*{-1.5cm}
-
-\section{Development Checklist}
+\chapter*{Development Checklist}
+\addcontentsline{toc}{chapter}{Development Checklist}
+\stepcounter{chapter}
 
 In this section, I will be noting any tasks that are required to complete the project. 
 While some smaller sections that posed no issues may be glossed over and only noted in 
-the "Development" section, most of the step-by-step stages will be mentioned as a 
+the ``Development'' section, most of the step-by-step stages will be mentioned as a 
 check list for someone to follow if they want to create this project for themselves.
 
-\begin{longtable}{@{}llccc p{6cm}@{}}
-\caption{Project Task Overview} \\[6pt]
-\toprule
-\textbf{Task Ref} & \textbf{Task} & \textbf{Date Started} & \textbf{Date Completed} & \textbf{Status} & \textbf{Comments} \\
-\midrule
-\endfirsthead
+\begin{longtable}{@{}p{1.5cm} p{6.5cm} ccc p{9cm}@{}}
+    \caption{Project Task Overview} \label{tab:checklist} \\
+    \toprule
+    \textbf{Task Ref} & \textbf{Task} & \textbf{Started} & \textbf{Completed} & \textbf{Status} & \textbf{Comments} \\
+    \midrule
+    \endfirsthead
 
-\toprule
-\textbf{Task Ref} & \textbf{Task} & \textbf{Date Started} & \textbf{Date Completed} & \textbf{Status} & \textbf{Comments} \\
-\midrule
-\endhead
+    \toprule
+    \textbf{Task Ref} & \textbf{Task} & \textbf{Started} & \textbf{Completed} & \textbf{Status} & \textbf{Comments} \\
+    \midrule
+    \endhead
 
-T1  & Purchase Components & -- & 29/10/2025 & Complete &  \\
-T2  & Face Identification & -- & 04/11/2025 & Complete & In pre-captured images \\
-T3  & Taking frames & 10/11/2025 & 11/11/2025 & Complete & Able to take an image from the camera (laptop only) \\
-T4  & Extracting Features & 20/10/2025 & 23/11/2025 & Complete & Using MediaPipe to identify features -- not modular at this point \\
-T5  & Validate Data & 07/11/2025 & 08/11/2025 & Complete & Compare overlay on image to ensure correct alignment \\
-T6  & Train Simple AI & 08/11/2025 & 18/11/2025 & Complete & Not compatible with Pi yet; required additional preprocessing \\
-T7  & AI model on Pi & 23/10/2025 & 25/11/2025 & Complete & Lightweight model from Bina dataset; works only on individual frames \\
-T8  & AI model for Video testing & 01/12/2025 & 03/12/2025 & Abandoned & Inaccurate; buffer issues with model \\
-T9  & Data pre-processing & 10/12/2025 & 19/12/2025 & Complete & Prepared dataset for advanced model \\
-T10 & Advanced model training & 20/12/2025 & 24/12/2025 & Complete &  \\
-T11 & Advanced model validation & 26/12/2025 & 27/12/2025 & Complete & Tested on validation dataset \\
-T12 & Advanced model testing (real world) & 22/01/2026 & 22/01/2026 & Complete & Tested with camera input \\
-T13 & Testing on Pi & -- & -- & Complete & tflite model works, but required a reduction in tf\_runtime environment due to library conflicts \\
-T14 & Set up connection between devices & 01/02/2026 & 03/02/2026 & Complete & Connection established; webpage transmitted \\
-T15 & Form basic webpage & -- & -- &  &  \\
-T16 & Display webpage on device from Pi & -- & -- &  &  \\
-T17 & API testing & -- & -- &  &  \\
-T18 & Linking API and AI model & -- & -- &  &  \\
-T19 & Starting on boot & -- & -- &  &  \\
-T20 & Evaluating the model & -- & -- &  &  \\
-T21 & Getting user feedback & -- & -- &  &  \\
-\bottomrule
-\\\TODO{finish off}
+    \bottomrule
+    \endfoot
+
+    \bottomrule
+    \endlastfoot
+
+    T1  & Purchase Components & -- & 29/10/2025 & Complete &  \\
+    T2  & Face Identification & -- & 04/11/2025 & Complete & In pre-captured images \\
+    T3  & Taking frames & 10/11/2025 & 11/11/2025 & Complete & Able to take an image from the camera \\
+    T4  & Extracting Features & 20/10/2025 & 23/11/2025 & Complete & Using MediaPipe to identify features \\
+    T5  & Validate Data & 07/11/2025 & 08/11/2025 & Complete & Compare overlay on image \\
+    T6  & Train Simple AI & 08/11/2025 & 18/11/2025 & Complete & Required additional preprocessing \\
+    T7  & AI model on Pi & 23/10/2025 & 25/11/2025 & Complete & Lightweight model from Bina dataset \\
+    T8  & AI model for Video testing & 01/12/2025 & 03/12/2025 & Abandoned & Inaccurate; buffer issues with model \\
+    T9  & Data pre-processing & 10/12/2025 & 19/12/2025 & Complete & Prepared dataset for advanced model \\
+    T10 & Advanced model training & 20/12/2025 & 24/12/2025 & Complete &  \\
+    T11 & Advanced model validation & 26/12/2025 & 27/12/2025 & Complete & Tested on validation dataset \\
+    T12 & Advanced model testing (real world) & 22/01/2026 & 22/01/2026 & Complete & Tested with camera input \\
+    T13 & Testing on Pi & -- & -- & Complete & tflite model works with reduced runtime \\
+    T14 & Set up connection between devices & 01/02/2026 & 03/02/2026 & Complete & Connection established \\
+    T15 & Form basic webpage & -- & -- &  &  \\
+    T16 & Display webpage on device from Pi & -- & -- &  & Simple testing with random data \\
+    T17 & API testing & -- & -- &  &  \\
+    T18 & Linking API and AI model & -- & -- &  &  \\
+    T19 & Starting on boot & -- & -- &  & setting up a myscript.service file (also used for data capture for evaluation) \\
+    T20 & Evaluating the model & -- & -- &  &  \\
+    T21 & Getting user feedback & -- & -- &  &  \\
 
 \end{longtable}
 
 \end{landscape}
+\clearpage

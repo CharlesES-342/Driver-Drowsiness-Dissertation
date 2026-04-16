@@ -1,5 +1,8 @@
-\section{Evaluation}
-\subsection{Simulation Testing}
+\chapter*{Evaluation}
+\addcontentsline{toc}{chapter}{Evaluation}
+\stepcounter{chapter}
+
+\section{Simulation Testing}
 The best way to test the accuracy of the finished product is in the desired market location (in a vehicle). To collect the data, I
 established a simple program that will capture 5-minute videos of the course of an hour while you drive. Additionally, other datasets,
 such as the SUST \cite{SUST} and BINA \cite{BINA}will be used to help increase the variety and test range for the model.
@@ -28,7 +31,7 @@ This will then be used to form a basis for my \textbf{Stratified Stress Testing}
 Overall, I would like to see how each factor effects the model as well as how well the model general performs in everyday simulations.
 
 
-\subsection{Data Extraction:}
+\section{Data Extraction:}
 \paragraph{How many of each classification?}
 To determine if there is a trend between the predicted result and that attribute(s) it should fulfill the following:
 \begin{equation}
@@ -54,7 +57,7 @@ direction, would not be as informative as position as for an articular user, thi
 \end{figure}
 All this combined into a 5676-line CSV file which would hopefully provide an insight into positive or negative trends within the model.
 
-\subsection{Preliminary Observations}
+\section{Preliminary Observations}
 While assigning variables, I noticed several trends in the data that I would like to point out prior to the quantitative data.
 
 With the camera position being in a high-up position, the data tended to miss classify more than in other positions. I believe this to be
@@ -72,11 +75,11 @@ incorrectly.
 Another strange observation was that when someone was wearing a mask (even just under the chin) the person was often considered to be
 tired incorrectly, compared to other accessory features.
 
-\subsection{Quantitative Analysis}
+\section{Quantitative Analysis}
 For this, I am using Orange \cite{orange}. This is a datamining software that helps identify features in both a
 visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
 
-\subsubsection{General Data Spread:}
+\subsection{General Data Spread:}
 For this I used a ‘column statistics’ node to express how each attribute is distributed over the entire dataset.
 \begin{figure}[H]
     \centering
@@ -101,7 +104,7 @@ model appears to make mistakes more in te middle of the range (when it is more u
 the model that have been aloud to spiral out of control (e.g. always classifying tired or always classifying alert). This is a good
 sign as it suggests that the model is not overfitted to one classification, despite the slight bias in the training data.
 
-\subsubsection{How \textbf{Darkness} affects the model’s Prediction:}
+\subsection{How \textbf{Darkness} affects the model’s Prediction:}
 \begin{figure}[H]
     \centering
     % First Subfigure
@@ -165,7 +168,7 @@ high density indicates:
 
 
 
-\subsubsection{How well the mode performs over varying \textbf{genders}?} \label{sssec:gender section}
+\subsection{How well the mode performs over varying \textbf{genders}?} \label{sssec:gender section}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/seive_gender.png}
@@ -215,7 +218,7 @@ show that the model is more highly-optimised for female-centric characteristics.
 
 
 
-\subsubsection{Effect of \textbf{accessories} on accuracy}
+\subsection{Effect of \textbf{accessories} on accuracy}
 \begin{figure}[H]
     \centering
     % First Image
@@ -266,7 +269,7 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
 
 
 
-\subsubsection{How does a user having their \textbf{hair in their face} affect the model?}
+\subsection{How does a user having their \textbf{hair in their face} affect the model?}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{images/hair_in_face (fairness).png}
@@ -333,7 +336,7 @@ helps to act as a secondary framing feature, helping the model anchor the face.
 
 
 
-\subsubsection{Camera position effect on accuracy}
+\subsection{Camera position effect on accuracy}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/tirednesxcamera_pos.png}
@@ -402,7 +405,7 @@ a specific classification when the camera is centre mounted, compared to other p
 
 
 
-\subsection{Overall Accuracy} 
+\section{Overall Accuracy} 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/overall_accuracy.png}
@@ -412,7 +415,7 @@ classification. With $50/50$ being the average split for simple guesses, indepen
 variety of circumstances. Considering that this was all trained off of one dataset, which consisted of a fixed camera angle, same vehicle,
 same lighting conditions and a limited number of participants with little variation in terms of accessory features, I am more than happy
 with this final result.
-\subsubsection{Distribution of Results:}
+\subsection{Distribution of Results:}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/true-pos-true-neg.png}
@@ -423,7 +426,7 @@ alert states (mistakenly identifying tiredness). From a safety-critical perspect
 system to err on the side of caution by providing a 'false alarm' than to fail to detect a genuine instance of driver fatigue, which would pose
 a significantly higher risk.
 
-\subsubsection{Confidence in False Cases}
+\subsection{Confidence in False Cases}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{images/conf_diff_wrong.png}
@@ -444,7 +447,7 @@ confidence levels and classificairtion outcomes:
 
 
 
-\subsubsection{Summary of Attribute Effects and Ideal Environment}
+\subsection{Summary of Attribute Effects and Ideal Environment}
 To quantify the impact of each variable, the model's performance was measured against the overall baseline accuracy of 77\%. The "Delta" represents the percentage point
 shift in accuracy for this atrribute.
 
@@ -493,21 +496,21 @@ There is little correlation between the brightness and the corrrectness of the m
 only represents $0.04\%$ of the data and so is not representative of the dataset as a whole. The same can be said for $<0.4$ where it represents only $\approx2\%$. As a result, the ideal range is $0.5\to0.8$ as this has a high succeess rate and has enough data to
 support this conclusion, as each subsequent section represents around $25\%$ of the data each.
 
-\subsection{Ideal Use Case / Environment:}
+\section{Ideal Use Case / Environment:}
 Based on the aggregated data, the "Perfect Environment" for this model is a user with long hair, no facial accessories, situated in a vehicle with a center-bottom
 mounted camera, and operating in a darkness index between $0.5$ and $0.8$. Deviations from these parameters—specifically the introduction of eyewear or side-mounted cameras—require
 a lower confidence threshold for alerts to compensate for the model's inherent biases. Leading to an increased chance of misclassificaiotn.
 
 
 
-\subsection{User Feedback:}
+\section{User Feedback:}
     \TODO{get some people to use it, take some pictures of placements and other things - talk about what they liked/didn't like}
 
-\subsubsection{Areas of Success}
+\subsection{Areas of Success}
     \TODO{areas of success}
-\subsubsection{Areas of Failure}
+\subsection{Areas of Failure}
     \TODO{what could I have done better if done again, or areas that were difficult that really stand out}
 
-\subsection{Additional Remarks and Development ideas}
+\section{Additional Remarks and Development ideas}
 This section will outline any ideas or areas that I beleive are worth commenting on; with many of these being future considerations given
 more time.

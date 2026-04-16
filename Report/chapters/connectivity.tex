@@ -1,4 +1,7 @@
-\section{connectivity}
+\chapter*{connectivity}
+\addcontentsline{toc}{chapter}{Connectivity}
+\stepcounter{chapter}
+
 In the following section I will discuss how the classification will be presented to the user.
 
 \paragraph{Overview}
@@ -12,7 +15,7 @@ require several components:
 
 \end{itemize}
 
-\subsection{Back-End:}
+\section{Back-End:}
 \paragraph{Network Architecture and Hosting}
 By utilizing Raspberry Pi OS (Desktop), I can easily toggle between “Hotspot Mode” for device testing and “WI-FI Client Mode” for pulling
 updates via Git. This flexibility of duel purpose drastically accelerated the development and testing cycle of this section of the project,
@@ -128,7 +131,7 @@ The API file will be broken into 3 sections for simplicity and ease of use:
 \end{itemize}
 
 
-\subsection{Front-End:}
+\section{Front-End:}
 \paragraph{Webpage Design}
 The primary objective of the front-end interface is to communicate the user’s predicted alertness efficiently while maintaining a
 discrete aesthetic. To ensure the interface is non-intrusive during general use – regardless of ambient lighting – a permanent dark-mode
@@ -225,10 +228,10 @@ To allow for the testing of multiple different AI models and varying webpages, I
     \label{fig:Tree_Figure}
 \end{figure}
 
-\subsection{Enabling on Boot:}
+\section{Enabling on Boot:}
 Since this is to be a 'headless' system, it is importaint for the program to run automatically (e.g. when the vehicle is turned on). Since general cigarette lighter power cables
 provide the 5V necessary for the Pi to function as intended, this can be used to power the system, however, without a display (thus far), you cannot enable the program. To recrify
-this, a \textbf{.service} file will be used. This has three subsections:
+this, a \textbf{.service} file will be used. This has three sections:
 \begin{itemize}
     \item \textbf{[Unit]} - Acts as the metadata and dependency layer. It provides a description for debugging during status checks and defines the boot order. In this case, it
     includes a \textbf{soft dependency} (\texttt{Wants=network-online.target}) to ensure the system attempts to establish a connection before the script runs, while also ensuring

@@ -25,6 +25,12 @@
 \usepackage{xltabular} % Required in preamble
 \usepackage{dirtree} % for file path tree look
 
+% This removes the "Chapter N" line and puts the number next to the title
+\titleformat{\chapter}[hang] 
+{\normalfont\huge\bfseries}{\thechapter}{1em}{}
+
+% This reduces the massive white space above the chapter title
+\titlespacing*{\chapter}{0pt}{-20pt}{20pt}
 
 % Define the box style
 \mdfdefinestyle{takeawaybox}{

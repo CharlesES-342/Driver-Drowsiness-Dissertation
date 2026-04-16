@@ -1,5 +1,8 @@
-\section{Research}
-\subsection{Tiredness Identifiers}
+\chapter*{Research}
+\addcontentsline{toc}{chapter}{Research}
+\stepcounter{chapter}
+
+\section{Tiredness Identifiers}
 There are several different ways to identify tiredness, especially when driving. Somes examples are:
 \begin{itemize}
     \item More frequent blinking – this is because your eyes and brain function to counter fatigue and discomfort
@@ -13,13 +16,13 @@ There are several different ways to identify tiredness, especially when driving.
     \item Snoring – if you have already fallen asleep, you relax and this can result in snoring
 \end{itemize}
 
-\subsection{Driving Effected Factors}
+\section{Driving Effected Factors}
 As you get more tired, you often lose concentration. You can’t find yourself reacting more slowly and your decision
 making can become impaired. You can also become a more violent or unstable driver as your mood can be easily influenced
 as you do not have the energy to combat how you feel. Not only this, but in the worst case (int eh event of falling
 asleep) you can no longer operate the vehicle.
 
-\subsection{Legality of Using a Mobile Device}
+\section{Legality of Using a Mobile Device}
 In this project, I would like to make use of the users’ own device, which will probably be their mobile phone. To get
 around the legal issue of using a mobile device, it will have to be securely fastened in a cradle and not held by the
 driver. Furthermore, I will not be able to request interaction from the driver once the vehicle is in motion unless I
@@ -44,8 +47,8 @@ well as a maximum of £1000 fine.
 \end{itemize}
 \end{mdframed}
 
-\subsection{Potential Models and Algorithms}
-\subsubsection{Initial thought process – basic Convolutional Neural Netwrk (CNN):}
+\section{Potential Models and Algorithms}
+\subsection{Initial thought process – basic Convolutional Neural Netwrk (CNN):}
 My initial idea was to follow a methodology I had previously learnt in one of my prior modules, using a simple
 Convolutional model consisting of input nodes containing extracted values from an image, and then train the model to
 detect these trends in data to predict an outcome. For this I made use of Mediapipe’s face mesh to extract features from
@@ -59,13 +62,13 @@ this project.
 Following this failure, which is also expressed in the ‘Simple AI Models’ section I expanded my research to other AI models which
 will follow.
 
-\subsubsection{Deep Convolutional Models:}
+\subsection{Deep Convolutional Models:}
 As an expansion from the idea above, this consists of a far greater number of layers. With its main uses in image identification,
 this would be ideal for the task at hand. One key difference being the number of layers. This adds size and complexity to the
 network, which may make it more difficult to run on the Pi compared to other models due to its increased parameter size as a result
 of its increases in width and levels.
 
-\subsubsection{Xception Model (Extreme Inception):}
+\subsection{Xception Model (Extreme Inception):}
 A development of the normal inception model, this stands as the middle ground between regular convolutional models and depthwise
 separable convolutional models (depthwise + pointwise). This makes better use of parameters than the Inception v3  model rather than
 reducing the number of parameters. This is done through channel mixing.
@@ -80,7 +83,7 @@ previous learning with my new data. This should allow for a model which learns f
 accurate model, due to its additional pre-training.
 Some information gathered from \cite{xception}.
 
-\subsubsection{CondenseNet:}
+\subsection{CondenseNet:}
 This is an example of an “Efficient DenseNet using Learned Group Convolutions”\cite{condensenet}. This was designed for mobile use, with the aim of
 requiring limited computational power by removing connections between layers, aiming to remove redundancies which are not used in the
 later layers. Due to this, only one tenth of the computation is required compared to the DenseNet (a Deep Convolutional Model where all
@@ -92,7 +95,7 @@ loss in accuracy, and requirement of more grouping of inputs.
 The idea of this is to reduce the number of connections during learning, to improve computational speeds and re-enforce routes, at the
 cost of accuracy. 
 
-\subsubsection{Further Development Ideas / Key Takeaways:}
+\subsection{Further Development Ideas / Key Takeaways:}
 \paragraph{Model Selection}
 On such a small number of classifications and training examples for each classification, CondenseNet may not be the best option for
 this project. While it is said to be faster and more optimizable for a device with limited computational ability and power (like the
@@ -120,7 +123,7 @@ Another issue is \textbf{zoom}. My hardware, as well as the hardware between the
 result, my inputs may automatically be different based on camera zoom, and how the user positions their face in the focus region,
 so fluctuations in zoom/crop may be a thing to consider.  (0.9 $\to$ 1.1 zoom/crop)
 
-\subsubsection{Information Communication:}
+\subsection{Information Communication:}
 \paragraph{Webpage Hosting}
 With this project being done in python, for ease of use and versatility of existing libraries for the AI section of this project, it
 would be best to utilize some existing python libraries for the webpage.

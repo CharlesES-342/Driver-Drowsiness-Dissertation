@@ -1,16 +1,19 @@
-\section{Datasets}
+\chapter*{Datasets}
+\addcontentsline{toc}{chapter}{Datasets}
+\stepcounter{chapter}
+
 For this project, I have used several different data sets from varying sources around the globe in order to try and train a more
 versatile system. From Turkey to China, all of these sources are publicly available and will be noted, referenced and explained in this
 section. Please note that additional references will be made through this document. I will outline where the datasets can be found, steps
 to access it for yourself as well as legal outlines that I must abide by in order to use them.
 
-\subsection{SIVAS-UNIVERSITY-OF-SCIENCE-AND-TECHNOLOGY-DRIVER-DROWSINESS-DATASET:}
+\section{SIVAS-UNIVERSITY-OF-SCIENCE-AND-TECHNOLOGY-DRIVER-DROWSINESS-DATASET:}
 Collected by a Turkish University, this data set contains 19 drivers (3 female and 16 male) who recorded themselves using their phones in
 a variety of positions. These are in .mp4 formats.
 \cite{SUST}
 Their GitHub can be found at: \url{https://github.com/EsraKavalci/Sivas-University-of-Science-and-Technology-Driver-Drowsiness-Dataset}
 
-\subsection{VICOMTECH:}
+\section{VICOMTECH:}
 This organization has many different datasets available such as Body pose estimation and Hands-on-wheel detection. Following my research
 into fatigue identifiers. I first found out about this dataset through FatigueView \cite{fatigueview} where it was referenced as an external data set.
 This dataset once again has a variety of users, this time with an average age of 30. IT also outlines additional features to consider,
@@ -18,7 +21,7 @@ such as glasses wearers and other driving activities such as drinking water, on 
 understand how drivers act differently when fatigued.
 Their Page: \url{https://dmd.vicomtech.org/} \cite{vicomtech}
 
-\subsection{FATIGUEVIEW:}
+\section{FATIGUEVIEW:}
 This is not only a dataset, but also an article on how tiredness affects drivers and what identifiers exist to help identify fatigue.
 This uses data collected from several different people, some many different backgrounds. This data set not only contains videos of people
 who are already tired but also shows how people can change from awake to drowsy as time goes on. This is done through a simulated driving
@@ -27,7 +30,7 @@ This will be useful, as the varying camera angles will allow the model to be mor
 the camera in the best location for them in their own car.
 Their article: \url{https://ieeexplore.ieee.org/document/9931532/figures#figures} \cite{fatigueview}
 
-\subsection{BINA University:}
+\section{BINA University:}
 A dataset collected by a university in Indonesia, the idea of the study was to “hypothesizes that drowsiness can be accurately detected
 in real-time through computer vision analysis” \cite{BINA}. This was collected using a Raspberry Pi 5 and a camera module, taking frames at a
 rate of 30 FPS. This dataset takes more of a face on positioning. This will allow for more accurate extraction of features for testing
@@ -40,7 +43,7 @@ night recordings. This is important as you are:
 \end{itemize}
 \url{ https://data.mendeley.com/datasets/chvz7vh2dc/1} \cite{BINA}
 
-\subsection{DATASET POSITIVES AND NEGATIVES:}
+\section{DATASET POSITIVES AND NEGATIVES:}
 \paragraph{Camera Location:}
 By using a variety of different camera angles, when training the model, it will be more lenient to change. Fixed locations can result in
 the data being more tailored, and so the AI model will be more tailored. This can influence reliability as it can result in the model

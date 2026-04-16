@@ -1,5 +1,8 @@
-\section{Development}
-\subsection{Setup:}
+\chapter*{Development}
+\addcontentsline{toc}{chapter}{Development}
+\stepcounter{chapter}
+
+\section{Setup:}
 \paragraph{Python Versions}
 On my laptop (the main device for coding) I am making use of Python 3.10.5. This is because, mediapipe is not currently supported by the
 later versions that are available(at this time 3/1/25 it is supported up to 3.11.0). While the version that is installed by default on
@@ -28,7 +31,7 @@ Together, I can take video and images, and then extract the information required
 drowsiness.
 
 
-\subsection{Data Validation}
+\section{Data Validation}
 This section is designed to break down the spread of events in a data set and ensure that there is a difference in the data, so it is
 viable for training some form of AI.
 
@@ -67,8 +70,8 @@ These labels are purely from the pre-made labels file that comes with the data; 
 instances for both the tired and not tired counterparts. This suggests that there is enough variation in the dataset to potentially form
 an AI model.
 
-\subsection{Simple AI Models}
-\subsubsection{Libraries}
+\section{Simple AI Models}
+\subsection{Libraries}
 \paragraph{TensorFlow}
 Easy to use and customize. One thing I have done to help improve the computability of the project was do most of the training and coding
 on my laptop, then importing the project from my Git Repository onto my pi, allowing me to train models and test more easily, rather than
@@ -81,7 +84,7 @@ it more in a given time.
 This is done by compressing the models, reducing the required RAM and using a C++ runtime as opposed to the normal (more cumbersome)
 python.
 
-\subsubsection{Simple AI Model}
+\subsection{Simple AI Model}
 Based on my initial findings of what constitutes tiredness, I thought it best to extract the features that determine tiredness and input
 their ratio values into a simple CNN model.
 
@@ -110,7 +113,7 @@ fluctuating between 68\% - 76\% accuracy on training data, with no more luck on 
 
 From here, I thought it best to experiment with a different model to see what the upper bound in obtainable accuracy was.
 
-\subsubsection{Inception Model}
+\subsection{Inception Model}
 This will be used to determine an upper-bound on the potential accuracy a model can give. With its primary purpose, to identify images, this is ideal.
 As stated in the research section of this document, I will be proceeding with the Xception Model to classify images. The initial model I used was pre-trained on the ImageNet dataset. This will allow for the easy identification of features (e.g. lines and shapes) without needing for the model to learn them from scratch, which should help to improve learning rate and require less data inputs to create a fine-tuned model.
 From here, I trained it on the Bina University \cite{BINA} dataset as it was composed of just images and contained a label file which would make classification easier.
@@ -154,7 +157,7 @@ As expected, after adding in the variations to:
 end implementations. With a 75.91\% accuracy (104/137) on the Bina University dataset resulting in correct predictions, this was more of
 a detriment than I predicted.
 
-\subsubsection{Dataset Resolution}
+\subsection{Dataset Resolution}
 While the previous model was reasonably accurate on determining if the user had their eyes open/closed or if you were yawning or not,
 it would require an additional threshold to determine tiredness from this. In my earlier model versions, I determined the classifications
 of eyes closed or yawning as a positive case of tiredness. However, with the Xception model taking in image inputs, I wanted to experiment
