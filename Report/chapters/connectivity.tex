@@ -192,7 +192,46 @@ be the source of the data rather than random data generation.
 \TODO{what information is sent (what is in the package)}
 \TODO{how does the page re-load}
 
+% In your document:
+\begin{figure}[h]
+    \centering
+    \begin{minipage}{0.7\textwidth} % Adjust width as needed
+    \dirtree{%
+        .1 /project-root.
+        .2 api.py \DTcomment{python logic \& Flask server}.
+        .2 templates/.
+        .3 index.html \DTcomment{HTML file}.
+        .2 model/.
+        .3 AI\_model.tflite \DTcomment{The AI model files (xception\_drowsiness\_model\_v6)}.
+    }
+    \end{minipage}
+    \caption{Project Directory Structure on the Raspberry Pi}
+\end{figure}
 
 
 \TODO{add a bit more on how this works/what data is being shown - how is the model worked into it (give the final product culmunation
 section)}
+
+\begin{lstlisting}[language=bash, caption={Systemd Service Configuration for Driver Drowsiness API}]
+[Unit]
+Description=My Python Script Service - Driver Drowsiness API
+# Added network-online.target to ensure the internet/local link is active
+After=multi-user.target network-online.target
+Wants=network-online.target
+
+[Service]
+Type=idle
+User=ces
+Group=ces
+# Directory script is heldd in
+# WorkingDirectory=/home/ces/Documents/Dissertation/Driver-Drowsiness-Dissertation/OnThePi
+WorkingDirectory=/home/ces/Documents/Dissertation
+# Path to script
+#ExecStart=/home/ces/Documents/Dissertation/Driver-Drowsiness-Dissertation/OnThePi/venv/bin/python /home/ces/Do
+ExecStart=/usr/bin/python3 /home/ces/Documents/Dissertation/cap.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+\end{lstlisting}
