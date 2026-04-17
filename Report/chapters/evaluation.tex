@@ -89,6 +89,7 @@ For this I used a ‘column statistics’ node to express how each attribute is 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.9\textwidth]{images/data_spread_results.png}
+    \caption{General spread of attributes within the evaluation data coloured by classification}
 \end{figure}
 
 There is very little data represented by the high center and high right camera positions. This could lead to my initial observation that
@@ -134,13 +135,13 @@ as lower light implies earlier in the morning/later in the day – when someone 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/correlations.png}
-    \caption{Darkness effect}
+    \caption{Darkness effect correlation to model confidence}
 \end{figure}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.8\textwidth]{images/darknessxmodel_confidence.png}
-    \caption{Darkness vs model confidence}
+    \caption{Darkness variation vs model confidence of tiredness}
     \label{fig:darkness_confidence}
 \end{figure}
 With the R values (regression lines) in (figure \ref{fig:darkness_confidence}) being relitively low ($<0.3$) but
@@ -199,7 +200,7 @@ model confidence is not independent of gender:
         \includegraphics[width=\textwidth]{images/viola_gender(tired).png}
         \caption{Tired Confidence}
     \end{subfigure}
-    \caption{Comparison of model confidence scores by gender.}
+    \caption{Comparison of model confidence scores between genders. Visuallising bias towards Female Alertness}
     \label{fig:gender_violins}
 \end{figure}
 \paragraph{Violin Plot Analysis:} While the sieve diagram identifies a frequency anomaly, the violin plots (Figure \ref{fig:gender_violins})
@@ -264,6 +265,9 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
         \includegraphics[width=\textwidth]{images/tired_vs_accessories(violin).png}
         \caption{Tired Confidence}
     \end{subfigure}
+    \caption{Distribution of model confidence scores highlighting that the presence of accessories results in higher confidence for 'Tired'
+    classifications. This shift is clearly visible through the increased distance between the medians in the Tired Confidence subplot (b)
+    compared to the Alert Confidence subplot (a).}
 \end{figure}
 
 
@@ -291,6 +295,7 @@ misslabeled in the entire dataset. Thus implying that the model is 'blind' to th
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/hair_in_face (alert-scatter).png}
+    \caption{Scatter of alert confidence over the binary classifications between hair being in your face and not.}
 \end{figure}
 This is re-enforced with the scatter plot where you can see there is no correlation between this and the model's confidence. To account
 for the linear and unclear nature of duel classifications, the 'Jitter' of the data has been scaled to the maximum to form a maximum
@@ -409,6 +414,7 @@ a specific classification when the camera is centre mounted, compared to other p
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/overall_accuracy.png}
+    \caption{Accuracy over the Entire Dataset collected}
 \end{figure}
 Using the Python node, I counted through every line and counted the differences between the model’s prediction and the actual
 classification. With $50/50$ being the average split for simple guesses, independent of any image, a $77\%$ classification is great for a
@@ -419,6 +425,7 @@ with this final result.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/true-pos-true-neg.png}
+    \caption{counts of correct and incorrect predictions for every combination of predictions}
 \end{figure}
 The distribution above illustrates the model's predictive performance across the entire dataset, specifically focusing on the 5,675 complete
 rows of data. Analysis of the classification errors indicates that the model is more inclined toward False Negative predictions regarding
@@ -430,7 +437,7 @@ a significantly higher risk.
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{images/conf_diff_wrong.png}
-    \caption{Distribution of Peak Classification Confidence vs Accuracy}
+    \caption{Distribution of Peak Classification Confidence (the predicted class) vs Accuracy (right and wrong)}
     \label{fig:confidence vs correction}
 \end{figure}
 The model demonstrates a desirabel \textbf{"self-aware"} error profile, where the predictive certainty is reduced in cases where the model is wrong. With
@@ -440,6 +447,7 @@ confidence levels and classificairtion outcomes:
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/error_rate_correlation.png}
+    \caption{Trends between alert and tired confidences and the conidence of the incorrectly determined class}
 \end{figure}
 
 
@@ -490,6 +498,7 @@ Hair in Face (Present)& $73.1\%$  & $-4.2\%$  & Context-dependent: Facial hair a
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.7\textwidth]{images/brightnerss_correction_relation.png}
+    \caption{Grouped brightness levels and their effect on determining the correct classification}
 \end{figure}
 
 There is little correlation between the brightness and the corrrectness of the model. While it appears that in birgh conditions the model works best, but this is not the case as the $\leq0.9$
