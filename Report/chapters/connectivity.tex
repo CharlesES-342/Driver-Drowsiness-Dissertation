@@ -86,7 +86,8 @@ typically supports 5-10 devices connected concurrently, this ensures that:
     “auto-join” the network
 \end{itemize}
 
-\paragraph{Reverse Proxy: }To further the reliability and security of the device, a \textbf{Rexerse Proxy - (Nginx)} \footnote{This is a layer of protection between the
+\paragraph{Reverse Proxy}
+To further the reliability and security of the device, a \textbf{Rexerse Proxy - (Nginx)} \footnote{This is a layer of protection between the
 applicaiton and users which aims to protect the server (Raspberry Pi)} is used.
 Then, to resolve the resource race between the\textbf{NetworkManager} and \textbf{dnsmasq}, the internal DNS capabilities of the NetworkManager
 were disabled. \\
@@ -255,7 +256,3 @@ this, a \textbf{.service} file will be used. This has three sections:
     Pi to link this service to the standard startup routine. This ensures that as soon as the Pi receives power from the vehicle and reaches its normal operating state, the service
     is triggered without any manual user intervention. This helps to ensure that the safe normal start-up occures correctly before the program is run.
 \end{itemize}
-\TODO{also talk about the changes that had to be amde to the NetworkManager \\
-(dns=none and system-resolved=false) to stop default port assignemtns\\
-from overwriting my personal DNS. As well as the changes to ensure the \\
-dnsmasq would try to connect to this port}
