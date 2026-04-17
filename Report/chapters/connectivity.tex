@@ -28,7 +28,7 @@ This application was constructed to specifically use \texttt{port 80} (HTTP), re
 IP addresses (Such as when changing the hostname)
 \paragraph{Local DNS Resolution}
 To provide a seamless user experience, I wanted to remove the IP-based navigation and instead navigate with a custom hostname. To do this
-I used ‘dnsmasq’. Using this, I configured the domain “drowsiness” directly to the local IP address for the application.
+I used \texttt{dnsmasq}. Using this, I configured the domain \textbf{“drowsiness”} directly to the local IP address for the application.
 \paragraph{Performance Optimisers (DNS Upstream)}
 Since the system operates as an offline connection, with no external internet access, I disabled recursive DNS lookups\footnote{the
 process where a device tries to ask other (more senior) servers for corresponding IP addresses for addresses outside of its local
@@ -39,7 +39,6 @@ However, with this in mind, it is important that this change is reverted when co
 from accessing resources such as the GitHub repository. To revert simply remove “no-resolv” from \texttt{/etc/dnsmasq.conf}. This will
 allow the device to now look towards up-stream providers in the event a webpage cannot be found.
 
-
 % dnsmasq code section
 \begin{minipage}{\textwidth} % ensures it is not split across pages
     \begin{mdframed}[style=takeawaybox]
@@ -47,10 +46,9 @@ allow the device to now look towards up-stream providers in the event a webpage 
             no-resolv
             no-poll
             interface=wlan0
+            bind-dynamic
             address=/drowsiness/10.42.0.1
             dhcp-range=10.42.0.2,10.42.0.254,255.255.255.0,24h
-            dhcp-option=3,10.42.0.1
-            dhcp-option=6,10.42.0.1
             # Configuration file for dnsmasq.
         \end{lstlisting}
     \end{mdframed}
@@ -68,25 +66,40 @@ allow the device to now look towards up-stream providers in the event a webpage 
 upstream DNS servers. \\ \hline
 \texttt{no-poll} & Stops the service from checking for changes in the upstream DNS configuration files. While not strictly necessary,
 it helps maintain system cleanliness. \\ \hline
+\texttt{bind-dynamic} & Safety net to help ensure robustness. Used to link an IP address to an interface when the service starts. This
+is becuase the dnsmasq can be ready before the hardware, so the moment the it is ready, DNS and DHCP requests can happen. \\ \hline
 \texttt{interface=wlan0} & Restricts the service to listen only for requests on the Wi-Fi interface. This allows the Ethernet connection
 to remain independent for interacting with the GitHub repository. \\ \hline
 \texttt{address=/drowsiness/10.42.0.1} & Acts as a local DNS redirect for the 'drowsiness' domain, pointing it directly to the
 application's IP. \\ \hline
 \texttt{dhcp-range=...,24h} & Defines the pool of valid IP addresses a connecting device can be assigned. This lease lasts for 24 hours. \\
 \hline
-\texttt{dhcp-option=3,10.42.0.1} & \textbf{Option 3 (Default Gateway):} Tells connected devices to send their internet-bound traffic to
-this machine (10.42.0.1). \\ \hline
-\texttt{dhcp-option=6,10.42.0.1} & \textbf{Option 6 (DNS Server):} Instructs connected devices to use 10.42.0.1 as their primary DNS
-server. \\ \hline
 \end{tabularx}
 \end{table}
 
 \paragraph{Multi-User Scalability}
-To allow for multiple devices to connect at once, I configured a /24 subnet mask to manage IP assignments. While the Raspberry Pi’s hardware typically supports 5-10 devices connected concurrently, this ensures that:
+To allow for multiple devices to connect at once, I configured a /24 subnet mask to manage IP assignments. While the Raspberry Pi’s hardware
+typically supports 5-10 devices connected concurrently, this ensures that:
 \begin{itemize}
     \item Multiple passengers can connect without causing IP conflicts
-    \item The driver’s connection remains stable, ensuring that safety critical data is always accessible, even if other devices accidently “auto-join” the network
+    \item The driver’s connection remains stable, ensuring that safety critical data is always accessible, even if other devices accidently
+    “auto-join” the network
 \end{itemize}
+
+\paragraph{Reverse Proxy: }To further the reliability and security of the device, a \textbf{Rexerse Proxy - (Nginx)} \footnote{This is a layer of protection between the
+applicaiton and users which aims to protect the server (Raspberry Pi)} is used.
+Then, to resolve the resource race between the\textbf{NetworkManager} and \textbf{dnsmasq}, the internal DNS capabilities of the NetworkManager
+were disabled. \\
+\begin{minipage}{\textwidth}
+    \begin{mdframed}
+        \begin{lstlisting}[language=bash, caption={NetworkManager.conf modifications for preventing inbuilt DNS}, captionpos=b]
+            [main]
+            dns=none
+            system-resolved=false
+        \end{lstlisting}
+    \end{mdframed}
+\end{minipage}
+This ensures that dnsmasq has exclusive control over domain name resolution and IP management, forming a more stable environment.
 
 \begin{figure}[H]
     \centering
@@ -123,11 +136,7 @@ The API file will be broken into 3 sections for simplicity and ease of use:
         variables, allowing one process to update the prediction data while others read it without data corruption.
     \item\textbf{Web Call Processing}
         The system utilizes relative URL routing for API requests rather than hardcoded IP addresses, which ensures the interface
-        remains functional regardless of the network environment or the specific IP assigned to the Raspberry Pi. While a
-        production-level environment would require robust authentication and a reverse proxy \footnote{This is a layer of protection between
-        the applicaiton and users which aims to protect the server (Raspberry Pi)}, the current architecture
-        prioritizes low-latency communication within a local network. Given the hardware constraints, this approach minimizes overhead
-        while maintaining the responsiveness required for an embedded AI application.
+        remains functional regardless of the network environment or the specific IP assigned to the Raspberry Pi. 
 \end{itemize}
 
 
@@ -246,3 +255,7 @@ this, a \textbf{.service} file will be used. This has three sections:
     Pi to link this service to the standard startup routine. This ensures that as soon as the Pi receives power from the vehicle and reaches its normal operating state, the service
     is triggered without any manual user intervention. This helps to ensure that the safe normal start-up occures correctly before the program is run.
 \end{itemize}
+\TODO{also talk about the changes that had to be amde to the NetworkManager \\
+(dns=none and system-resolved=false) to stop default port assignemtns\\
+from overwriting my personal DNS. As well as the changes to ensure the \\
+dnsmasq would try to connect to this port}
