@@ -79,7 +79,7 @@ tired incorrectly, compared to other accessory features.
 \section{Quantitative Analysis}
 \label{sec:quantative_analysis}
 For this, I am using Orange \cite{orange}. This is a data-mining software that helps identify features in both a
-visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
+visual and numerical way. This is used in industry for rapid prototyping, data visualisation and exploratory data analysis.
 
 \subsection{General Data Spread:}
 For this I used a ‘column statistics’ node to express how each attribute is distributed over the entire dataset.
@@ -206,9 +206,9 @@ model confidence is not independent of gender:
     \label{fig:gender_violins}
 \end{figure}
 \paragraph{Violin Plot Analysis:} While the sieve diagram identifies a frequency anomaly, the violin plots (Figure \ref{fig:gender_violins})
-clarify the nature of this bias by visualizing the raw distribution of confidence scores
+clarify the nature of this bias by visualising the raw distribution of confidence scores
 \begin{itemize}
-    \item \textbf{Polarized Certainty:} \textbf{Females} show a higher discriminatory power in terms of their classificaiton, with their
+    \item \textbf{Polarised Certainty:} \textbf{Females} show a higher discriminatory power in terms of their classificaiton, with their
         \textbf{alert\_confidence} being skewed more towards the ceiling (1.0) and \textbf{tired\_confidence} being skewed more
         towards the floor (0.0). This suggests that the model is more certain of alertness for women.
     \item \textbf{Classification entropy:} For \textbf{males}, there is more of a centralised cluster (0.45--0.55). This indicates a higher
@@ -482,7 +482,7 @@ Accessories (Present) & $62.76\%$ & $-14.5\%$ & Superior at predicting \textbf{T
 Gender (Female)       & $82.2\%*$ & $+4.9\%$  & High alert accuracy; however, "Tired" cases show significantly lower parity ($44.7\%$), suggesting potential training set imbalance. \\ \addlinespace
 Gender (Male)         & $76.6\%$  & $-0.7\%$  & Highly balanced across classes ($\pm 4.4\%$); significantly less prone to extreme classification bias than female subjects. \\ \midrule
 
-Camera (Top)          & $59.6\%*$ & $-17.7\%$ & Over-weighted toward \textbf{Tired} due to downward eyelid perspective; useful specifically for prioritizing safety-critical "false alarms." \\ \addlinespace
+Camera (Top)          & $59.6\%*$ & $-17.7\%$ & Over-weighted toward \textbf{Tired} due to downward eyelid perspective; useful specifically for prioritising safety-critical "false alarms." \\ \addlinespace
 Camera (Middle)       & $88.3\%$  & $+11.0\%$ & Optimal for predictive confidence; aligns with the primary training distribution (centered, front-facing imagery). \\ \addlinespace
 Camera (Bottom)       & $75.7\%$  & $-1.6\%$  & Most stable and versatile across both classifications with a minimal recorded bias of only $0.16\%$. \\ \midrule
 

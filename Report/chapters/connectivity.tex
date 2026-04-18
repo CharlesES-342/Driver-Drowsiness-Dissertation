@@ -16,7 +16,7 @@ The webpage that will be hosted on the Pi will require several components:
 
 \section{Back-End:}
 \subsection{Network Architecture and Hosting}
-By utilizing Raspberry Pi OS (Desktop), I can easily toggle between “Hotspot Mode” for device testing and “WI-FI Client Mode” for pulling
+By utilising Raspberry Pi OS (Desktop), I can easily toggle between “Hotspot Mode” for device testing and “WI-FI Client Mode” for pulling
 updates via Git. This flexibility of duel purpose drastically accelerated the development and testing cycle of this section of the project,
 with the ease of not needing to type commands or form a toggle file.
 \subsection{Initial Flask Implementation}
@@ -130,10 +130,10 @@ that are produced though  databases and race conditions.
 
 The API file will be broken into 3 sections for simplicity and ease of use:
 \begin{itemize}
-    \item\textbf{Flask Initialization}
-        To ensure the system is "headless" and user-ready upon booting, the Flask application is initialized within the main execution
+    \item\textbf{Flask Initialisation}
+        To ensure the system is "headless" and user-ready upon booting, the Flask application is initialised within the main execution
         script. While the web server and the core logic could be decoupled, integrating them here ensures that all dependencies are
-        functional before the system enters its operational state. Furthermore, this centralized initialization allows for the
+        functional before the system enters its operational state. Furthermore, this centralised initialisation allows for the
         asynchronous loading of resource-heavy components, such as the AI model, ensuring the web interface is responsive while the
         backend completes its setup.
     \item\textbf{Prediction Generation}
@@ -223,9 +223,9 @@ To help support older browsers (in the event the user has an older device), \tex
     data will be expired instantly
 \end{itemize}
 
-To support this integration, the project was organized into a structured directory on the Raspberry Pi (Figure \ref{fig:Tree_Figure}). This layout separates
+To support this integration, the project was organised into a structured directory on the Raspberry Pi (Figure \ref{fig:Tree_Figure}). This layout separates
 the core Python logic and Flask API (api.py) from the frontend assets (templates/) and the pre-trained weights of the Xception model (model/). By housing 
-.tflite model in a dedicated directory, the system can efficiently load the AI weights into memory during the server's initialization, replacing the
+.tflite model in a dedicated directory, the system can efficiently load the AI weights into memory during the server's initialisation, replacing the
 initial random data generation with real-time inference results.
 
 \begin{figure}[H]
@@ -252,7 +252,7 @@ To recrify this, a custom \textbf{.service} file will be used. This has three se
 \begin{itemize}
     \item \textbf{[Unit]} - Acts as the metadata and dependency layer. It provides a description for debugging during status checks and defines the boot order. In this case, it
     includes a \textbf{soft dependency} (\texttt{Wants=network-online.target}) to ensure the system attempts to establish a connection before the script runs, while also ensuring
-    the script only starts once the system is fully initialized.
+    the script only starts once the system is fully initialised.
     
     \item \textbf{[Service]} - This is the "execution" layer that defines \textit{how} the script runs. It specifies the command to execute the Python script, the working directory,
     and the specific user permissions to ensure the script does not run with unnecessary root privileges. Crucially for a headless system, it handles
