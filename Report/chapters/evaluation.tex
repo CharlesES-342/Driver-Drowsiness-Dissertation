@@ -1,6 +1,7 @@
 \chapter*{Evaluation}
 \addcontentsline{toc}{chapter}{Evaluation}
 \stepcounter{chapter}
+\label{sec:evaluation}
 
 \section{Simulation Testing}
 The best way to test the accuracy of the finished product is in the desired market location (in a vehicle). To collect the data, I
@@ -13,7 +14,7 @@ past experiences with varying dashcameras, it was a risk I was not willing to ta
 These were then manually classified based on my own opinion of tiredness (the same opinion that the model was trained on). Then these
 frames were passed through the model. All of this data was then combined into a single datasets with the following attributes:
 \begin{itemize}
-    \item \textbf{Actual classification} This is the classification I assigned to the image based on my own opinion of tiredness.
+    \item \textbf{Manual classification} This is the classification I assigned to the image based on my own opinion of tiredness.
     \item \textbf{Predicted classification} This is the classification that the model assigned to the image.
     \item \textbf{Darkness} This is a value between 0 and 1 that represents how dark the image is. This was calculated by taking the average
     pixel value across the entire image and dividing it by 255 (the maximum pixel value).
@@ -22,10 +23,10 @@ frames were passed through the model. All of this data was then combined into a 
     \item \textbf{Accessories} This is a binary value that represents whether the driver is wearing any accessories (e.g. glasses, hats,
     masks).
     \item \textbf{Hair in face} A binary value that represents whether the driver has any hair in their face (e.g. fringes, beards).
-    \item \textbf{Alert\_Confidence} This is a direct output from the model and represents how sure the model is that they are
-    \textbf{alert} (not tired)
-    \item \textbf{Tired\_Confidence} This is a direct output from the model and represents how sure the model is that they are
-    \textbf{tired}.
+    \item \textbf{Alert\_Confidence} This is a direct output from the model and represents how sure the model is of the
+    \textbf{alert} (not tired) classification
+    \item \textbf{Tired\_Confidence} This is a direct output from the model and represents how sure the model is of the
+    \textbf{tired} classification
 \end{itemize}
 This will then be used to form a basis for my \textbf{Stratified Stress Testing}.
 Overall, I would like to see how each factor effects the model as well as how well the model general performs in everyday simulations.
@@ -43,7 +44,7 @@ images to provide a confidence of 95\% within the data, and so, to cover all bas
 attribute (at a minimum). This can help reduce Type II errors by ensuring that there is sufficient evidence of this hypothesis.
 
 \paragraph{How data was extracted?}
-While simple and not necessarily relevant for the overall project, this was formed using the ****** library. This searched through a
+While simple and not necessarily relevant for the overall project, this was formed using the \textbf{tkinter} and \textbf{PIL (Pillow)} librarys. This searched through a
 selected folder and displayed every image within it; any videos were dissected into frames (captured 5 seconds apart). From the videos,
 the frames were stored in temporary files to allow me to navigate through while removing the delay of having to search through a video
 for an image every time I wanted to move on (or to previous frames in the event of misclassification). Once this has been done, I manually
@@ -60,11 +61,11 @@ All this combined into a 5676-line CSV file which would hopefully provide an ins
 \section{Preliminary Observations}
 While assigning variables, I noticed several trends in the data that I would like to point out prior to the quantitative data.
 
-With the camera position being in a high-up position, the data tended to miss classify more than in other positions. I believe this to be
+With the \textbf{camera position} being in a high-up position, the data tended to miss classify more than in other positions. I believe this to be
 because of how your eyes are orientated. With the camera being in a higher position, the eyelids are perceived as being more closed.
 This bias could potentially be represented in the data.
 
-Eye shape. Some of the data contained people whose eyes are considered more of a ‘hunter’ eye. For these people, it seemed that the miss
+\textbf{Eye shape}. Some of the data contained people whose eyes are considered more of a ‘hunter’ eye. For these people, it seemed that the miss
 classification of tiredness was more prevalent that other people. This and other factors also appear to lead to one person having a
 higher tendency to one classification over another.
 
@@ -72,11 +73,12 @@ Also, for those who would sit more upright (or laid back) in their seats also se
 incredibly sunny environments for the same reason; they wouldn’t need their eyes as open to be able to see and so were considered tired
 incorrectly.
 
-Another strange observation was that when someone was wearing a mask (even just under the chin) the person was often considered to be
+Another strange observation was that when someone was \textbf{wearing a mask} (even just under the chin) the person was often considered to be
 tired incorrectly, compared to other accessory features.
 
 \section{Quantitative Analysis}
-For this, I am using Orange \cite{orange}. This is a datamining software that helps identify features in both a
+\label{sec:quantative_analysis}
+For this, I am using Orange \cite{orange}. This is a data-mining software that helps identify features in both a
 visual and numerical way. This is used in industry for rapid prototyping, data visualization and exploratory data analysis.
 
 \subsection{General Data Spread:}
@@ -101,7 +103,7 @@ about beards or the appearance of stubble.
 The main observation is that overall accuracy is very good. With 58.7\% of the manually classified data being Alert and 63.9\% of the
 models’ classifications also being Alert, this implies there is a strong consistency between the model and my own opinions. However,
 you can also see from this that there is considerable discrepancy in my own classifications and that of the mode. But, despite this, the
-model appears to make mistakes more in te middle of the range (when it is more unsure) suggesting that there are no extreme paths within
+model appears to make mistakes more in the middle of the range (when it is more unsure) suggesting that there are no extreme paths within
 the model that have been aloud to spiral out of control (e.g. always classifying tired or always classifying alert). This is a good
 sign as it suggests that the model is not overfitted to one classification, despite the slight bias in the training data.
 
@@ -130,7 +132,7 @@ sign as it suggests that the model is not overfitted to one classification, desp
 With the position of the median shifting towards lower values, it could be safe to assume that the model appears to be become less
 reliable in lower light conditions (especially when predicting tiredness). With the upper and lower quartiles also being smaller for
 the predicted values, it suggests that the model is more likely to detect tiredness in lower light conditions (which is to be expected
-as lower light implies earlier in the morning/later in the day – when someone is more likely to be tired).
+as lower light implies earlier in the morning/later in the day - when someone is more likely to be tired).
 
 \begin{figure}[H]
     \centering
@@ -144,14 +146,14 @@ as lower light implies earlier in the morning/later in the day – when someone 
     \caption{Darkness variation vs model confidence of tiredness}
     \label{fig:darkness_confidence}
 \end{figure}
-With the R values (regression lines) in (figure \ref{fig:darkness_confidence}) being relitively low ($<0.3$) but
+With the R values (regression lines) in (Figure \ref{fig:darkness_confidence}) being relitively low ($<0.3$) but
 positive, suggests that there is a weak, but present, correlation between darkness and the model's confidence. This
 shows that there is a subconcious tendancy within the model to predict a higher confidence for tiredness in lower
 light (when the image is darker) conditions, despite the user presenting as \textbf{alert}.
 
 The lower correlation ($R$) between darkness and confidence for tiredness suggests the model is more robust to
-lighting changes. While \textbf{alert} predictions are more sensitive to light levels—potentially due to visibility
-issues or over-exposure causing subjects to squint—the model remains more consistent in its confidence across
+lighting changes. While \textbf{alert} predictions are more sensitive to light levels - potentially due to visibility
+issues or over-exposure causing subjects to squint - the model remains more consistent in its confidence across
 varying light conditions when identifying fatigue.
 
 
@@ -169,7 +171,7 @@ high density indicates:
 
 
 
-\subsection{How well the mode performs over varying \textbf{genders}?} \label{sssec:gender section}
+\subsection{How well the mode performs over varying \textbf{Genders}?} \label{sssec:gender section}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.5\textwidth]{images/seive_gender.png}
@@ -180,7 +182,7 @@ high density indicates:
 the expected number of occurences).  A statistically significant association is present ($\chi^2 = 261.66, p < 0.001$), indicating that
 model confidence is not independent of gender:
 \begin{itemize}
-    \item Female Over-representation: A strong positive association (dark blue) exists for conficenve >=0.7.
+    \item Female Over-representation: A strong positive association (dark blue) exists for confidenve $\ge0.7$.
     \item Male Under-representation: Conversely, the models is signifficantly less likely to assign a high confidence (far fewer times
     than statistically expected).
 \end{itemize}
@@ -206,7 +208,7 @@ model confidence is not independent of gender:
 \paragraph{Violin Plot Analysis:} While the sieve diagram identifies a frequency anomaly, the violin plots (Figure \ref{fig:gender_violins})
 clarify the nature of this bias by visualizing the raw distribution of confidence scores
 \begin{itemize}
-    \item \textbf{Polarized Certainty:} \textbf{Famales} show a higher discriminatory power in terms of their classificaiton, with their
+    \item \textbf{Polarized Certainty:} \textbf{Females} show a higher discriminatory power in terms of their classificaiton, with their
         \textbf{alert\_confidence} being skewed more towards the ceiling (1.0) and \textbf{tired\_confidence} being skewed more
         towards the floor (0.0). This suggests that the model is more certain of alertness for women.
     \item \textbf{Classification entropy:} For \textbf{males}, there is more of a centralised cluster (0.45--0.55). This indicates a higher
@@ -219,7 +221,7 @@ show that the model is more highly-optimised for female-centric characteristics.
 
 
 
-\subsection{Effect of \textbf{accessories} on accuracy}
+\subsection{Effect of \textbf{Accessories} on accuracy}
 \begin{figure}[H]
     \centering
     % First Image
@@ -242,8 +244,8 @@ In Figure \ref{fig:accessoried_box}, the presence of accessories (such as glasse
 models confidence. With both graphs showing a significant shift, you can see that the model tends more towards a \textbf{tired} 
 classification when accessories are present.
 \paragraph{Hypothesis Testing:}
-With the sample size being $1767$ images (for the smaller classification -- with accessories), the data is sufficient to draw
-statistically significant conclusions. With a mean difference of $0.142$ (14.2\%) in alert confidence between the two groups, and a
+With the sample size being $1767$ images (for the smaller classification - with accessories), the data is sufficient to draw
+statistically significant conclusions. With a mean difference of $0.142$ ($14.2\%$) in alert confidence between the two groups, and a
 standard deviation of $0.25$, the calculated effect size (Cohen's d) is approximately $0.568$, which is considered a medium effect size.
 This indicates that the presence of accessories has a moderate impact on the model's confidence in classifying alertness, with a
 significant shift towards tired classifications when accessories are present. However, this does suggest that the model works flawlessly
@@ -273,7 +275,7 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
 
 
 
-\subsection{How does a user having their \textbf{hair in their face} affect the model?}
+\subsection{How does a user having their \textbf{Hair in their face} affect the model?}
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.4\textwidth]{images/hair_in_face (fairness).png}
@@ -290,8 +292,8 @@ confidence, and lower for alert confidence. This is exactly what we see in the f
 With a \textbf{Disparate Impact} value of $0.999$, there is very little evidence to suggest that the model is unfairly biased to either
 classificaiton when the subject has their \textbf{hair\_in\_face}. The \textbf{Parity Difference} represents the difference in how the
 model treats the different groups. In this case, there is $-0.0$ difference, which implies there is a tiny proportion (uncountably small)
-tat points to one classificaiton over another. However, this isso small that it could simply represent a single instance which was
-misslabeled in the entire dataset. Thus implying that the model is 'blind' to the effects of this classificaiton.
+that points to one classificaiton over another. However, this isso small that it could simply represent a single instance which was
+miss-labeled in the entire dataset. Thus implying that the model is 'blind' to the effects of this classificaiton.
 \begin{figure}[H]
     \centering
     \includegraphics[width=\textwidth]{images/hair_in_face (alert-scatter).png}
@@ -304,8 +306,8 @@ disparity between data points to allow for better visualiisation.
 \paragraph{Hair positioning:}
 Within this classification of \textbf{hair\_in\_face} there are two different representations:
 \begin{itemize}
-    \item \textbf{Beards} \- when on a male user
-    \item \textbf{hair down} \- when matched with a female participant
+    \item \textbf{Beards} - when on a male user
+    \item \textbf{hair down} - when matched with a female participant
 \end{itemize}
 While you can have cross-overs in this representation (e.g. men with long hair that can over their face), throught all of the datasets,
 there was no-one who countered this assumption, so it was easier to classify them as the same (with the distinguishing factor being
@@ -391,11 +393,11 @@ In the Figure above, a distinct correlation between camera position and the mode
 demonstrate that the model achieves significantly higher accuracy when the camera is in the Middle position. This aligns with
 expectations, as the training dataset consists primarily of centered, front-facing imagery.
 \paragraph{Hypothesis Testing:}
-Even in the smallest sample group (Top: $N=587$), the sample size exceeds the minimum requirement of 384 units for statistical
-significance. We established that a discrepancy greater than 5\% between groups would constitute substantial evidence of a "Position
+Even in the smallest sample group (Top: $N=587$), the sample size exceeds the minimum requirement of $384$ units for statistical
+significance. We established that a discrepancy greater than $5\%$ between groups would constitute substantial evidence of a "Position
 Effect."The observed delta between the Middle position ($0.46$) and the average of the peripheral positions ($\approx 0.37$) is $0.09$
-(a 9\% difference). Because this 9\% gap exceeds our 5\% threshold—and given that the 95\% confidence intervals for the Middle group do
-not overlap with the others—there is significant evidence to conclude that camera position has a substantial effect on model performance,
+(a $9\%$ difference). Because this $9\%$ gap exceeds our $5\%$ threshold - and given that the $95\%$ confidence intervals for the Middle group do
+not overlap with the others - there is significant evidence to conclude that camera position has a substantial effect on model performance,
 with the central position yielding the highest accuracy.
 High confidence however is only valuable if is correlates to correct classificaitons.
 \begin{figure}[H]
@@ -405,7 +407,7 @@ High confidence however is only valuable if is correlates to correct classificai
     \label{fig:correct_cam_accuracy}
 \end{figure}
 
-As illustrated in Figure \ref{fig:correct_cam_accuracy}, the model is undoubtadly more accurate (and as shown previously) more certain of
+As illustrated in Figure \ref{fig:correct_cam_accuracy}, the model is undoubtadly more accurate (and as shown previously) and more certain of
 a specific classification when the camera is centre mounted, compared to other positions.
 
 
@@ -429,7 +431,7 @@ with this final result.
 \end{figure}
 The distribution above illustrates the model's predictive performance across the entire dataset, specifically focusing on the 5,675 complete
 rows of data. Analysis of the classification errors indicates that the model is more inclined toward False Negative predictions regarding
-alert states (mistakenly identifying tiredness). From a safety-critical perspective, this bias is preferable; it is more advantageous for the
+alert states (mistakenly identifying tiredness). From a \textbf{safety-critical} perspective, this bias is preferable; it is more advantageous for the
 system to err on the side of caution by providing a 'false alarm' than to fail to detect a genuine instance of driver fatigue, which would pose
 a significantly higher risk.
 
@@ -441,8 +443,8 @@ a significantly higher risk.
     \label{fig:confidence vs correction}
 \end{figure}
 The model demonstrates a desirabel \textbf{"self-aware"} error profile, where the predictive certainty is reduced in cases where the model is wrong. With
-Figure \ref{fig:confidence vs correction} showing that incorrect classificaitons exhibit a significantly greater density cluster near the 0.5 mark (border between 2
-calsses), with correct classifications haviung a \textbf{higher median confidence}. This is statistically supported by the moderate correlation between
+Figure \ref{fig:confidence vs correction} showing that incorrect classificaitons exhibit a significantly greater density cluster near the $0.5$ mark (border between 2
+classes), with correct classifications having a \textbf{higher median confidence}. This is statistically supported by the moderate correlation between
 confidence levels and classificairtion outcomes:
 \begin{figure}[H]
     \centering
@@ -456,7 +458,7 @@ confidence levels and classificairtion outcomes:
 
 
 \subsection{Summary of Attribute Effects and Ideal Environment}
-To quantify the impact of each variable, the model's performance was measured against the overall baseline accuracy of 77\%. The "Delta" represents the percentage point
+To quantify the impact of each variable, the model's performance was measured against the overall baseline accuracy of $77\%$. The "Delta" represents the percentage point
 shift in accuracy for this atrribute.
 
 \begin{landscape}
@@ -502,12 +504,12 @@ Hair in Face (Present)& $73.1\%$  & $-4.2\%$  & Context-dependent: Facial hair a
 \end{figure}
 
 There is little correlation between the brightness and the corrrectness of the model. While it appears that in birgh conditions the model works best, but this is not the case as the $\leq0.9$
-only represents $0.04\%$ of the data and so is not representative of the dataset as a whole. The same can be said for $<0.4$ where it represents only $\approx2\%$. As a result, the ideal range is $0.5\to0.8$ as this has a high succeess rate and has enough data to
-support this conclusion, as each subsequent section represents around $25\%$ of the data each.
+only represents $0.04\%$ of the data and so is not representative of the dataset as a whole. The same can be said for $<0.4$ where it represents only $\approx2\%$. As a result, the ideal range
+is $0.5\to0.8$ as this has a high succeess rate and has enough data to support this conclusion, as each subsequent section represents around $25\%$ of the data each.
 
 \section{Ideal Use Case / Environment:}
 Based on the aggregated data, the "Perfect Environment" for this model is a user with long hair, no facial accessories, situated in a vehicle with a center-bottom
-mounted camera, and operating in a darkness index between $0.5$ and $0.8$. Deviations from these parameters—specifically the introduction of eyewear or side-mounted cameras—require
+mounted camera, and operating in a darkness index between $0.5$ and $0.8$. Deviations from these parameters - specifically the introduction of eyewear or side-mounted cameras - require
 a lower confidence threshold for alerts to compensate for the model's inherent biases. Leading to an increased chance of misclassificaiotn.
 
 

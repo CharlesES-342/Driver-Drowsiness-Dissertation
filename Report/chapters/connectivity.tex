@@ -5,39 +5,38 @@
 In the following section I will discuss how the classification will be presented to the user.
 
 \paragraph{Overview}
-As previously outlined in the design section, I would like for the information to be displayed as a webpage hosted on the Pi. This will
-require several components:
+The webpage that will be hosted on the Pi will require several components:
 \begin{itemize}
     \item Web page: for the actual displaying of information
     \item API: for the sending and receiving of the information form the AI model to the user
     \item WIFI Hosting: to allow the user to connect to the device in a dynamic setting rather than using a common network which may or
     may not exist in a movable setting such as a car
-
 \end{itemize}
+, which can be split into user interactions (webpage) and back-end processes (API and WIFI connectivity).
 
 \section{Back-End:}
-\paragraph{Network Architecture and Hosting}
+\subsection{Network Architecture and Hosting}
 By utilizing Raspberry Pi OS (Desktop), I can easily toggle between “Hotspot Mode” for device testing and “WI-FI Client Mode” for pulling
 updates via Git. This flexibility of duel purpose drastically accelerated the development and testing cycle of this section of the project,
 with the ease of not needing to type commands or form a toggle file.
-\paragraph{Initial Flask Implementation}
+\subsection{Initial Flask Implementation}
 To validate the connection, I developed a light-weight Flask application to serve a basic index.html file. This contained no information,
 images or other resources, just text. This confirmed that devices could successfully connect to the Pi’s hotspot and access the web
 server by inputting the Pi’s IP address.
 This application was constructed to specifically use \texttt{port 80} (HTTP), removing the need to define the connection protocols when handling
-IP addresses (Such as when changing the hostname)
-\paragraph{Local DNS Resolution}
-To provide a seamless user experience, I wanted to remove the IP-based navigation and instead navigate with a custom hostname. To do this
-I used \texttt{dnsmasq}. Using this, I configured the domain \textbf{“drowsiness”} directly to the local IP address for the application.
-\paragraph{Performance Optimisers (DNS Upstream)}
+IP addresses (Such as when changing the hostname).
+\subsection{Local DNS Resolution}
+To provide a seamless user experience, I wanted to remove the IP-based navigation and instead use a custom hostname. To do this
+I used \texttt{dnsmasq}. This allows custom domain names to be assigned to local IP addresses, for example "\textbf{drowsiness}" for the
+interface connection.
+\subsection{Performance Optimisers (DNS Upstream)}
 Since the system operates as an offline connection, with no external internet access, I disabled recursive DNS lookups\footnote{the
 process where a device tries to ask other (more senior) servers for corresponding IP addresses for addresses outside of its local
 scope/knowledge}.
 This improves the performance by preventing the Pi from attempting to contact upstream servers for un-known queries, eliminating the
 latency caused by waiting for timeout responses.
 However, with this in mind, it is important that this change is reverted when connecting to the wider internet as this can prevent you
-from accessing resources such as the GitHub repository. To revert simply remove “no-resolv” from \texttt{/etc/dnsmasq.conf}. This will
-allow the device to now look towards up-stream providers in the event a webpage cannot be found.
+from accessing resources such as the GitHub repository.
 
 % dnsmasq code section
 \begin{minipage}{\textwidth} % ensures it is not split across pages
@@ -77,41 +76,47 @@ application's IP. \\ \hline
 \end{tabularx}
 \end{table}
 
-\paragraph{Multi-User Scalability}
+\subsection{Multi-User Scalability}
 To allow for multiple devices to connect at once, I configured a /24 subnet mask to manage IP assignments. While the Raspberry Pi’s hardware
 typically supports 5-10 devices connected concurrently, this ensures that:
 \begin{itemize}
-    \item Multiple passengers can connect without causing IP conflicts
+    \item Multiple users can connect without causing IP conflicts
     \item The driver’s connection remains stable, ensuring that safety critical data is always accessible, even if other devices accidently
     “auto-join” the network
 \end{itemize}
 
-\paragraph{Reverse Proxy}
+\subsection{Reverse Proxy}
 To further the reliability and security of the device, a \textbf{Rexerse Proxy - (Nginx)} \footnote{This is a layer of protection between the
 applicaiton and users which aims to protect the server (Raspberry Pi)} is used.
 Then, to resolve the resource race between the\textbf{NetworkManager} and \textbf{dnsmasq}, the internal DNS capabilities of the NetworkManager
-were disabled. \\
-\begin{minipage}{\textwidth}
-    \begin{mdframed}
-        \begin{lstlisting}[language=bash, caption={NetworkManager.conf modifications for preventing inbuilt DNS}, captionpos=b]
-            [main]
-            dns=none
-            system-resolved=false
-        \end{lstlisting}
-    \end{mdframed}
-\end{minipage}
+were disabled.
+\vspace{1em}
+\begin{center} % Using center environment is cleaner than \centering for boxes
+    \begin{minipage}{0.7\textwidth}
+        \begin{mdframed}
+            \begin{lstlisting}[language=bash, caption={NetworkManager.conf modifications for preventing inbuilt DNS}, captionpos=b]
+                [main]
+                dns=none
+                system-resolved=false
+            \end{lstlisting}
+        \end{mdframed}
+    \end{minipage}
+\end{center}
+\vspace{1em}
+
 This ensures that dnsmasq has exclusive control over domain name resolution and IP management, forming a more stable environment.
 
 \noindent\rule{\textwidth}{0.4pt}
 
-
 \begin{figure}[H]
     \centering
     \includegraphics[width=0.6\textwidth]{Images/blankWebpage.jpg}
-    \caption{This is a Simple example of how a webpage URL can be inputted to make it easier for the user to find the resource. In this example, while ‘drowsiness’ worked on one browser,  ‘drowsiness/’ had to be used on another as it assumes it is a search not a URL.}
+    \caption{This is a Simple example of how a webpage URL can be inputted to make it easier for the user to find the resource. In this example,
+    while ‘drowsiness’ works on one browser, other variations ("\textbackslash dowsiness" or "drowsiness/") might have to be used so the browser knows it is a
+    URL and not a term to try and search by.}
 \end{figure}
 
-\paragraph{Captive Portal}
+\subsection{Captive Portal}
 One of the other features that would be ideal is the use of a Captive Portal. Often, when connecting to public or guest Wi-Fi networks
 (such as a coffee shop or cinema) you must go through a page to accept their terms of conditions and potentially log-in. While I will
 not be using a log-in system, agreeing to terms and notifying the user of issues using the phone may cause would be a good moral stead,
@@ -119,11 +124,10 @@ as well as it then easily allowing the user to interface/view the webpage after 
 This will be done by using DNS hijacking.
 \TODO{more about this}
 
-\paragraph{API}
-As previously mentioned, I have opted for an integrated API and AI model solution, where the model work to use in-memory state management rather than a database or file; the main reasons being to reduce complexity by avoiding I/O overhead provided from databases
-and avoid race conditions.
+\subsection{API}
+Integrated API and AI model uses in-memory state mangement rather than database or file approaches. This reduces complexity by avoidening I/O overheads
+that are produced though  databases and race conditions.
 
-\paragraph{Structure}
 The API file will be broken into 3 sections for simplicity and ease of use:
 \begin{itemize}
     \item\textbf{Flask Initialization}
@@ -139,18 +143,18 @@ The API file will be broken into 3 sections for simplicity and ease of use:
         the inference engine and the API endpoints, \texttt{threading.Lock()} is implemented. This ensures thread-safe access to shared
         variables, allowing one process to update the prediction data while others read it without data corruption.
     \item\textbf{Web Call Processing}
-        The system utilizes relative URL routing for API requests rather than hardcoded IP addresses, which ensures the interface
+        The system utilises relative URL routing for API requests rather than hardcoded IP addresses, which ensures the interface
         remains functional regardless of the network environment or the specific IP assigned to the Raspberry Pi. 
 \end{itemize}
 
 
 \section{Front-End:}
-\paragraph{Webpage Design}
+\subsection{Webpage Design}
 The primary objective of the front-end interface is to communicate the user’s predicted alertness efficiently while maintaining a
 discrete aesthetic. To ensure the interface is non-intrusive during general use – regardless of ambient lighting – a permanent dark-mode
-theme will be implemented. This will minimize user distraction and reduce eye strain during both day and night time use. 
+theme will be implemented. This will minimise user distraction and reduce eye strain during both day and night time use. 
 
-\paragraph{Design Ideas}
+\subsubsection{Design Ideas}
 This section will give some examples of potential ideas. Some of these ideas will not make it into the final product, but may be
 considered in other related projects or in the event this project is repeated.
 
@@ -192,7 +196,7 @@ Each of the designs above has its own pros and cons. The ideal interface should 
 distracting the driver while clearly conveying data. As a result, I have opted to combine the leftmost and rightmost layouts to ensure
 clear communication and simple implementation.
 
-\paragraph{Integration}
+\subsection{Integration}
 Following the construction of a basic frontend, I wanted to see how it would look as a changing display – using random variable
 generation to get a better view of the system. To do this, I simply used the ‘random’ function to generate appropriate (possible)
 values and store them in the shared variables to be sent upon API call.
@@ -204,28 +208,27 @@ be the source of the data rather than random data generation.
     \caption{Example of integrated AI model Integration}
 \end{figure}
 
-\paragraph{Package and Data-Transfer}
-Cache-Control is required to ensure that the system remains up-to-date and safety is paramount. This is done by teh following Modern Header Controlls:
+\subsection{Package and Data-Transfer}
+Cache-Control is required to ensure that the system remains up-to-date and safety is paramount. This is done by the following \textbf{Modern Header Controlls}:
 \begin{itemize}
-    \item \textbf{no-chache:} forces the webpage receiving/requesting the data to check with the server before using the cached version of the data
+    \item \textbf{no-cache:} forces the webpage receiving/requesting the data to check with the server before using the cached version of the data
     \item \textbf{no-store:} tells teh browser to \textbf{never} save any part ofm the request or response to the local disk
-    \item \textbf{must-revalidata} reinforces the no-cache. Tells teh browser that once data becomes 'stale' (imediatelly) it can no longer be used
+    \item \textbf{must-revalidata} reinforces the no-cache. Tells the browser that once data becomes 'stale' (imediatelly) it can no longer be used
 \end{itemize}
 
-To help support older borwsers (in the event the user has an older device), Legacy Headers are also used:
+To help support older browsers (in the event the user has an older device), \textbf{Legacy Headers} are also used:
 \begin{itemize}
     \item \textbf{Progma: no-cache} Check with the server before using the cached version of the data
-    \item \textbf{Expired: 0} sets an expiration date to the begining of th etime count (01/01/9070), since all dates are now after that, it means the
+    \item \textbf{Expired: 0} sets an expiration date to the begining of the time count (01/01/9070), since all dates are now after that, it means the
     data will be expired instantly
 \end{itemize}
 
-To support this integration, the project was organized into a structured directory on the Raspberry Pi (Figure \ref{fig:Tree_Figure}). This layout separates the core Python
-logic and Flask API (api.py) from the frontend assets (templates/) and the pre-trained weights of the Xception model (model/). By housing the .tflite model in a
-dedicated directory, the system can efficiently load the AI weights into memory during the server's initialization, replacing the initial random data generation with
-real-time inference results.
+To support this integration, the project was organized into a structured directory on the Raspberry Pi (Figure \ref{fig:Tree_Figure}). This layout separates
+the core Python logic and Flask API (api.py) from the frontend assets (templates/) and the pre-trained weights of the Xception model (model/). By housing 
+.tflite model in a dedicated directory, the system can efficiently load the AI weights into memory during the server's initialization, replacing the
+initial random data generation with real-time inference results.
 
-To allow for the testing of multiple different AI models and varying webpages, I decided to 
-\begin{figure}[h]
+\begin{figure}[H]
     \centering
     \begin{minipage}{0.7\textwidth}
     \dirtree{%
@@ -242,9 +245,10 @@ To allow for the testing of multiple different AI models and varying webpages, I
 \end{figure}
 
 \section{Enabling on Boot:}
-Since this is to be a 'headless' system, it is importaint for the program to run automatically (e.g. when the vehicle is turned on). Since general cigarette lighter power cables
-provide the 5V necessary for the Pi to function as intended, this can be used to power the system, however, without a display (thus far), you cannot enable the program. To recrify
-this, a \textbf{.service} file will be used. This has three sections:
+Since this is to be a 'headless' system, it is importaint for the program to run automatically (e.g. when the vehicle is turned on). Since general cigarette lighter
+provides the necessary power required for the Pi to function as intended. However, without a display, you cannot
+enable the program.
+To recrify this, a custom \textbf{.service} file will be used. This has three sections:
 \begin{itemize}
     \item \textbf{[Unit]} - Acts as the metadata and dependency layer. It provides a description for debugging during status checks and defines the boot order. In this case, it
     includes a \textbf{soft dependency} (\texttt{Wants=network-online.target}) to ensure the system attempts to establish a connection before the script runs, while also ensuring
@@ -252,10 +256,10 @@ this, a \textbf{.service} file will be used. This has three sections:
     
     \item \textbf{[Service]} - This is the "execution" layer that defines \textit{how} the script runs. It specifies the command to execute the Python script, the working directory,
     and the specific user permissions to ensure the script does not run with unnecessary root privileges. Crucially for a headless system, it handles
-    \textbf{error recovery} via the \texttt{Restart} parameter, which automatically re-launches the program if it crashes or fails. I choose a delay period of 10-seconds becuase
-    it allows me to rectify any issues (e.g. the camera becoming unplugged)
+    \textbf{error recovery} via the \texttt{Restart} parameter, which automatically re-launches the program if it crashes or fails. I chose a delay period of 10-seconds becuase
+    it allows me to rectify any issues (e.g. the camera becoming unplugged) before it attempts to start again.
     
     \item \textbf{[Install]} - This section handles the "integration" of the service into the system's boot sequence. By using the \texttt{multi-user.target}, it tells the Raspberry
     Pi to link this service to the standard startup routine. This ensures that as soon as the Pi receives power from the vehicle and reaches its normal operating state, the service
-    is triggered without any manual user intervention. This helps to ensure that the safe normal start-up occures correctly before the program is run.
+    is triggered without any manual user intervention. This helps to ensure that the safe normal start-up sequence occures correctly before the program is run.
 \end{itemize}

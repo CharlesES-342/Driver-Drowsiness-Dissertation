@@ -7,7 +7,7 @@ versatile system. From Turkey to China, all of these sources are publicly availa
 section. Please note that additional references will be made through this document. I will outline where the datasets can be found, steps
 to access it for yourself as well as legal outlines that I must abide by in order to use them.
 
-\section{SIVAS-UNIVERSITY-OF-SCIENCE-AND-TECHNOLOGY-DRIVER-DROWSINESS-DATASET:}
+\section{SIVAS University of Science and Technology - Driver Drowsiness Dataset:}
 Collected by a Turkish University, this data set contains 19 drivers (3 female and 16 male) who recorded themselves using their phones in
 a variety of positions. These are in .mp4 formats.
 \cite{SUST}
@@ -15,8 +15,8 @@ Their GitHub can be found at: \url{https://github.com/EsraKavalci/Sivas-Universi
 
 \section{VICOMTECH:}
 This organization has many different datasets available such as Body pose estimation and Hands-on-wheel detection. Following my research
-into fatigue identifiers. I first found out about this dataset through FatigueView \cite{fatigueview} where it was referenced as an external data set.
-This dataset once again has a variety of users, this time with an average age of 30. IT also outlines additional features to consider,
+into fatigue identifiers, I first found out about this dataset through FatigueView \cite{fatigueview} where it was referenced as an external data set.
+This dataset once again has a variety of users, this time with an average age of 30. It also outlines additional features to consider,
 such as glasses wearers and other driving activities such as drinking water, on the phone and other actions which may be useful to better
 understand how drivers act differently when fatigued.
 Their Page: \url{https://dmd.vicomtech.org/} \cite{vicomtech}
@@ -35,7 +35,7 @@ A dataset collected by a university in Indonesia, the idea of the study was to �
 in real-time through computer vision analysis” \cite{BINA}. This was collected using a Raspberry Pi 5 and a camera module, taking frames at a
 rate of 30 FPS. This dataset takes more of a face on positioning. This will allow for more accurate extraction of features for testing
 as turning of the head is less likely to result in the loss of information (where other datasets with more of a bias to one side will
-lose facially features when they turn away – the same change has a more dramatic effect). Furthermore, this dataset set also contains
+lose facially features when they turn away – the same change has a more dramatic effect). Furthermore, this dataset also contains
 night recordings. This is important as you are:
 \begin{itemize}
     \item likely to be more tired at night
@@ -58,7 +58,7 @@ require more facial movements, which may be construed as yawning or signs of tir
 While my project intends to use consistent hardware throughout, the variation in hardware used during data collection across different
 datasets provides a degree of flexibility. Since my hardware doesn’t exactly match that of one or more datasets, having access to
 multiple datasets helps mitigate potential inaccuracies that could arise when testing on fixed data versus real-world usage scenarios.
-\paragraph{varying Time:}
+\paragraph{Varying Time:}
 With some data sets spanning both night and day, there will be ranges in clarity and lighting. It can be a safe assumption that people
 (in most instances) are more tired at night; be this due to a long day or your circadian rhythm (your body’s internal clock). This may
 also vary the number of ‘Tired’ events in a given period, simply due to time of capture.

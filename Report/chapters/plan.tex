@@ -19,7 +19,7 @@ gather a better understanding of what attributes can affect a driver’s concent
 my lightweight AI component.
 
 \section{Connections:}
-Since raspberry pie 4 is WIFI compatible, I plan to connect the user’s own device by this. Therefore, using the pi as a host device for
+Since the Raspberry Pie 4 is WIFI compatible, I plan to connect the user’s own device by this. Therefore, using the pi as a host device for
 a website that can display data and other information to the user. This is the ideal option as wired displays either require the pi to be:
 \begin{itemize}
     \item Dashboard mounted due to a small wire. This has the potential to fall or move, causing further irritation or distraction for
@@ -34,7 +34,7 @@ information or alerting the user.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{Images/pie_idea.png}
+    \includegraphics[width=0.5\textwidth]{Images/pie_idea.png}
     \captionsetup{labelformat=empty}
     \caption{\tiny (ChatGPT generated –> prompt=”please make this look nice + drawing of this”)}
 \end{figure}
@@ -58,7 +58,7 @@ running my intended AI model.
 \paragraph{Camera:}
 Initially, I wanted to use a rear dashcam as this was small and would provide the infra-red capabilities I desired for nighttime video,
 however this required additional wiring which would make this more expensive. In future, I would recommend a smaller camera module,
-however, for the current constraints and the plug and play capabilities, this is the superior option. These also often support 30fps.
+however, for the current constraints and the plug and play capabilities, a webcam is the superior option. These also often support 30fps.
 This isn’t too fast of a frame rate that you are unable to extract and process the data between the frames, as well as not being too slow
 that you miss vital things such as blinking (which can further be used to detect tiredness).
 \paragraph{WIFI Capable Device:}
@@ -71,7 +71,7 @@ This project can be broken down into the following areas of consideration:
     \item \textbf{Hardware:} Selection and configuration to allow the support of a real-time driver drowsiness detection system. This
     includes the use of a Raspberry Pi as the main processing unit, as well as peripheral devices to capture user data required for
     operation.
-    \item \textbf{Data Pre-processing:}To ensure data quality and consistency, before training the models. The handling of missing or
+    \item \textbf{Data Pre-processing:} To ensure data quality and consistency, before training the models. The handling of missing or
     corrupted data should be performed, as well as general normalization and clear labeling to allow for an easy workflow.
     \item \textbf{Image Procesing:} This is a core component of the system, enabling facial detection and analysis from still images
     (frames). This will consist of the following:
@@ -96,7 +96,7 @@ This will allow for it to give the real-time analysis that is required. This sta
 Following the development of the AI model, the next stage of the project is to display these findings and apply warning or other
 safety measures to the user.
 \paragraph{Networking:}
-    Connecting to the user’s device. Providing a connection to host a webpage on, and later allow f	for alerts and information to be
+    Connecting to the user’s device. Providing a connection to host a webpage on, and later allow for alerts and information to be
     passed
 \paragraph{Webpage:}
 	Develop a simple webpage to display system outputs and status information.
@@ -104,6 +104,6 @@ safety measures to the user.
     Host the webpage locally on the Raspberry Pi in a display-only configuration. This will help to ensure that the user does not
     interact with the system from within the vehicle. This will help to ensure safe operation in a vehicle setting.
 \paragraph{Mobile Device Connectivity:}
-    Connect the user mobile device to the Raspberry Pi via local network connection to access the hosted webpage
+    Connect the users mobile device to the Raspberry Pi via local network connection, to access the hosted webpage
 \paragraph{Additional:}
-    To ensure safety and conform to laws, disable actions form the webpage (if any are sued) while in motion.
+    To ensure safety and conform to laws, disable actions form the webpage (if any are used) while in motion.

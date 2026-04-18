@@ -19,7 +19,7 @@ There are several different ways to identify tiredness, especially when driving.
 \section{Driving Effected Factors}
 As you get more tired, you often lose concentration. You can’t find yourself reacting more slowly and your decision
 making can become impaired. You can also become a more violent or unstable driver as your mood can be easily influenced
-as you do not have the energy to combat how you feel. Not only this, but in the worst case (int eh event of falling
+as you do not have the energy to combat how you feel. Not only this, but in the worst case (in the event of falling
 asleep) you can no longer operate the vehicle.
 
 \section{Legality of Using a Mobile Device}
@@ -50,38 +50,37 @@ well as a maximum of £1000 fine.
 \section{Potential Models and Algorithms}
 \subsection{Initial thought process – basic Convolutional Neural Netwrk (CNN):}
 My initial idea was to follow a methodology I had previously learnt in one of my prior modules, using a simple
-Convolutional model consisting of input nodes containing extracted values from an image, and then train the model to
-detect these trends in data to predict an outcome. For this I made use of Mediapipe’s face mesh to extract features from
+\textbf{Convolutional model} consisting of input nodes containing extracted values from an image, and then train the model to
+detect these trends in data to predict an outcome. For this I made use of \textbf{Mediapipe’s} face mesh to extract features from
 frames extracted from videos, to form inputs into the neural network. This was my initial thought process, and with a desire
 to start coding, and deliver a prototype, I naively started to develop this without additional research.
 
-This was methodology and implementation is talked about in ‘Simple AI Models’ section of this document. Here I explain my
+This methodology and implementation is talked about in ‘Simple AI Models’(\ref{sec:simple-ai-models}) section of this document. Here I explain my
 methodology and thought process (as well as data validation) as to why I believed this method feasible in the early stages of
 this project.
 
-Following this failure, which is also expressed in the ‘Simple AI Models’ section I expanded my research to other AI models which
-will follow.
+Following this failure, which is also expressed in the ‘Simple AI Models’(\ref{sec:simple-ai-models}) section I expanded my research to other AI models
+which will follow.
 
 \subsection{Deep Convolutional Models:}
-As an expansion from the idea above, this consists of a far greater number of layers. With its main uses in image identification,
-this would be ideal for the task at hand. One key difference being the number of layers. This adds size and complexity to the
-network, which may make it more difficult to run on the Pi compared to other models due to its increased parameter size as a result
-of its increases in width and levels.
+As an expansion from the idea above, this consists of a far greater number of layers. With its main uses in item identification within images,
+this would be ideal for the task at hand. However, this adds size and complexity to the
+network, which may make it more difficult to run on the Pi compared to other models due to its increased parameter.
 
 \subsection{Xception Model (Extreme Inception):}
 A development of the normal inception model, this stands as the middle ground between regular convolutional models and depthwise
-separable convolutional models (depthwise + pointwise). This makes better use of parameters than the Inception v3  model rather than
-reducing the number of parameters. This is done through channel mixing.
+separable convolutional models (depthwise + pointwise). This makes better use of parameters available compaired to the Inception v3 model.
+This is done through channel mixing.
 
 By removing the multi branch capabilities of an inception model, opting for a single branch this completely decouple spatial
 correlations as well as branch correlations, which results in more focused learning .
 
 To take this further, you can make use of pre-trained models. The example I have used in the Inception Models section of this
-paper was trained on the ImageNet dataset. This transferred learning allows for pre-learns identification of edges, shapes and facial
+paper was trained on the \textbf{ImageNet} dataset. This transferred learning allows for the pre-learns identification of edges, shapes and facial
 structure to be applied to my current data, without the need for the network to necessarily learn these itself, rather re-enforce its
 previous learning with my new data. This should allow for a model which learns faster, requiring less time to train, as well as a more
 accurate model, due to its additional pre-training.
-Some information gathered from \cite{xception}.
+Some information gathered from 'Xception: Deep Learning with Depthwise Separable Convolutions'\cite{xception}.
 
 \subsection{CondenseNet:}
 This is an example of an “Efficient DenseNet using Learned Group Convolutions”\cite{condensenet}. This was designed for mobile use, with the aim of
@@ -90,15 +89,15 @@ later layers. Due to this, only one tenth of the computation is required compare
 layers are connected to every other layer, rather than one layer being connected to the next). Comparable to MobileNet (an Inception
 model approach which focuses on efficiency and power usage rather than accuracy) but requiring less computation.
 This is done through pruning in the early stages of learning to form a ‘sweet spot’ \cite{condensenet} in between sparsity and
-regularity. Essentially,group (cluster) sizes are reduced (e.g. $3 \times 3 \to 1 \times 1$) which results in less computation, but a
-loss in accuracy, and requirement of more grouping of inputs.
+regularity. Essentially, group (cluster) sizes are reduced (e.g. $3 \times 3 \to 1 \times 1$) which results in less computation, but a
+loss in accuracy and requirement of more grouping of inputs.
 The idea of this is to reduce the number of connections during learning, to improve computational speeds and re-enforce routes, at the
-cost of accuracy. 
+cost of accuracy.
 
 \subsection{Further Development Ideas / Key Takeaways:}
 \paragraph{Model Selection}
-On such a small number of classifications and training examples for each classification, CondenseNet may not be the best option for
-this project. While it is said to be faster and more optimizable for a device with limited computational ability and power (like the
+On such a small number of classifications and training examples for each classification, \textbf{CondenseNet} may not be the best option for
+this project. While it is said to be faster and more optimisable for a device with limited computational ability and power (like the
 Raspberry Pi I am using), it requires a greater quantity of training data than I have, without crossing between sources, and for the
 sake of this project, I believe that this may be beyond the scope of what is required for success – but this may change as the project
 progresses.
@@ -113,11 +112,11 @@ To improve the versatility of these AI models, the images that are used for trai
 classification. 
 Since users will be using this at day and night, it would be beneficial to alter some of the training data (if it isn’t already at
 day and night) by adjusting the \textbf{brightness} to simulate darkness or lower light conditions such as changes in cloud cover or
-going through a tunnel.  \textit{(±15°)}
+going through a tunnel. \textit{(±15°)}
 
 The camera angle and position can also change depending on how the user sets up the system. While the location of the recordings
 cannot be changed in post, the \textbf{angle} can. This will help to provide some fixability in the model, to still allow for detection
-of tiredness, even if the set-up is not perpendicular to the driver, like in most of the recordings.  \textit{(±20\%)}
+of tiredness, even if the set-up is not perpendicular to the driver, like in most of the recordings. \textit{(±20\%)}
 
 Another issue is \textbf{zoom}. My hardware, as well as the hardware between the different training data sources, is different. As a
 result, my inputs may automatically be different based on camera zoom, and how the user positions their face in the focus region,
@@ -132,20 +131,19 @@ would be best to utilize some existing python libraries for the webpage.
 Flask is a lightweight web framework used for web-based interfaces and API’s. In the case of this project, it would be used to host
 the local webpage. This will allow for offline communication of the drowsiness state. 
 
-Tkinter and PyQt provide a graphical use interface (idea for what I need), however, have a far more limited flexibility as well as
-requiring a physically connected device which will further limit how the project will function and be operated as additional wiring
-will create clutter as the user does not use something which id found in the vehicle anyway. As a result, neither of these frameworks
-are likely to be considered in the final result.
+\textbf{Tkinter} and \textbf{PyQt} provide a graphical user interface (idea for what I need), however, have a far more limited flexibility as well as
+requiring a physically connected device. This will further limit how the project will function and be operated, as additional wiring
+will create clutter. As a result, neither of these frameworks are likely to be considered in the final result.
 
-Django is a very powerful framework, however, with this comes complexity for a system with such simple routing and visualization
+\textbf{Django} is a very powerful framework, however, with this comes complexity for a system with such simple routing and visualization
 requirements.
 
-Another example of another framework to consider is REACT. With past experience in other projects, this has the upside that I understand
+Another framework to consider is \textbf{REACT}. With past experience in other projects, this has the upside that I understand
 it already. However, with the project being aimed to be as light as possible to improve efficiency, this client-heavy framework might
 not be the best for this project.
 
 Overall, the low resource requirements and lightweight nature of this project, as well as the majority of the code base being in
-python, the obvious choice seems to be Flask to provide a platform-independent web interface.
+python, the obvious choice seems to be \textbf{Flask} to provide a platform-independent web interface.
 
 \subparagraph{API}
 A simple way of connecting the webpage to the AI model. There are several different ways of communicating data from the tiredness
@@ -164,5 +162,5 @@ detection AI to the webpage:
     whole program knows (as opposed to being in the dark due to each program being separate).
 \end{itemize}
 
-Therefore, \textbf{Option 3} (combined server and AI runner with threading) was selected as it minimizes computational overhead, avoids disk I/O
-bottlenecks, and keeps the architecture simple for this real-time detection application. 
+Therefore, \textbf{Option 3} (combined server and AI runner with threading) was selected as it minimizes computational overhead, avoids
+disk I/O bottlenecks, and keeps the architecture simple for this real-time detection application.
