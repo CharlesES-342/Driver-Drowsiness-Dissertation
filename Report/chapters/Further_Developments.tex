@@ -17,6 +17,9 @@ prompt when a restricted network is detected, ensuring a seamless user interface
 
 However, with time constraints this is likely not going to come to fruition.
 
+
+
+
 \section{Camera Placement}
 Due to the diverse range of hardware configurations, static camera placement can be challenging; therefore, a dedicated setup
 interface is ideal. Providing a live preview allows the user to align themselves correctly, ensuring optimal input for the model.
@@ -24,20 +27,30 @@ While transmitting a high-definition video feed introduces significant computati
 by utilizing a low-resolution or compressed stream during the initialization phase. This replaces guesswork with visual feedback,
 significantly improving the user onboarding experience.
 
+
+
+
 \section{Recording}
 If users can review video segments and provide manual corrections, these labels can be used to fine-tune the model to a 
 specific person. This \textbf{human-in-the-loop} approach could help to tailour the model and improve accuracy.
 
+
+
+
 \section{Differing Models}
-Other models types may allow for better accuracy over time. \textbf{Recurrent models} feed data back in with each pass, this could
-result in certain aspects influencing future predictions. One example of this is time, with each pass, general trends towards a
-classificaiton could be fed in to result in a more trending pattern of classification.
+Other model types may allow for better accuracy over time. \textbf{Recurrent models} feed data back in with each pass, this could
+result in certain aspects influencing future predictions. ne example of this is temporal mapping: as
+the model processes a sequence, general trends towards a classification could be aggregated to result in a more consistent pattern
+of classfication rather than flickering between states.
 
-Further dimentionality could also be used, considering video input rather than static frames may also be another direction, where
-time and a series of frames may be used to help point towards making a more determined decision of someones \textbf{tiredness}.
+Further dimensionality could also be used, considering video input rather than static frames may also be another direction, where
+temporal context and a series of frames may be used to inform a more definitive assesment of someones \textbf{tiredness}. For example,
+the duration of eye colosure could distinguish between a simple blink and micro-sleep.
 
-Additional resources (such as sound) could also be used. While in a static image the user may appear to be yawning, it may be the
-case that they are busy singing, which could taint the overall classification.
+Additional resources (such as sound) could also be integrated. While in a static image a user may appear to be yawning, it may be the
+case that they are singing, which could otherwise taint the overall classification.
+
+
 
 \section{Custom and More Refined Hardware}
 The Raspberry Pi 4B, while excellent for prototyping, contains a vast range of unnecessary features for this specific use
