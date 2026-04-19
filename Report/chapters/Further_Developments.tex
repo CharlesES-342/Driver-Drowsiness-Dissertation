@@ -1,0 +1,60 @@
+\chapter*{Additional Remarks and Development ideas}
+\addcontentsline{toc}{chapter}{Evaluation}
+\stepcounter{chapter}
+
+This section will outline any possible advancements and considerations that I would like to consider further following submission.
+
+\section{Captive Portal}
+A desirable feature for this project is the implementation of a Captive Portal. This is a standard industry practice for public
+or guest Wi-Fi networks—such as those found in cafes or cinemas—where users must interact with a landing page before gaining
+network access. While this implementation will forgo a full authentication system, a splash page serves as a critical point of
+transparency. It allows the user to review terms and conditions and receive notification of potential security risks before proceeding.
+
+The underlying mechanism utilizes DNS hijacking (or DNS redirection), which intercepts outgoing requests and forwards them to
+a locally hosted destination. For a more robust deployment, utilities like NoDogSplash can be integrated to handle session management.
+This leverages Captive Portal Detection (CPD)—a feature in modern mobile operating systems that automatically triggers a "Sign-In"
+prompt when a restricted network is detected, ensuring a seamless user interface.
+
+However, with time constraints this is likely not going to come to fruition.
+
+\section{Camera Placement}
+Due to the diverse range of hardware configurations, static camera placement can be challenging; therefore, a dedicated setup
+interface is ideal. Providing a live preview allows the user to align themselves correctly, ensuring optimal input for the model.
+While transmitting a high-definition video feed introduces significant computational overhead and latency, this can be mitigated
+by utilizing a low-resolution or compressed stream during the initialization phase. This replaces guesswork with visual feedback,
+significantly improving the user onboarding experience.
+
+\section{Recording}
+If users can review video segments and provide manual corrections, these labels can be used to fine-tune the model to a 
+specific person. This \textbf{human-in-the-loop} approach could help to tailour the model and improve accuracy.
+
+\section{Differing Models}
+Other models types may allow for better accuracy over time. \textbf{Recurrent models} feed data back in with each pass, this could
+result in certain aspects influencing future predictions. One example of this is time, with each pass, general trends towards a
+classificaiton could be fed in to result in a more trending pattern of classification.
+
+Further dimentionality could also be used, considering video input rather than static frames may also be another direction, where
+time and a series of frames may be used to help point towards making a more determined decision of someones \textbf{tiredness}.
+
+Additional resources (such as sound) could also be used. While in a static image the user may appear to be yawning, it may be the
+case that they are busy singing, which could taint the overall classification.
+
+\section{Custom and More Refined Hardware}
+The Raspberry Pi 4B, while excellent for prototyping, contains a vast range of unnecessary features for this specific use
+case—such as dual-monitor support and high-performance desktop processing—which create unwanted power overhead and increased
+unit costs. For a production-ready product, a more tailored hardware stack would be essential to achieve a lower Bill of Materials (BOM).
+
+By moving toward an \textbf{Edge AI} architecture, more discrete and usable hardware could be formed using components such as:
+\begin{itemize}
+    \item \textbf{ESP32-S3-Sense:} An ultra-low-cost SoC (System on Chip) that includes native AI vector instructions. This allows
+    for the running of the model through improved AI optimization, as well as hosting the webpage and managing requests.
+    \item \textbf{Kendryte K210:} A dedicated RISC-V AI processor with a built-in KPU (Knowledge Processing Unit). This allows for
+    high-speed landmark detection while also reducing power consumption.
+    \item \textbf{Custom PCB and Enclosure:} By using a custom casing, the system can be integrated more easily within the vehicle,
+    forming a self-contained safety unit. Furthermore, additional lights or buzzers could be added to eliminate the need for external
+    peripherals.
+    \item \textbf{Infra-Red Camera:} To overcome the limitations in low-light environments that the webcam approach faced, a more
+    advanced form of data capture would be appropriate to ensure that the model remains effective during night-time operation.
+\end{itemize}
+This transition from a general-purpose Single Board Computer (SBC) to a dedicated device that is more compact, boots faster, and
+is significantly more affordable for the end consumer would result in a more refined product.

@@ -44,10 +44,14 @@ from accessing resources such as the GitHub repository.
         \begin{lstlisting}[language=bash, caption={dnsmasq Configuration}, captionpos=b]
             no-resolv
             no-poll
+            domain=lan
+            expand-hosts
             interface=wlan0
             bind-dynamic
             address=/drowsiness/10.42.0.1
             dhcp-range=10.42.0.2,10.42.0.254,255.255.255.0,24h
+            dhcp-option=3,10.42.0.1
+            dhcp-option=6,10.42.0.1
             # Configuration file for dnsmasq.
         \end{lstlisting}
     \end{mdframed}
@@ -65,14 +69,17 @@ from accessing resources such as the GitHub repository.
 upstream DNS servers. \\ \hline
 \texttt{no-poll} & Stops the service from checking for changes in the upstream DNS configuration files. While not strictly necessary,
 it helps maintain system cleanliness. \\ \hline
+\texttt{domain-lan} & Defines local DNS domains as being in the same, all aprt of .lan. Helps stubborn devices to know the Pi is a routing device\\ \hline
+\texttt{expand-hosts} & Helper to automatically add any domain to the list of hosted domains\\ \hline
 \texttt{bind-dynamic} & Safety net to help ensure robustness. Used to link an IP address to an interface when the service starts. This
 is becuase the dnsmasq can be ready before the hardware, so the moment the it is ready, DNS and DHCP requests can happen. \\ \hline
 \texttt{interface=wlan0} & Restricts the service to listen only for requests on the Wi-Fi interface. This allows the Ethernet connection
 to remain independent for interacting with the GitHub repository. \\ \hline
 \texttt{address=/drowsiness/10.42.0.1} & Acts as a local DNS redirect for the 'drowsiness' domain, pointing it directly to the
 application's IP. \\ \hline
-\texttt{dhcp-range=...,24h} & Defines the pool of valid IP addresses a connecting device can be assigned. This lease lasts for 24 hours. \\
-\hline
+\texttt{dhcp-range=...,24h} & Defines the pool of valid IP addresses a connecting device can be assigned. This lease lasts for 24 hours. \\ \hline
+\texttt{dhcp-option=3,10.42.0.1} & Set a default gateway to access the internet, send your traffic to this IP \\ \hline
+\texttt{dhcp-option=6,10.42.0.1} & DNS server, if you want to look up an address, this is where to look \\ \hline
 \end{tabularx}
 \end{table}
 
@@ -115,14 +122,6 @@ This ensures that dnsmasq has exclusive control over domain name resolution and 
     while ‘drowsiness’ works on one browser, other variations ("\textbackslash dowsiness" or "drowsiness/") might have to be used so the browser knows it is a
     URL and not a term to try and search by.}
 \end{figure}
-
-\subsection{Captive Portal}
-One of the other features that would be ideal is the use of a Captive Portal. Often, when connecting to public or guest Wi-Fi networks
-(such as a coffee shop or cinema) you must go through a page to accept their terms of conditions and potentially log-in. While I will
-not be using a log-in system, agreeing to terms and notifying the user of issues using the phone may cause would be a good moral stead,
-as well as it then easily allowing the user to interface/view the webpage after acknowledging the potential risk.
-This will be done by using DNS hijacking.
-\TODO{more about this}
 
 \subsection{API}
 Integrated API and AI model uses in-memory state mangement rather than database or file approaches. This reduces complexity by avoidening I/O overheads
