@@ -1,6 +1,8 @@
-# used to generate and test a simple AI model for driver drowsiness detection
-# this was my first example and created "drowsiness_model_V1.h5"
-# an example useage can be found in 'AI/initialAI.py'
+'''
+used to generate and test a simple AI model for driver drowsiness detection
+this was my first example and created "drowsiness_model_V1.h5"
+an example useage can be found in 'AI/initialAI.py'
+'''
 
 import tensorflow as tf
 import cv2
@@ -14,6 +16,11 @@ mp_face_mesh = mp.solutions.face_mesh
 # ---------- LOAD TRAINING DATA ---------- #
 
 def load_training_data(data_dir, label_map):
+    '''
+    generate features from a video (extracting every frame)
+    Input: data locaiton, label map (for the desired features)
+    Output: DIR{features extracted}, list[classificaitons] -> both index links to eachother
+    '''
     X, y = [], []
 
     for label, label_idx in label_map.items():
@@ -44,6 +51,11 @@ def load_training_data(data_dir, label_map):
 # ---------- MODEL ---------- #
 
 def build_model(input_shape):
+    '''
+    Construct a model based on the number of feature atributes given
+    Input: Input level shape (input structure size)
+    Output: AI model
+    '''
     model = tf.keras.Sequential([
         tf.keras.layers.Dense(64, activation='relu', input_shape=(input_shape,)),
         tf.keras.layers.Dropout(0.3),
@@ -56,6 +68,12 @@ def build_model(input_shape):
     return model
 
 def train_model(data_dir, label_map, epochs=20):
+    '''
+    Training the model provided (the model could be un-trained or trained)
+    Input: data directory, label map for classification meaning (usually 0 =Alert, 1=Tired),
+    number of epochs (default 20)
+    Output: trained model
+    '''
     X, y = load_training_data(data_dir, label_map)
     print("X shape:", X.shape) #for debugging
     model = build_model(X.shape[1])
@@ -66,6 +84,12 @@ def train_model(data_dir, label_map, epochs=20):
 # ---------- TEST ON VIDEO ---------- #
 
 def test_on_video(video_path, model):
+    '''
+    Testing the model on Video input
+    Input: path to video, model
+    output: none -> Terminal output for model confidence and overall
+    classificaont across all fromaes in the video (avg)
+    '''
     cap = cv2.VideoCapture(video_path)
     predictions = []
     confidences = []

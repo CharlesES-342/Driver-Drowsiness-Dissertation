@@ -1,4 +1,9 @@
 #testing AI models based on pi camera input
+'''
+testing the models based on the camera on the Raspberry Pi.
+This an overall usage file for models which use the Fature Extraction method using
+the Mediapipe face mesh method.
+'''
 import mediapipe as mp
 import cv2
 # import tensorflow as tf # Not using full TensorFlow on Pi, using tflite instead

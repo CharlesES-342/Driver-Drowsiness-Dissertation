@@ -1,3 +1,19 @@
+'''
+Used to detect and visualise general trends within the data. This extends to the presence of 
+features:
+.eye openness proportional to width
+. mouth openness
+. pitch
+. yaw
+. roll
+, this is used to give proof (or suggest there is efficient evidence) that the datasets are viable
+for constructing an AI model.
+Show all findings as graphs. The idea being you can play around with thresholds to help visualise
+the spead of data within the datasets and hopefully identify a difference in the results beween tired
+and alert cases.
+- from testing, there is sufficinet evidence to suggest that the datasets are sufficuient enough for
+training. This is outlined in the report.
+'''
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -20,11 +36,19 @@ RIGHT_SIDE = 454
 
 # Get frames at approximately 2 fps
 def get2fps(videoPath):
+    '''
+    Extract 2 frames per second from a video
+    Input: video location
+    Output: frames extracted
+    '''
+    #open video feed
     cap = cv2.VideoCapture(videoPath)
     if not cap.isOpened():
         print("Error: Could not open video.")
         return []
     fps = cap.get(cv2.CAP_PROP_FPS)
+    # determine the frames interval to form a resulting 2fps (e.g. from a 30fps video, capture a 
+    # frame every 15 frames)
     frameInterval = int(fps / 2) if fps > 0 else 1
     frames = []
     for i in range(0, int(cap.get(cv2.CAP_PROP_FRAME_COUNT)), frameInterval):
@@ -39,20 +63,40 @@ def get2fps(videoPath):
 
 
 def euclidean_dist(a, b):
+    '''
+    Determine the Eucliden Distance between 2 points
+    Input: point 1, point 2
+    Output: distance
+    '''
     return np.linalg.norm(a - b)
 
 
 def aspect_ratio(landmarks, eye_indices):
+    '''
+    Determine the aspect ration of the eyes
+    Input: landmarks (from the image), eye landmark 
+    Output: aspect ratio
+    '''
     p = np.array([landmarks[i] for i in eye_indices])
     return (euclidean_dist(p[1], p[5]) + euclidean_dist(p[2], p[4])) / (2 * euclidean_dist(p[0], p[3]))
 
 
 def mouth_aspect_ratio(landmarks, mouth_indices):
+    '''
+    Determine the aspect ration of the mouth
+    Input: landmarks (from the image), mouth landmark 
+    Output: aspect ratio
+    '''
     p = np.array([landmarks[i] for i in mouth_indices])
     return (euclidean_dist(p[1], p[7]) + euclidean_dist(p[2], p[6]) + euclidean_dist(p[3], p[5])) / (3 * euclidean_dist(p[0], p[4]))
 
 
 def get_head_pose(landmarks):
+    '''
+    Determine the Pitc and Yaw of the head within the image
+    Input: landmarks (taken form Mediapipe)
+    Output: pitch, yaw
+    '''
     nose = landmarks[NOSE_TIP]
     chin = landmarks[CHIN]
     left_side = landmarks[LEFT_SIDE]
@@ -76,6 +120,12 @@ def accRange(data):
 
 
 def determineEvent(frame, face_mesh):
+    '''
+    Used to classify that tere is substantial evidence to suggest that an event (eyes
+    closed, mouth open/yawning, ...) is present
+    Input: frame, face mesh (constructed)
+    Output: List[frame events], yaw
+    '''
     frameEvents = {
         "face_detected": False,
         "eyes_closed": False,
@@ -96,6 +146,7 @@ def determineEvent(frame, face_mesh):
     results = face_mesh.process(rgb_frame)
     yaw = 0
 
+    #if there is a face present
     if results.multi_face_landmarks:
         frameEvents["face_detected"] = True
 
@@ -109,13 +160,16 @@ def determineEvent(frame, face_mesh):
             MAR = mouth_aspect_ratio(landmarks, OUTER_MOUTH)
             pitch, yaw = get_head_pose(landmarks)
 
+            # values for a potential event
             frameEvents["EAR"] = EAR
             frameEvents["MAR"] = MAR
             frameEvents["pitch"] = pitch
             frameEvents["yaw"] = yaw
 
+            # this needs to change based on calibration (threshold for identifying a feature)
+            # if there is substantial evidence to sugges that an event has occured...
             frameEvents["eyes_closed"] = EAR < 0.3
-            frameEvents["mouth_open"] = MAR > 0.05 #this needs to change based on calibration
+            frameEvents["mouth_open"] = MAR > 0.05 
             frameEvents["head_down"] = pitch > 10
             frameEvents["head_turned"] = abs(yaw) > 15
 

@@ -1,3 +1,6 @@
+''' 
+Used more in the SimpleAI models which used feature extraction
+'''
 import numpy as np
 import mediapipe as mp
 import cv2
@@ -9,12 +12,22 @@ mp_face_mesh = mp.solutions.face_mesh
 # ---------- ASPECT RATIO FUNCTIONS ---------- #
 
 def eye_aspect_ratio(eye):
+    '''
+    Determine the eyeaspect ratio
+    Input: eye points from the face mesh (subsectio of landmarks)
+    Output: aspect ratio
+    '''
     A = np.linalg.norm(eye[1] - eye[5])
     B = np.linalg.norm(eye[2] - eye[4])
     C = np.linalg.norm(eye[0] - eye[3])
     return (A + B) / (2.0 * C)
 
 def mouth_aspect_ratio(mouth):
+    '''
+    Determine the Mouth aspect ratio
+    Input: mouth points from the face mesh (subsection of landmarks)
+    Output: aspect ratio
+    '''
     A = np.linalg.norm(mouth[2] - mouth[9])
     B = np.linalg.norm(mouth[4] - mouth[7])
     C = np.linalg.norm(mouth[0] - mouth[6])
@@ -23,6 +36,11 @@ def mouth_aspect_ratio(mouth):
 # ---------- HEAD POSE (APPROX) ---------- #
 
 def extract_head_pose(landmarks):
+    '''
+    Determine the hear positions (which way you are facing)
+    Input: landmarks from the frame
+    Output: pitch, yaw
+    '''
     nose = landmarks[1]     # Nose tip
     chin = landmarks[152]   # Chin
     left_eye = landmarks[33]  
@@ -36,6 +54,11 @@ def extract_head_pose(landmarks):
 # ---------- EXTRACT FEATURES FROM FRAME ---------- #
 
 def extract_features(frame, face_mesh):
+    '''
+    Get the features from an image
+    Input: frame/image, face mesh
+    Output: arr[eye aspect ratio left, eye aspect ratio right, mouth aspect ratio, pitch, yaw]
+    '''
     h, w = frame.shape[:2]
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -64,7 +87,11 @@ def extract_features(frame, face_mesh):
     return np.array([ear_left, ear_right, mar, pitch, yaw])
 
 def imageEffects(img):
-    # Apply augmentations BEFORE preprocessing
+    '''
+     Apply augmentations before preprocessing. Can help to imporve model versitility
+     Input: image
+     Outut: image
+    '''
     img = tf.image.random_flip_left_right(img)
     img = tf.image.random_brightness(img, max_delta=0.2)
     img = tf.image.random_contrast(img, lower=0.8, upper=1.2)

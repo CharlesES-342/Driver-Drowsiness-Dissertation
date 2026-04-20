@@ -1,7 +1,17 @@
+'''
+Outline functions that will be used thorught the development process for a variety of models.
+'''
 import tensorflow as tf
 from pathlib import Path
 
 def convert_model_to_tflite(keras_model_path):
+    '''
+    Convert the model from a '.h5' file to a '.tflite' model for use on the Raspberry Pi
+    This was later adapted further to the 'model_conversions.py' file as some runtime envirmnments
+    were changed to allow for other Libraries which were only compatable with older versions.
+    Input: model path
+    Output: none -> model saved as different file type (same name)
+    '''
     # Convert path to string for Keras compatibility
     keras_model_path_str = str(keras_model_path)
     
