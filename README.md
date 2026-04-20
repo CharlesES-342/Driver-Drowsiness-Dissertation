@@ -104,12 +104,17 @@ To run the software in this submission, the following dependencies must be insta
 
 | Library | Purpose |
 | :--- | :--- |
-| `tensorflow` / `tflite-runtime` | Model inference and training |
-| `mediapipe` | Facial landmark extraction (for initial feature-based models) |
+| `tensorflow==2.19.1` / `tflite-runtime` | Model inference and training |
+| `mediapipe==0.10.21` | Facial landmark extraction (for initial feature-based models) |
 | `opencv-python` | Image processing and camera handling |
-| `numpy` | Numerical operations and array handling |
-| `flask` | Web server for the Pi dashboard |
-| `pandas` | Data analysis (for `trends.py`) |
+| `numpy==2.26.4` | Numerical operations and array handling |
+| `Flask==3.1.2` | Web server for the Pi dashboard |
+| `pandas` and '`matplotlib` | Data analysis (for `trends.py`) |
+| `h5py` | For loading saved '.h5' models |
+
+On the Pi it is similar:
+
+
 
 ---
 *Created as part of the Year 3 Dissertation Project.*
