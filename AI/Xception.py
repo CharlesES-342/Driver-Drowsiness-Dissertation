@@ -1,5 +1,5 @@
 '''
-Contains the funcitons to make an Xceptionmode, test on ground truths
+Contains the funcitons to make an Xception model, test on ground truths
 as well as test on camera feed
 '''
 import tensorflow as tf
@@ -22,7 +22,13 @@ import utilities.imageProcessing as ip
 
 
 def create(model_loc, BASE_DIR, CSV_PATH):
-    '''Create an xception model for SINGLE-LABEL classification'''
+    '''
+    Create an xception model for SINGLE-LABEL classification (model give 2 confidences as a
+    result, choose the higher one as the class that it is more likely to be -> drowsy_confidence,
+    alert_confidence)
+    Input: storage location, base directory, path to training data (csv of classifications)
+    Output: none -> model saveed to location
+    '''
     
     IMG_SIZE = (299, 299)
     BATCH_SIZE = 16
@@ -76,7 +82,7 @@ def create(model_loc, BASE_DIR, CSV_PATH):
         .prefetch(tf.data.AUTOTUNE)
     )
 
-    # LOAD PRETRAINED XCEPTION
+    # load pretrained Xception
     base_model = Xception(
         include_top=False,
         weights="imagenet",
@@ -84,7 +90,7 @@ def create(model_loc, BASE_DIR, CSV_PATH):
     )
     base_model.trainable = False
 
-    # MODEL ARCHITECTURE
+    # model architectre
     inputs = layers.Input(shape=(299, 299, 3))
     x = base_model(inputs, training=False)
     x = layers.GlobalAveragePooling2D()(x)
@@ -92,34 +98,35 @@ def create(model_loc, BASE_DIR, CSV_PATH):
     x = layers.Dense(256, activation="relu")(x)
     x = layers.Dropout(0.3)(x)
 
-    # CRITICAL CHANGE: Use softmax for single-label classification
+    # softmax for single-label classification
     outputs = layers.Dense(num_classes, activation="softmax")(x)
 
     model = models.Model(inputs, outputs)
     model.summary()
 
-    # COMPILE MODEL - Use categorical_crossentropy for single-label
+    # compile model
     model.compile(
         optimizer=optimizers.Adam(1e-4),
-        loss="categorical_crossentropy",  # Changed from binary_crossentropy
+        loss="categorical_crossentropy",
         metrics=["accuracy"]
     )
 
-    # TRAINING (FROZEN FEATURE EXTRACTION)
+    # training - frozen feature extraction
     model.fit(
         train_ds,
         validation_data=val_ds,
         epochs=EPOCHS
     )
 
-    # FINE-TUNING
+    # model fine-tuning
     base_model.trainable = True
     for layer in base_model.layers[:200]: 
         layer.trainable = False
 
+    # re-compile with added changes to model structure
     model.compile(
         optimizer=optimizers.Adam(1e-5),
-        loss="categorical_crossentropy",  # Changed from binary_crossentropy
+        loss="categorical_crossentropy",
         metrics=["accuracy"]
     )
 
@@ -129,6 +136,7 @@ def create(model_loc, BASE_DIR, CSV_PATH):
         epochs=10
     )
 
+    # save the model to the location
     model.save(model_loc)
     print(f"Model saved to {model_loc}")
 
@@ -138,7 +146,19 @@ def create(model_loc, BASE_DIR, CSV_PATH):
 
 
 def test_with_ground_truth(model_location, image_dir, csv_path):
-    '''Test single-label classifier'''
+    '''
+    Test single-label classifier against the pre-determined classified images
+    Input: model location, image directory (where are the images to test on), ground-truth path (image
+    labels)
+    Ouput: Dic{
+            "filename": filename,
+            "true_label": true_label,
+            "predicted_label": predicted_label,
+            "confidence": confidence,
+            "correct": is_correct
+            }
+            -> and terminal output for an overview on how well the model did across all the frames
+    '''
     
     LABELS = ["drowsy", "alert"]
     num_classes = len(LABELS)
@@ -157,6 +177,7 @@ def test_with_ground_truth(model_location, image_dir, csv_path):
     matched = 0
     not_found = 0
 
+    # go through every row
     for _, row in df_test.iterrows():
         filename = row["filename"]
         true_label = row["labels"].strip()
@@ -173,7 +194,7 @@ def test_with_ground_truth(model_location, image_dir, csv_path):
         img_array = np.expand_dims(img_array, axis=0)
         img_array = preprocess_input(img_array)
 
-        # Predict - softmax gives probabilities
+        # Predict
         predictions = model.predict(img_array, verbose=0)[0]
         
         # Get predicted class (highest probability)
@@ -235,10 +256,8 @@ def from_camera(model_loc):
     '''
     test the model on a live webcam feed, printing the predicted labels and confidence
     for each frame
-    INPUT:
-        model_loc - the location of the model to test
-    OUTPUT:
-        prints the predicted labels and confidence for each frame of the webcam feed
+    Input: model locaiton
+    Output: none -> print predicted labels and confidences in terminal (for each frame)
     '''
     # This is the label order used during training, must match exactly for correct interpretation
     # label mappings - this order is taken from the file used during training
@@ -305,10 +324,9 @@ def from_camera(model_loc):
 def from_camera_individual(model_loc):
     '''
     test the model on a live webcam feed, printing the predicted labels and confidence on an individual frame
-    INPUT:
-        model_loc - the location of the model to test
-    OUTPUT:
-        prints the predicted labels and confidence for each frame of the webcam feed when spacebar is pressed
+    using SPACE to capture an image
+    Input: model location
+    Output: none -> print the preicted labels and confidences for each image
     '''
     # LABELS = [
     #     "eyes open",
@@ -375,6 +393,11 @@ def from_camera_individual(model_loc):
             
 
 def original_classes():
+    '''
+    Go through the file defined and get all of the labels that are given
+    This was used to check the actual outputs from the dataset as I began to feel that there
+    was an issue with the dataset
+    '''
     labels = []
     #go through dataset and get all the classes
     csv_path = "Bina Nusantara University Data/modelling/training/training/Img_labels.csv"

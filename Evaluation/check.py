@@ -1,3 +1,7 @@
+'''
+I noticed that some rows were not populated by assing in the model. This went thorugh and 
+identified any missing rows (so tthat I could correct them later)
+'''
 import pandas as pd
 from pathlib import Path
  

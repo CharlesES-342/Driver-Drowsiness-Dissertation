@@ -1,3 +1,12 @@
+'''
+Given an image, extract all of the necessary data (overlayyed ontop of the image)
+Used to test if all the points that I wanted were actually being found and if variations could be itentified
+Includes:
+.Eye height (left and right independently)
+.Mouth Openness
+.Head Pitch
+.Head Yaw
+'''
 import cv2
 import mediapipe as mp
 
@@ -30,7 +39,7 @@ annotated_image = image.copy()
 
 if results.multi_face_landmarks:
     for face_landmarks in results.multi_face_landmarks:
-        # Draw landmarks
+        # sraw landmarks
         mp_drawing.draw_landmarks(
             image=annotated_image,
             landmark_list=face_landmarks,

@@ -27,7 +27,12 @@ def is_tired(labels_list):
 
 # ---------- MAIN IMAGE PROCESSING FUNCTION ---------- #
 def run_drowsiness_check_images(image_folder, json_labels, model):
-
+    '''
+    Go through the provided images and see how well the model doesover the entire dataset (doe it predict
+    well?) For how well the model does - how confident
+    Input: images location, file with json lables, AI model
+    Output: none -> terminal output for how well the model does over the entire dataset
+    '''
     with open(json_labels, "r") as f:
         data = json.load(f)
 
@@ -86,6 +91,9 @@ def predict_images(image_folder, model, json_path):
     """
     Runs prediction on ALL images in a folder.
     Returns total correct and incorrect predictions.
+    As well as how the model does on each individual image (so that I can check them manually)
+    More advanced version of run_drowsiness_check_images()
+    Input: images locaiton, AI model, JSON labels location
     """
 
     folder = Path(image_folder)
@@ -165,6 +173,8 @@ def get_ground_truth_label(json_path, filename):
     """
     Returns 1 if image is labeled TIRED in the JSON file,
     returns 0 if NOT TIRED.
+    Input: JSON locaiton, filename 
+    Output: 1 if it is a tired image, 0 if not
     """
     with open(json_path, "r") as f:
         data = json.load(f)
@@ -195,7 +205,7 @@ if __name__ == "__main__":
     #correct, incorrect = predict_images(test_images_path, model, test_json_path)
 
     
-    #open camera
+    #open camera - allow for more frequent checks on myself
     cap = cu.open_webcam()
 
     with mp_face_mesh.FaceMesh(

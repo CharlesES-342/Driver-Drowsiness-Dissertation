@@ -1,13 +1,10 @@
 '''
-To be run on the Pi to be used to sample data for teh Evaluation.
+To be run on the Pi to be used to sample data for the Evaluation.
 No assignment or use of the data is done here, just sampling and saving to a file.
 This will then undergo processing and be used for the evaluation of the project in its entirety.
 
-while functionality will be used form other areas of the project, inorder to keep
-it as light weight as possible, sections of code will be used from other areas of the project,
-and will be referenced as such, but not imported as a module, as this will add to the processing
-time and memory usage of the Pi, and will also require the other files to be on the device
-(they will not be on the device as this is a stand-alone file)
+Since this is a standalone data capture, the supporting docuemnts will not be downlaoded and so
+areas are copy and pasted for ease.
 '''
 
 import time
@@ -21,10 +18,8 @@ class cam:
     def __init__(self, camera_index=0, fps=30):
         """
         Initialize camera object
-        
-        Args:
-            camera_index: Index of camera device (default: 0)
-            fps: Frames per second (default: 30)
+        Input: Index of camera device (default: 0), desired frame rate (default: 30)
+        Output: none
         """
         self.camera_index = camera_index
         self.fps = fps
@@ -34,7 +29,9 @@ class cam:
         self.writer = None
         
     def start_capture(self):
-        """Initialize and start camera capture"""
+        """
+        Initialize and start camera capture
+        """
         self.cap = cv2.VideoCapture(self.camera_index)
         self.cap.set(cv2.CAP_PROP_FRAME_WIDTH, self.frame_width)
         self.cap.set(cv2.CAP_PROP_FRAME_HEIGHT, self.frame_height)
@@ -46,9 +43,8 @@ class cam:
     def start_recording(self, output_file):
         """
         Start recording video to file
-        
-        Args:
-            output_file: Path to output video file
+        Input: output file locaiton for the videos
+        Output: none
         """
         if self.cap is None:
             self.start_capture()
@@ -62,9 +58,8 @@ class cam:
     def get_frame(self):
         """
         Capture a single frame
-        
-        Returns:
-            Tuple of (success, frame) where success is bool and frame is numpy array
+        Input: none
+        Output: Tuple of (success, frame) where success is bool and frame is numpy array
         """
         if self.cap is None:
             raise RuntimeError("Camera not initialized. Call start_capture() first.")
@@ -75,9 +70,8 @@ class cam:
     def write_frame(self, frame):
         """
         Write frame to video file
-        
-        Args:
-            frame: Frame to write (numpy array)
+        Input: Frame to write (numpy array)
+        Output: none
         """
         if self.writer is None:
             raise RuntimeError("Recording not started. Call start_recording() first.")
@@ -85,19 +79,26 @@ class cam:
         self.writer.write(frame)
     
     def stop_recording(self):
-        """Stop recording and release video writer"""
+        """
+        Stop recording and release video writer
+        """
         if self.writer is not None:
             self.writer.release()
             self.writer = None
     
     def stop_capture(self):
-        """Stop camera capture and release resources"""
+        """
+        Stop camera capture and release resources
+        """
         if self.cap is not None:
             self.cap.release()
             self.cap = None
     
     def release(self):
-        """Release all resources"""
+        """
+        Release all resources
+        Calls stop_recording() and stop_capture()
+        """
         self.stop_recording()
         self.stop_capture()
 

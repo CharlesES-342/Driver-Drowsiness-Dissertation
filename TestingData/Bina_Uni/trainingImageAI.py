@@ -1,3 +1,7 @@
+'''
+Basic CNN which used features from ime images (BINA UNIVERSITY) to trina the model
+- feature based model
+'''
 import tensorflow as tf
 import numpy as np
 import cv2
@@ -15,7 +19,7 @@ import utilities.imageProcessing as imageProcessing
 
 
 # ========================================= #
-# LOAD FUNCTIONS FROM YOUR ORIGINAL SCRIPT
+# LOAD FUNCTIONS FROM ORIGINAL SCRIPT
 # ========================================= #
 
 mp_face_mesh = mp.solutions.face_mesh
@@ -31,6 +35,13 @@ def is_tired(labels_list):
 # ========================================= #
 
 def build_dataset(image_folder, json_labels):
+    '''
+    Turn the json labels and images into a dataset, forming bounndaries in data to then allow
+    the model to be able to predict for features that lie slightly outside the boundaries of this
+    dataset
+    Input: images locaiton, json labels for these images
+    Ouput: image and its attached feature data, the classification
+    '''
     print("\nBuilding dataset...")
 
     with open(json_labels, "r") as f:
@@ -80,6 +91,11 @@ def build_dataset(image_folder, json_labels):
 # ========================================= #
 
 def train_model(X, y):
+    '''
+    Train the model based on the features
+    Input: image and its attached feature data, the classification (same as build_dataset)
+    Output: trained model (this is also already saved)
+    '''
 
     model = tf.keras.Sequential([
         tf.keras.layers.Input(shape=(5,)),     # five features
@@ -96,7 +112,7 @@ def train_model(X, y):
 
     model.fit(X, y, epochs=25, batch_size=16, validation_split=0.2)
 
-    model_name = "drowsiness_model_V3.h5" #change this as needed
+    model_name = "drowsiness_model_V3.h5" #TODO - change this as needed
 
     saveLocation = Path(__file__).resolve().parent.parent.parent / "AI_Models" / model_name
     model.save(str(saveLocation))

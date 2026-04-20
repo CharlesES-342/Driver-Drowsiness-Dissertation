@@ -171,3 +171,5 @@ This document tracks all trained models for the drowsiness detection system, inc
 2. **Binary classification works better**: 2-class (tired/alert) achieves 73.72% vs unclear multi-class performance
 3. **Label quality matters**: V2 English labels significantly improved reliability
 4. **Training variance**: V4 retrain shows ~2.4% accuracy variance, suggesting training stability issues or near-optimal convergence
+
+<!-- General structure was formed by Gemini.ai becuase I wanted to look nice-->

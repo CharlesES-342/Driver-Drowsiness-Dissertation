@@ -1,6 +1,8 @@
 '''
 This contains the code to take the images and run the tests on my self given a
 model and a video feed from the webcam
+These images were poor quality and not very relevent to the final resting but worked well for the 
+feature based models which only relied of facial detection
 '''
 #changing project root to this so it can find the utility files
 import sys
@@ -14,6 +16,11 @@ import csv
 
 #using the camera, take images
 def take_images():
+    '''
+    Capture images for personal testing - display teh camera feed and take a picture on SPACE press
+    Input: none
+    Output: none -> terminal output for number of frame captured
+    '''
     print("image taking has begun")
     # Open webcam
     cap = camUtil.open_webcam()
@@ -75,10 +82,8 @@ def take_images():
 def assign_labels(image_directory, output_csv='labels.csv'):
     """
     Assign labels to images in a directory and save to a single CSV file.
-    
-    Args:
-        image_directory: Path to directory containing images
-        output_csv: Name of output CSV file (default: 'labels.csv')
+    Input: images location, output csv loocation (default: 'labels.csv')
+    Output: none -> file of lables saved
     """
     # Get all image files from the directory
     image_extensions = ('.jpg', '.jpeg', '.png', '.bmp')
@@ -135,7 +140,11 @@ def assign_labels(image_directory, output_csv='labels.csv'):
     print(f"\nAll done! Labeled {len(labels_data)} images.")
 
 def save_labels_to_csv(labels_data, output_csv):
-    """Save labels to CSV file."""
+    """
+    Save labels to CSV file
+    Input: lables
+    Output: none -> lables saved to a CSV
+    """
     if not labels_data:
         print("No labels to save.")
         return

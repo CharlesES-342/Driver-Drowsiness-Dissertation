@@ -1,7 +1,10 @@
-# The following code is for test and initial setup of Mediapipe Face Mesh on live video feed
-# this was all formed by AI (Copilot and Chat GPT)
-# this is for playing and testing puroses only and is not part of the final project
-
+'''
+Using my code from image based feature extraction (Play-Mediapipe), I asked Copilot and GPT
+to integrate it into a video feed. (2 AI LLMs used becuase they culdnt figure it out, so I
+had to intervene)
+This was a play around and not relevent to teh actual project, just a fun thing to do in the
+early stages of the project
+'''
 import cv2
 import mediapipe as mp
 import sys

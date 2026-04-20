@@ -2,7 +2,9 @@
 # test with AI model v3
 # using a 30 frame buffer to determine tiredness
 
-
+'''
+Running the model on the Raspberry Pi to determin tiredness within a single frame
+'''
 
 
 import mediapipe as mp
@@ -48,7 +50,7 @@ if __name__ == "__main__":
         min_tracking_confidence=0.3
     ) as face_mesh:
 
-        print("please press ' ' to take photo or 'q' to guit")
+        print("please press ' ' to take photo or 'q' to quit")
         while True:
             # Grab frame
             frame = cu.capture_frame(cap)

@@ -1,6 +1,7 @@
 '''
 convert models to the correct form to run with the compatable tflite-runtime
-that is installed on the pi
+that is installed on the pi (as standard '.h5' models will not work in the reduced environment)
+Allows an older (more compatable version) of tflite-runtime to be used to ensure speed of the model
 '''
 import tensorflow as tf
 from pathlib import Path
@@ -9,7 +10,7 @@ import os
 # Get the directory where new.py is located
 BASE_DIR = Path(__file__).resolve().parent
 
-# Combine the directory with the filename
+# Combine the directory with the filename -> TODO: define the model to convert here
 model_path = os.path.join(BASE_DIR, 'xception_drowsiness_model_v6.h5')
 
 print(f"Loading model from: {model_path}")
@@ -22,7 +23,7 @@ converter = tf.lite.TFLiteConverter.from_keras_model(model)
 converter.target_spec.supported_ops = [tf.lite.OpsSet.TFLITE_BUILTINS]
 converter.target_spec.supported_ops = [tf.float32]
 
-print("Converting... this will take a moment.")
+print("Converting...")
 tflite_model = converter.convert()
 
 # Save the TFLite file in the same folder

@@ -1,3 +1,10 @@
+'''
+Given a model and a video file, run the model over every frame and generate an
+overall classificaiton.
+This helped lead to the issues that while someone maybe tired, the fact of whole datasets being
+considered tired, the few frames that actually hold tired actions (the blinking and ywning) are drowned
+out by the amount of Alert frames.
+'''
 import tensorflow as tf
 import cv2
 import numpy as np
@@ -12,11 +19,11 @@ import utilities.imageProcessing as ip
 # ---------- GLOBAL VARIABLES ---------- #
 mp_face_mesh = mp.solutions.face_mesh
 
-# -------------------------------------------
-# Run inference on a new video - GPT generated
-# -------------------------------------------
-
 def run_drowsiness_check(video_path, AI_model):
+    '''
+    Input: Video path, Model path
+    Output: none -> show in terminal the overall confidence and amount of a classfification within the video
+    '''
 
     # Load trained model
     model = AI_model

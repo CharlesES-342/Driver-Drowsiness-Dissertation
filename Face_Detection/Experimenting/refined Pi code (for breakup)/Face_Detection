@@ -1,3 +1,4 @@
+''' For overalying the triangilisation map over the top of an image of a face'''
 import cv2
 import mediapipe as mp
 
@@ -22,6 +23,10 @@ keyLandmarks = {
 
 # get image
 def getImage(image_path):
+    '''
+    Input: image path
+    Output: image
+    '''
     image = cv2.imread(image_path)
     if image is None:
         raise FileNotFoundError(f"Could not read the image at {image_path}")
@@ -30,6 +35,10 @@ def getImage(image_path):
 
 # process image
 def processImage(image):
+    '''
+    Input: image
+    Output: none -> display the image with the applied face mesh
+    '''
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
     # add the face mesh instance

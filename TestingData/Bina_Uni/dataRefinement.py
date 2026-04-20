@@ -1,3 +1,7 @@
+'''
+I began to notice someinconsistencies in classifications so this was used to check them as well as
+convert the labels to English so that I could understand them better
+'''
 import csv
 from pathlib import Path
 from collections import defaultdict
@@ -5,6 +9,11 @@ from collections import defaultdict
 
 #check if there exists more that one lable for a given image
 def checkLabelConsistency(labelsDest):
+    '''
+    Check that there were no conflicting labels
+    Input: labeled dataset
+    Output: none -> terminal output of any with multiple lables 
+    '''
     imageLabels = {}
     #given a file of labels, check if there exists more that one lable for a given image
     with open(labelsDest, newline='', encoding="utf-8") as f:
@@ -20,7 +29,11 @@ def checkLabelConsistency(labelsDest):
             print(f"Inconsistent labels found for image {imageName}: {imageLabels[imageName]}")
 
 def additionalLabels(path):
-    #add in the additional labels for eyes open and eyes closed based on eye position
+    '''
+    add in the additional labels for eyes open and eyes closed based on eye position
+    Input: images and labels path (folder location)
+    Output: none -> add eye position labels to the dataset file
+    '''
     import mediapipe as mp
     mp_face_mesh = mp.solutions.face_mesh
 

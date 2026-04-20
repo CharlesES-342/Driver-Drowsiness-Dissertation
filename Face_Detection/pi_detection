@@ -1,3 +1,6 @@
+'''
+Playnig around to see if it can be done on the pi, and how esy it is to apply
+'''
 import cv2
 import mediapipe as mp
 
@@ -18,6 +21,9 @@ keyLandmarks = {
 
 # Webcam functions
 def open_webcam():
+    '''
+    Initialise the web-cam feed
+    '''
     cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         print("Error: Could not open webcam.")
@@ -25,10 +31,17 @@ def open_webcam():
     return cap
 
 def close_webcam(cap):
+    '''
+    Clsoe the web-cam feed
+    '''
     cap.release()
     cv2.destroyAllWindows()
 
 def capture_frame(cap):
+    '''
+    Input: webcam feed
+    Return: singe frame
+    '''
     ret, frame = cap.read()
     if not ret:
         print("Failed to grab frame.")
@@ -37,6 +50,17 @@ def capture_frame(cap):
 
 # Frame processing
 def process_frame(frame, face_mesh):
+    '''
+    Input: Frame (image), face_mesh
+    Output: Dict{
+        'image': annotated_frame,
+        'left_eye_height': left_eye_height,
+        'right_eye_height': right_eye_height,
+        'mouth_height': mouth_height,
+        'dx': dx, (variation from centre of image)
+        'dy': dy (variation from centre of image)
+        }
+    '''
     rgb_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = face_mesh.process(rgb_frame)
     annotated_frame = frame.copy()
@@ -90,6 +114,10 @@ def process_frame(frame, face_mesh):
 
 # Draw annotations
 def drawImage(window_name, image_data):
+    '''
+    Display the data as a seporate pop-up window
+    Input: window/pop-up name, the image data (from process_frame)
+    '''
     img = image_data['image']
     font = cv2.FONT_HERSHEY_SIMPLEX
     font_scale = 0.6
@@ -112,6 +140,7 @@ if __name__ == "__main__":
 
     print("Press SPACE to capture an image or Q to quit.")
 
+    # define a face mesh to be used when-ever needed
     with mp_face_mesh.FaceMesh(
         static_image_mode=False,
         max_num_faces=1,

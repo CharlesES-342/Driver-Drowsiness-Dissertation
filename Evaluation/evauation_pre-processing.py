@@ -22,13 +22,14 @@ class ImageAnnotator:
     def __init__(self, root):
         '''
         initialiser
-        Input: location
         Defines the model used, frame sizes and the variables used for the annotation of the images.
         Also defines the UI layout and the buttons and their functions.
+        Input: location
+        Output: none
         '''
         self.root = root
         self.root.title("Driver Drowsiness Annotation Tool")
-        self.root.geometry("1200x800") # Slightly smaller default window
+        self.root.geometry("1200x800")
         
         self.image_list = []
         self.current_idx_img = -1
@@ -78,7 +79,7 @@ class ImageAnnotator:
 
         # RIGHT: Controls (Fixed Width)
         self.controls = tk.Frame(self.paned, width=350, padx=15, pady=10)
-        self.controls.pack_propagate(False) # CRITICAL: Prevents children from resizing this frame
+        self.controls.pack_propagate(False) # prevent children from re-sizing the frame
         self.paned.add(self.controls, stretch="never")
 
         # Layout inside controls
@@ -119,8 +120,7 @@ class ImageAnnotator:
         
         tk.Button(btn_frame, text="Open Folder", command=self.load_folder_threaded).pack(fill="x", pady=2)
         tk.Button(btn_frame, text="Previous", command=self.go_back).pack(fill="x", pady=2)
-        self.btn_save = tk.Button(btn_frame, text="SAVE & NEXT", command=self.save_and_next, 
-                                  bg="#2ecc71", fg="white", font=('Arial', 11, 'bold'), height=2)
+        self.btn_save = tk.Button(btn_frame, text="SAVE & NEXT", command=self.save_and_next, bg="#2ecc71", fg="white", font=('Arial', 11, 'bold'), height=2)
         self.btn_save.pack(fill="x", pady=5)
 
     def load_folder_threaded(self):
@@ -140,8 +140,10 @@ class ImageAnnotator:
         '''
         allows you to the images and videos in the folder
         Also contains resuming logic (load last image - but only after it has been loaded)
-        Doesn't work if annotations is already full (meanas you have to wait for the entire folder
-        to load before images will road) 
+        Doesn't work if annotations is already populated (means you have to wait for the entire folder
+        to load before images will load) 
+        Input: folder path for images
+        Output: none
         '''
         temp_dir = Path("extracted_frames")
         temp_dir.mkdir(exist_ok=True)
@@ -192,7 +194,9 @@ class ImageAnnotator:
 
     def extract_frames_fast(self, v_path, temp_dir):
         '''
-        Get the images from videos (every 5 seconds)
+        Get the images from videos (every 5 seconds - time period can be changed)
+        Input: video path, temporary image path (where to put them)
+        Output: none
         '''
         cap = cv2.VideoCapture(v_path)
         fps = cap.get(cv2.CAP_PROP_FPS)
@@ -214,6 +218,7 @@ class ImageAnnotator:
     def display_image(self, path):
         '''
         Show the image on screen (takes file location - could be temp file location for video images)
+        Input: file location
         '''
         # Wait for file write
         for _ in range(5):
