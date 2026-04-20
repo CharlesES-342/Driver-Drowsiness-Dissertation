@@ -1,5 +1,5 @@
 '''
-Playnig around to see if it can be done on the pi, and how esy it is to apply
+Playing around to see if it can be done on the pi, and how esy it is to apply
 '''
 import cv2
 import mediapipe as mp
